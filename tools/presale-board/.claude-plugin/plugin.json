@@ -1,0 +1,1 @@
+{ "name": "presale-board", "version": "0.1.0", "description": "Bảng tiến độ presales: từng khách đang ở bước nào và lệnh tiếp theo (repo project-planer)", "types": "./types/index.d.ts" }

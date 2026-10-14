@@ -1,0 +1,24 @@
+# Thông số dự án: nguồn DUY NHẤT cho ngày tháng và giới hạn. Copy vào projects/<kh>/00-params.txt rồi sửa.
+# Mọi ngày dạng YYYY-MM-DD. Dòng bắt đầu bằng # là ghi chú.
+
+customer: KHA                      # tên viết tắt của khách, dùng trong proposal
+kickoff: 2026-11-02                # ngày khởi động (phải là ngày làm việc)
+deadline: 2027-06-30               # hạn nghiệm thu/bàn giao theo RFP hoặc hợp đồng (bỏ trống nếu chưa có)
+submit_by:                         # hạn nộp hồ sơ / gửi proposal cho khách (panel Presales đếm ngược)
+
+# Ngày lễ VN; khoảng ngày dùng dấu ":". Tết, Giỗ Tổ và ngày nghỉ bù phải đối chiếu thông báo chính thức của năm.
+holidays: 2026-09-02, 2027-01-01, 2027-02-04:2027-02-10, 2027-04-30:2027-05-01, 2027-09-02
+
+team_max: PM=1, BA=2, DEV=5, SysE=1, Tester=2   # số người tối đa mỗi vai trò (khớp mục nhân sự trong proposal)
+proposal_md:                       # tổng MD đã nêu trong proposal (bỏ trống nếu proposal không nêu)
+previous_total:                    # tổng MD bản plan đã gửi khách trước đó (nếu có)
+pm_min: 0.8                        # mức tham gia tối thiểu của PM trên thời gian dự án
+
+# Mốc bắt buộc: <chuỗi có trong tên việc><=<hạn>; cách nhau bằng dấu chấm phẩy
+milestones: Go-live<=2027-02-26; Nghiệm thu tổng thể<=2027-06-30
+
+# Nhóm việc diễn ra sau nghiệm thu, được phép quá deadline (khớp theo tên milestone/nhóm); cách nhau bằng ';'
+post_deadline: Hypercare; Bảo hành
+
+# Tên khách/dự án cũ không được xuất hiện trong WBS và proposal mới
+stale_terms: KHB, KHC                # thay bằng tên khách/dự án cũ của anh

@@ -1,0 +1,750 @@
+<title>Hanas Data Platform — Sổ tay dịch vụ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: sticky table of contents on the left, one reading column, diagrams break out wide; each service is a "service sheet" with the same fixed anatomy. */
+:root {
+  --ink: #14212b;
+  --ink-soft: #4a5a66;
+  --paper: #f6f8f9;
+  --surface: #ffffff;
+  --line: #d9e1e6;
+  --accent: #0b6c8a;
+  --accent-soft: #e2f0f5;
+  --warn: #9a5b00;
+  --warn-soft: #fbf1e1;
+  --ok: #1d7a4f;
+  --ok-soft: #e4f3ea;
+  --f-display: "Bricolage Grotesque", "Be Vietnam Pro", system-ui, sans-serif;
+  --f-body: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --s-1: 0.8125rem; --s0: 1rem; --s1: 1.1875rem; --s2: 1.5rem; --s3: 2rem; --s4: 2.75rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e3eaee; --ink-soft: #9fb0bb; --paper: #0f171d; --surface: #16212a; --line: #2a3a46;
+    --accent: #5cc3e0; --accent-soft: #15323d; --warn: #f0b354; --warn-soft: #33281a; --ok: #6cd39f; --ok-soft: #173327;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e3eaee; --ink-soft: #9fb0bb; --paper: #0f171d; --surface: #16212a; --line: #2a3a46;
+  --accent: #5cc3e0; --accent-soft: #15323d; --warn: #f0b354; --warn-soft: #33281a; --ok: #6cd39f; --ok-soft: #173327;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: var(--s0); line-height: 1.65; padding: 0 20px; }
+a { color: var(--accent); }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3, h4 { font-family: var(--f-display); line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: var(--s4); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: var(--s3); font-weight: 700; }
+h3 { font-size: var(--s1); font-weight: 600; }
+h4 { font-size: var(--s0); font-weight: 600; }
+p { margin: 0; }
+ul { margin: 0; padding-left: 1.2em; }
+li + li { margin-top: 0.3em; }
+code, .mono { font-family: var(--f-mono); font-size: 0.86em; }
+.eyebrow { font-family: var(--f-mono); font-size: var(--s-1); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+
+.shell { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 48px; padding-block: 40px 80px; }
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; max-height: calc(100vh - 48px); overflow-y: auto; font-size: var(--s-1); }
+nav.toc ol { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 2px; }
+nav.toc a { display: block; padding: 5px 10px; border-radius: 6px; color: var(--ink-soft); text-decoration: none; }
+nav.toc a:hover { background: var(--accent-soft); color: var(--ink); }
+nav.toc .grp { margin-top: 14px; font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); padding-left: 10px; }
+main { min-width: 0; display: grid; gap: 72px; }
+section { display: grid; gap: 20px; scroll-margin-top: 24px; }
+.prose { max-width: 68ch; display: grid; gap: 14px; }
+.lead { font-size: var(--s1); color: var(--ink-soft); max-width: 60ch; }
+
+header.cover { display: grid; gap: 18px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+.meta-row { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: var(--s-1); color: var(--ink-soft); }
+.meta-row b { color: var(--ink); font-weight: 600; }
+.pitch { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.pitch div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.pitch b { font-family: var(--f-display); font-size: var(--s1); color: var(--accent); }
+.pitch span { font-size: var(--s-1); color: var(--ink-soft); }
+
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 14px 18px; border-radius: 0 8px 8px 0; max-width: 72ch; }
+.callout.warn { border-color: var(--warn); background: var(--warn-soft); }
+
+figure.diagram { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: grid; }
+figure.diagram iframe { width: 100%; height: 780px; border: 0; display: block; background: var(--surface); }
+figure.diagram figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; padding: 10px 16px; border-top: 1px solid var(--line); font-size: var(--s-1); color: var(--ink-soft); }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-family: var(--f-mono); font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); font-weight: 600; background: var(--paper); }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; }
+
+.sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 28px; display: grid; gap: 22px; scroll-margin-top: 24px; }
+.sheet-head { display: grid; gap: 8px; }
+.sheet-head .tagline { font-size: var(--s1); color: var(--ink-soft); max-width: 62ch; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 0.75rem; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-soft); }
+.chip.layer { border-color: var(--accent); color: var(--accent); }
+.cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 32px; }
+.block { display: grid; gap: 8px; align-content: start; }
+.block h4 { font-family: var(--f-mono); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); font-weight: 600; }
+.pain { display: grid; gap: 8px; }
+.pain div { display: grid; grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr); gap: 10px; align-items: start; font-size: 0.93rem; }
+.pain .arrow { color: var(--accent); text-align: center; }
+.pain .before { color: var(--ink-soft); }
+.say { border-left: 3px solid var(--ok); background: var(--ok-soft); padding: 10px 14px; border-radius: 0 8px 8px 0; font-style: italic; }
+.avoid { border-left: 3px solid var(--warn); background: var(--warn-soft); padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 0.92rem; }
+.avoid b { color: var(--warn); font-style: normal; }
+ol.steps { margin: 0; padding-left: 1.4em; display: grid; gap: 4px; }
+
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 8px; align-content: start; }
+.card .eyebrow { color: var(--ink-soft); }
+details.faq { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 0 18px; max-width: 80ch; }
+details.faq + details.faq { margin-top: 8px; }
+details.faq summary { cursor: pointer; padding: 14px 0; font-weight: 600; }
+details.faq p { padding-bottom: 14px; color: var(--ink-soft); }
+footer { font-size: var(--s-1); color: var(--ink-soft); border-top: 1px solid var(--line); padding-top: 20px; }
+
+@media (max-width: 960px) {
+  .shell { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  nav.toc { position: static; max-height: none; }
+  .pitch { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid3 { grid-template-columns: minmax(0, 1fr); }
+  figure.diagram iframe { height: 640px; }
+}
+@media (max-width: 640px) {
+  .cols, .pitch { grid-template-columns: minmax(0, 1fr); }
+  .sheet { padding: 20px 16px; }
+  h1 { font-size: var(--s3); }
+  .pain div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .pain .arrow { display: none; }
+  figure.diagram iframe { height: 560px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="shell">
+<nav class="toc" aria-label="Mục lục">
+  <div class="eyebrow">Hanas · Sổ tay dịch vụ</div>
+  <ol>
+    <li class="grp">Tổng quan</li>
+    <li><a href="#tom-tat">Tóm tắt 30 giây</a></li>
+    <li><a href="#kien-truc">Kiến trúc tổng thể</a></li>
+    <li><a href="#vong-doi">Vòng đời dữ liệu</a></li>
+    <li><a href="#ban-moi">Bản mới khác bản cũ</a></li>
+    <li class="grp">Dịch vụ</li>
+    <li><a href="#svc-workspace">Hanas Workspace</a></li>
+    <li><a href="#svc-engine">Query Engine & SQL Studio</a></li>
+    <li><a href="#svc-catalog">Hanas Catalog</a></li>
+    <li><a href="#svc-dbt">dbt Studio</a></li>
+    <li><a href="#svc-pipeline">Data Pipeline</a></li>
+    <li><a href="#svc-ontology">Ontology</a></li>
+    <li><a href="#svc-ai">AI Agents</a></li>
+    <li><a href="#svc-analytics">Analytics & BI</a></li>
+    <li><a href="#svc-admin">Quản trị nền tảng</a></li>
+    <li><a href="#svc-iam">Định danh & phân quyền</a></li>
+    <li class="grp">Bán hàng</li>
+    <li><a href="#vai-tro">Ai dùng gì</a></li>
+    <li><a href="#kich-ban">Kịch bản demo</a></li>
+    <li><a href="#trien-khai">Triển khai</a></li>
+    <li><a href="#faq">Câu hỏi thường gặp</a></li>
+    <li><a href="#khong-hua">Không được hứa</a></li>
+    <li><a href="#thuat-ngu">Thuật ngữ</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="cover">
+  <div class="eyebrow">Tài liệu nội bộ cho đội kinh doanh</div>
+  <h1>Hanas Data Platform: từng dịch vụ làm gì, chạy thế nào, giải quyết vấn đề gì</h1>
+  <p class="lead">Sổ tay này mô tả Hanas phiên bản mới, viết dựa trên mã nguồn hiện tại. Mỗi dịch vụ có cùng một khung: vấn đề của khách hàng, tính năng, cách hoạt động, câu nói khi demo và những điều không được hứa.</p>
+  <div class="meta-row">
+    <span>Phiên bản: <b>Hanas mới</b> (Dremio 26.1.6, dbt Studio Java, Hanas Catalog)</span>
+    <span>Mốc mã nguồn: <b class="mono">3bb7d41a5</b></span>
+    <span>Cập nhật: <b>13/10/2026</b></span>
+  </div>
+</header>
+
+<section id="tom-tat">
+  <div class="eyebrow">Tóm tắt 30 giây</div>
+  <h2>Một nền tảng dữ liệu, một lần đăng nhập, quyền đi theo người dùng</h2>
+  <div class="prose">
+    <p>Hanas gom việc kết nối, truy vấn, biến đổi, quản trị, phân tích và hỏi đáp AI trên dữ liệu vào một giao diện tiếng Việt. Lõi truy vấn là Dremio: Hanas đọc dữ liệu tại chỗ từ cơ sở dữ liệu, kho đối tượng và lakehouse của khách hàng, không bắt buộc sao chép trước.</p>
+    <p>Quanh lõi đó là các dịch vụ chuyên biệt: dbt Studio để xây mô hình dữ liệu, Data Pipeline để điều phối và lập lịch, Hanas Catalog để tìm kiếm và truy vết nguồn gốc, Ontology để định nghĩa đối tượng và chỉ số nghiệp vụ, và các AI Agent hỗ trợ ngay trong từng màn hình. Mọi dịch vụ dùng chung Keycloak SSO và chạy truy vấn bằng quyền của chính người dùng.</p>
+  </div>
+  <div class="pitch">
+    <div><b>Kết nối</b><span>Hơn 20 loại nguồn: Oracle, MySQL, Postgres, SQL Server, S3, Iceberg, Snowflake…</span></div>
+    <div><b>Biến đổi</b><span>dbt trên trình duyệt, Git, test, lịch chạy; Pipeline kéo-thả có rẽ nhánh</span></div>
+    <div><b>Quản trị</b><span>Catalog, lineage, glossary, phân quyền theo vai trò, audit đúng người</span></div>
+    <div><b>Khai thác</b><span>SQL, Superset, Power BI/Tableau, AI hỏi đáp có phê duyệt</span></div>
+  </div>
+</section>
+
+<section id="kien-truc">
+  <div class="eyebrow">Kiến trúc</div>
+  <h2>Kiến trúc tổng thể</h2>
+  <div class="prose">
+    <p>Người dùng chỉ làm việc với Hanas Workspace. Workspace gọi Dremio để truy vấn và gọi từng dịch vụ chuyên biệt cho phần việc của nó. Các dịch vụ khi cần dữ liệu đều đi qua Dremio, nên quyền truy cập được kiểm tra ở một chỗ.</p>
+  </div>
+  <figure class="diagram">
+    <iframe src="diagrams/01-tong-quan.html" title="Sơ đồ kiến trúc tổng thể Hanas" loading="lazy"></iframe>
+    <figcaption><span>Sơ đồ tương tác: bấm vào node để xem quan hệ; "Play story" để trình chiếu từng lớp.</span><a href="diagrams/01-tong-quan.html" target="_blank" rel="noopener">Mở toàn màn hình ↗</a></figcaption>
+  </figure>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Thành phần</th><th>Vai trò</th><th>Công nghệ</th></tr></thead>
+      <tbody>
+        <tr><td>Hanas Workspace</td><td>Giao diện web hợp nhất cho mọi vai trò, tiếng Việt và tiếng Anh</td><td>React 18, chạy sau nginx</td></tr>
+        <tr><td>Query Engine</td><td>Truy vấn liên nguồn, quản lý nguồn, job, reflection, phân quyền dữ liệu</td><td>Dremio 26.1.6</td></tr>
+        <tr><td>dbt Studio</td><td>IDE dbt trên web, Git, chạy model, lịch chạy, Pipeline, biểu đồ</td><td>Java 21 Spring Boot, dbt CLI, Postgres, Redis</td></tr>
+        <tr><td>Hanas Catalog</td><td>Danh mục dữ liệu, tìm kiếm, lineage, glossary, tag, thu thập metadata</td><td>Python FastAPI (catalog-api + ingest-runner), Postgres</td></tr>
+        <tr><td>Ontology</td><td>Đối tượng, quan hệ, chỉ số nghiệp vụ, quy trình phát hành có phê duyệt</td><td>Dịch vụ Ontology riêng (FastAPI)</td></tr>
+        <tr><td>AI Agents</td><td>Trợ lý AI theo màn hình, định tuyến agent, phê duyệt thao tác</td><td>KaPaS agent runtime</td></tr>
+        <tr><td>User API</td><td>Tạo, sửa, xóa người dùng đồng thời ở Keycloak và Dremio</td><td>Java Spring Boot, không lưu dữ liệu</td></tr>
+        <tr><td>Keycloak</td><td>Đăng nhập một lần, vai trò, bản dịch giao diện</td><td>Keycloak 26</td></tr>
+        <tr><td>Superset</td><td>Dashboard và biểu đồ, nhúng trong Workspace</td><td>Apache Superset</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="vong-doi">
+  <div class="eyebrow">Luồng giá trị</div>
+  <h2>Vòng đời dữ liệu trên Hanas</h2>
+  <div class="prose">
+    <p>Đây là câu chuyện nên kể trong mọi buổi demo: dữ liệu đi từ hệ thống nghiệp vụ, qua lớp kết nối, được biến đổi thành dữ liệu sạch, được gắn ngữ cảnh, rồi đến tay người dùng cuối và AI.</p>
+  </div>
+  <figure class="diagram">
+    <iframe src="diagrams/02-vong-doi-du-lieu.html" title="Sơ đồ vòng đời dữ liệu" loading="lazy"></iframe>
+    <figcaption><span>Năm chặng: Nguồn → Kết nối → Biến đổi → Lưu & quản trị → Khai thác.</span><a href="diagrams/02-vong-doi-du-lieu.html" target="_blank" rel="noopener">Mở toàn màn hình ↗</a></figcaption>
+  </figure>
+</section>
+
+<section id="ban-moi">
+  <div class="eyebrow">Phiên bản</div>
+  <h2>Hanas bản mới khác bản cũ thế nào</h2>
+  <div class="prose">
+    <p>Bộ tài liệu cũ mô tả một tập hợp nhiều công cụ mã nguồn mở đặt cạnh nhau (NiFi, Kafka, Airflow, DataHub, Dify…). Bản mới gom phần lớn chức năng vào ít dịch vụ hơn, dùng chung đăng nhập và quyền. Khi khách hàng đã đọc tài liệu cũ, dùng bảng này để giải thích.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nhu cầu</th><th>Bản cũ</th><th>Bản mới</th></tr></thead>
+      <tbody>
+        <tr><td>Thu thập, kết nối nguồn</td><td>Apache NiFi kéo dữ liệu về</td><td>Dremio đọc trực tiếp tại nguồn; khi cần nạp dữ liệu thì dùng bước Dremio SQL trong Data Pipeline</td></tr>
+        <tr><td>Điều phối, lập lịch</td><td>Apache Airflow riêng</td><td>Data Pipeline và lịch chạy dbt có sẵn trong dbt Studio</td></tr>
+        <tr><td>Mô hình hóa dữ liệu</td><td>dbt chạy dòng lệnh</td><td>dbt Studio: IDE trên web, Git, mẫu Data Vault 2.0</td></tr>
+        <tr><td>Danh mục dữ liệu</td><td>DataHub (nhiều thành phần nặng)</td><td>Hanas Catalog: một image, Postgres, lọc theo quyền Dremio</td></tr>
+        <tr><td>AI</td><td>Dify, vLLM, Langfuse</td><td>AI Agents (KaPaS) gắn vào từng màn hình, có phê duyệt thao tác</td></tr>
+        <tr><td>Ngữ nghĩa nghiệp vụ</td><td>Semantic layer trong Dremio</td><td>Ontology: đối tượng, quan hệ, chỉ số, phát hành có phê duyệt</td></tr>
+        <tr><td>Streaming</td><td>Apache Kafka</td><td>Không đóng gói sẵn; thiết kế theo dự án nếu khách cần dữ liệu thời gian thực</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="dich-vu">
+  <div class="eyebrow">Dịch vụ</div>
+  <h2>Mười dịch vụ, cùng một khung trình bày</h2>
+  <div class="prose"><p>Mỗi phiếu dịch vụ gồm: vấn đề khách hàng gặp và cách Hanas giải quyết, tính năng chính, cách hoạt động, người dùng, câu nói khi demo, và phần lưu ý nội bộ. Phần lưu ý màu cam là để đội kinh doanh biết giới hạn, không đưa nguyên văn cho khách.</p></div>
+
+  <!-- 1 Workspace -->
+  <article class="sheet" id="svc-workspace">
+    <div class="sheet-head">
+      <div class="chips"><span class="chip layer">Trải nghiệm</span><span class="chip">Mọi vai trò</span></div>
+      <h2>Hanas Workspace</h2>
+      <p class="tagline">Một giao diện web duy nhất, tiếng Việt, mở ra đúng những gì người dùng được phép dùng.</p>
+    </div>
+    <div class="block"><h4>Vấn đề → Giải pháp</h4>
+      <div class="pain">
+        <div><span class="before">Mỗi công cụ một giao diện, một mật khẩu, người dùng phải nhớ nhiều địa chỉ</span><span class="arrow">→</span><span>Một địa chỉ, một lần đăng nhập SSO, menu gom theo nhóm việc</span></div>
+        <div><span class="before">Giao diện tiếng Anh, khó phổ cập cho người dùng nghiệp vụ</span><span class="arrow">→</span><span>Tiếng Việt mặc định, đổi sang tiếng Anh một chạm; quản trị viên tự sửa câu chữ mà không cần cập nhật phần mềm</span></div>
+        <div><span class="before">Không biết hệ thống đang có sự cố cho tới khi người dùng phàn nàn</span><span class="arrow">→</span><span>Chuông thông báo cảnh báo CPU, RAM, dung lượng, nguồn mất kết nối, reflection lỗi</span></div>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="block"><h4>Tính năng chính</h4><ul>
+        <li><b>Trang chủ</b>: số liệu nhanh (nguồn, job hôm nay), lối tắt tạo nguồn, viết SQL, tạo dự án dbt, hoạt động gần đây.</li>
+        <li><b>Overview</b> cho quản trị viên: thống kê schema, bảng theo định dạng, sức khỏe reflection, CPU/RAM từng node, biểu đồ job 24 giờ.</li>
+        <li><b>Menu theo quyền</b>: Analytics, Ontology, dbt chỉ hiện với người có vai trò tương ứng.</li>
+        <li><b>Thông báo</b>: cảnh báo hạ tầng và dữ liệu, báo khi AI trả lời xong; bấm vào để tới đúng chỗ cần xử lý.</li>
+        <li><b>Bản dịch</b>: trang Settings → Bản dịch sửa câu chữ tiếng Việt và tiếng Anh, có tìm kiếm, sao lưu, hoàn tác.</li>
+        <li><b>Nhãn trắng</b>: nút đăng nhập ghi "SSO", không lộ tên sản phẩm bên dưới.</li>
+      </ul></div>
+      <div class="block"><h4>Hoạt động thế nào</h4>
+        <ol class="steps">
+          <li>Người dùng đăng nhập SSO qua Keycloak; Dremio nhận cùng danh tính.</li>
+          <li>Workspace lấy thêm token Keycloak ngầm để gọi các dịch vụ khác.</li>
+          <li>Bản dịch tải từ Keycloak trước khi hiển thị trang.</li>
+          <li>Mỗi màn hình gọi đúng dịch vụ của nó qua cổng nginx: <code>/api</code> tới Dremio, <code>/catalog-api</code> tới Catalog, <code>/dbt-runner</code> tới dbt Studio…</li>
+        </ol>
+        <h4 style="margin-top:10px">Người dùng</h4><p>Tất cả: quản trị viên, kỹ sư dữ liệu, chuyên viên phân tích, người dùng nghiệp vụ.</p>
+      </div>
+    </div>
+    <p class="say">"Anh chị chỉ cần nhớ một địa chỉ. Đăng nhập một lần là thấy đúng những gì mình được phép làm, bằng tiếng Việt."</p>
+    <p class="avoid"><b>Lưu ý nội bộ:</b> ẩn menu chỉ là lớp giao diện; quyền thật do từng dịch vụ kiểm tra. Một vài ô số liệu trên Trang chủ (số dataset, dataset gần đây) còn phụ thuộc DataHub cũ và có thể trống ở môi trường mới.</p>
+  </article>
+
+  <!-- 2 Engine -->
+  <article class="sheet" id="svc-engine">
+    <div class="sheet-head">
+      <div class="chips"><span class="chip layer">Lõi dữ liệu</span><span class="chip">Kỹ sư dữ liệu</span><span class="chip">Phân tích</span></div>
+      <h2>Query Engine & SQL Studio</h2>
+      <p class="tagline">Truy vấn mọi nguồn bằng một câu SQL, ngay tại chỗ, với trình soạn SQL đầy đủ trên trình duyệt.</p>
+    </div>
+    <div class="block"><h4>Vấn đề → Giải pháp</h4>
+      <div class="pain">
+        <div><span class="before">Dữ liệu nằm rải rác nhiều hệ thống, muốn ghép phải viết ETL chép về một chỗ</span><span class="arrow">→</span><span>Kết nối nguồn vào Dremio rồi JOIN trực tiếp giữa Oracle, Postgres, file trên S3…</span></div>
+        <div><span class="before">Báo cáo chậm vì truy vấn thẳng vào hệ thống nghiệp vụ</span><span class="arrow">→</span><span>Reflection (bản tăng tốc) do Dremio tự dùng khi truy vấn khớp</span></div>
+        <div><span class="before">Mỗi công cụ BI cấu hình kết nối riêng tới từng nguồn</span><span class="arrow">→</span><span>Một cổng JDBC/ODBC/Arrow Flight; mở Power BI, Tableau từ dataset bằng một nút</span></div>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="block"><h4>Tính năng chính</h4><ul>
+        <li><b>Kết nối nguồn</b> (màn Connections): lakehouse (Iceberg REST, Nessie, Glue, Hive, Unity Catalog, Snowflake Open Catalog), kho đối tượng (S3, Azure, GCS, HDFS, NAS), cơ sở dữ liệu (Oracle, MySQL, Postgres, SQL Server, MongoDB, Elasticsearch, Redshift, Snowflake…).</li>
+        <li><b>Duyệt nguồn</b>: xem thư mục, định dạng file thành bảng, làm mới metadata, xem lineage, mở bằng Power BI/Tableau.</li>
+        <li><b>SQL Studio</b>: nhiều tab, gợi ý cú pháp, định dạng SQL, chạy cả câu hoặc phần chọn, xem kết quả, lịch sử job, hồ sơ thực thi.</li>
+        <li><b>Script</b>: lưu, đổi tên, chia sẻ; xem "của tôi" và "tất cả".</li>
+        <li><b>Cây dữ liệu</b>: tạo workspace (space), thư mục, tải file lên, phân quyền, lưu view, wiki dạng markdown, tag.</li>
+        <li><b>Job</b>: danh sách job, chi tiết, hồ sơ trực quan, hủy job.</li>
+        <li><b>Trợ lý SQL Copilot</b> mở SQL, chèn SQL, chạy trình soạn; câu lệnh có thể sửa dữ liệu luôn chờ người dùng xác nhận.</li>
+      </ul></div>
+      <div class="block"><h4>Hoạt động thế nào</h4>
+        <ol class="steps">
+          <li>Quản trị viên khai báo nguồn; Dremio đọc schema của nguồn.</li>
+          <li>Người dùng viết SQL; Dremio lập kế hoạch, đẩy phần lọc xuống nguồn khi được, ghép kết quả.</li>
+          <li>Nếu có reflection khớp, Dremio đọc từ đó thay vì nguồn gốc.</li>
+          <li>Quyền theo user và role được Dremio kiểm tra trên từng bảng, từng view.</li>
+        </ol>
+        <h4 style="margin-top:10px">Người dùng</h4><p>Kỹ sư dữ liệu, chuyên viên phân tích, công cụ BI và ứng dụng bên ngoài.</p>
+      </div>
+    </div>
+    <p class="say">"Không cần chuyển dữ liệu đi đâu cả. Kết nối nguồn xong là anh chị JOIN được giữa Oracle và file trên S3 trong một câu SQL."</p>
+    <p class="avoid"><b>Lưu ý nội bộ:</b> nút "Explain job" trong chi tiết job chưa hoạt động. Hiệu năng liên nguồn phụ thuộc mạng, driver và khả năng đẩy điều kiện xuống nguồn; luôn đo trên dữ liệu thật của khách trước khi cam kết thời gian phản hồi.</p>
+  </article>
+
+  <!-- 3 Catalog -->
+  <article class="sheet" id="svc-catalog">
+    <div class="sheet-head">
+      <div class="chips"><span class="chip layer">Quản trị dữ liệu</span><span class="chip">Data owner</span><span class="chip">Phân tích</span></div>
+      <h2>Hanas Catalog</h2>
+      <p class="tagline">Danh mục dữ liệu để tìm đúng bảng, biết bảng từ đâu ra, ai phụ trách, và chỉ thấy những gì mình được phép thấy.</p>
+    </div>
+    <div class="block"><h4>Vấn đề → Giải pháp</h4>
+      <div class="pain">
+        <div><span class="before">Không ai biết bảng nào chứa dữ liệu gì, hỏi qua lại mất nhiều ngày</span><span class="arrow">→</span><span>Tìm kiếm theo tên, mô tả, tên cột; lọc theo nền tảng, tag, chủ sở hữu, thuật ngữ</span></div>
+        <div><span class="before">Sửa một bảng gốc mà không biết báo cáo nào bị ảnh hưởng</span><span class="arrow">→</span><span>Lineage nhiều tầng và phân tích tác động (upstream, downstream)</span></div>
+        <div><span class="before">Danh mục lộ cả tên bảng nhạy cảm cho người không có quyền</span><span class="arrow">→</span><span>Catalog hỏi Dremio xem người đang xem được thấy gì; bảng không được phép thì không hiện</span></div>
+        <div><span class="before">DataHub nặng, nhiều thành phần, khó vận hành</span><span class="arrow">→</span><span>Một image chạy hai chế độ, chỉ cần Postgres</span></div>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="block"><h4>Tính năng chính</h4><ul>
+        <li><b>Tìm kiếm</b> có bộ lọc (loại, nền tảng, môi trường, tag, owner, thư mục) và cây duyệt.</li>
+        <li><b>Trang dataset</b>: cột, định nghĩa view, tài liệu, lineage dạng đồ thị và danh sách tác động, thuộc tính.</li>
+        <li><b>Glossary</b>: cây thuật ngữ nghiệp vụ, quan hệ giữa thuật ngữ.</li>
+        <li><b>Tag</b>: tạo, đổi màu, gắn cho dataset.</li>
+        <li><b>Thu thập metadata</b>: trình hướng dẫn tạo nguồn, lịch cron theo múi giờ, kiểm tra kết nối, chạy, hủy, rollback, xem log và báo cáo.</li>
+        <li><b>Nguồn được bật sẵn</b>: Dremio (connector riêng, có lineage view), Oracle, dbt, dbt Cloud. Thêm loại khác khi đóng gói image.</li>
+        <li><b>API ghi lineage</b> cho dbt Studio và công cụ ETL, có chế độ chạy thử; tách lineage từ câu SQL.</li>
+      </ul></div>
+      <div class="block"><h4>Hoạt động thế nào</h4>
+        <ol class="steps">
+          <li><code>catalog-api</code> phục vụ giao diện; không giữ trạng thái nên chạy nhiều bản song song được.</li>
+          <li>Bấm chạy chỉ tạo một bản ghi "chờ xử lý" trong Postgres.</li>
+          <li><code>ingest-runner</code> nhận việc, chạy connector trong tiến trình con cách ly.</li>
+          <li>Toàn bộ kết quả ghi trong một transaction: lỗi giữa chừng thì catalog giữ nguyên.</li>
+          <li>Bảng biến mất khỏi nguồn được đánh dấu xóa mềm, có ngưỡng an toàn chống xóa nhầm hàng loạt.</li>
+        </ol>
+      </div>
+    </div>
+    <figure class="diagram">
+      <iframe src="diagrams/05-catalog-ingestion.html" title="Sơ đồ thu thập metadata của Hanas Catalog" loading="lazy"></iframe>
+      <figcaption><span>Một lần thu thập metadata, từ cấu hình đến kết quả.</span><a href="diagrams/05-catalog-ingestion.html" target="_blank" rel="noopener">Mở toàn màn hình ↗</a></figcaption>
+    </figure>
+    <p class="say">"Người dùng tìm thấy dữ liệu trong vài giây, thấy bảng đó lấy từ đâu, và tuyệt đối không thấy những bảng mình không có quyền."</p>
+    <p class="avoid"><b>Lưu ý nội bộ:</b> chưa có Domain, Data Product, chất lượng dữ liệu, thống kê truy vấn và profiling. Sửa mô tả, owner trên trang chi tiết đang tắt mặc định. Menu Catalog cần quản trị viên bật trong Preferences. Lineage là mức bảng, chưa có mức cột. Mặc định mọi người dùng đăng nhập đều có quyền quản lý catalog; khi triển khai cần giới hạn lại vai trò quản lý.</p>
+  </article>
+
+  <!-- 4 dbt Studio -->
+  <article class="sheet" id="svc-dbt">
+    <div class="sheet-head">
+      <div class="chips"><span class="chip layer">Biến đổi dữ liệu</span><span class="chip">Kỹ sư dữ liệu</span><span class="chip">Analytics engineer</span></div>
+      <h2>dbt Studio</h2>
+      <p class="tagline">Xây mô hình dữ liệu bằng dbt ngay trên trình duyệt: viết, chạy, kiểm thử, quản lý phiên bản và lập lịch ở một chỗ.</p>
+    </div>
+    <div class="block"><h4>Vấn đề → Giải pháp</h4>
+      <div class="pain">
+        <div><span class="before">Mỗi kỹ sư phải tự cài Python, dbt, cấu hình profile trên máy</span><span class="arrow">→</span><span>IDE trên web, kết nối Dremio của nền tảng có sẵn, tạo dự án là chạy được</span></div>
+        <div><span class="before">Dùng chung một tài khoản dịch vụ, không biết ai đã chạy gì</span><span class="arrow">→</span><span>Mỗi lần chạy dùng chính quyền Dremio của người bấm; lịch chạy dùng quyền người tạo</span></div>
+        <div><span class="before">Bắt đầu Data Vault từ con số không</span><span class="arrow">→</span><span>Mẫu dự án Dremio + Data Vault 2.0 có sẵn (raw vault, business vault, data mart)</span></div>
+        <div><span class="before">Chạy lỗi lúc đêm, sáng ra mới biết, không có log</span><span class="arrow">→</span><span>Lịch sử chạy, log trực tiếp, kết quả từng model, webhook báo lỗi</span></div>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="block"><h4>Tính năng chính</h4><ul>
+        <li><b>Dự án</b>: tạo trống, <code>dbt init</code>, hoặc từ mẫu Data Vault; nhập/xuất file nén; thùng rác và khôi phục; biến môi trường, target dev/prod.</li>
+        <li><b>IDE</b>: cây file, Monaco có gợi ý model/source/macro, xem SQL đã biên dịch, kế hoạch truy vấn, xem trước dữ liệu, lineage, terminal.</li>
+        <li><b>Lệnh dbt</b>: run, build, test, seed, snapshot, deps, source freshness, docs generate; log trực tiếp.</li>
+        <li><b>Git</b> tích hợp (không cần cài git): status, diff, commit, push, pull, branch; token Git của từng người được mã hóa.</li>
+        <li><b>Python</b>: chạy file hoặc đoạn chọn, cài gói pip riêng cho từng dự án.</li>
+        <li><b>Explore</b>: SQL console, dashboard dạng YAML trong dự án với 8 loại biểu đồ, tài liệu dbt docs.</li>
+        <li><b>Orchestrate</b>: lịch sử chạy, lịch cron, tạm dừng, chạy ngay, webhook khi lỗi.</li>
+        <li><b>Phân quyền ba mức</b>: dbt-viewer (xem), dbt-editor (sửa, chạy), dbt-admin (kết nối, xóa dự án).</li>
+      </ul></div>
+      <div class="block"><h4>Hoạt động thế nào</h4>
+        <ol class="steps">
+          <li>Kiểm tra token Keycloak và vai trò dbt.</li>
+          <li>Giới hạn số lần chạy đồng thời toàn cụm (mặc định 10) và khóa theo dự án.</li>
+          <li>Đổi token Keycloak của người dùng thành token Dremio.</li>
+          <li>Sinh <code>profiles.yml</code>; mật khẩu chỉ đi qua biến môi trường, không ghi ra file.</li>
+          <li>Chạy dbt, đẩy log từng dòng về trình duyệt, đọc <code>run_results.json</code>, lưu lịch sử.</li>
+        </ol>
+        <p style="margin-top:8px">Một người sửa dự án tại một thời điểm (khóa phiên sửa); người khác xem chỉ đọc. Mã nguồn dự án được đồng bộ sang vùng lưu trữ bền vững.</p>
+      </div>
+    </div>
+    <figure class="diagram">
+      <iframe src="diagrams/03-dang-nhap-phan-quyen.html" title="Sơ đồ đăng nhập và quyền đi theo người dùng" loading="lazy"></iframe>
+      <figcaption><span>Đăng nhập một lần; Catalog lọc theo quyền; dbt chạy bằng chính người dùng.</span><a href="diagrams/03-dang-nhap-phan-quyen.html" target="_blank" rel="noopener">Mở toàn màn hình ↗</a></figcaption>
+    </figure>
+    <p class="say">"Mở trình duyệt là có môi trường dbt chuẩn. Mỗi model chạy dưới tên anh chị, nên phân quyền và nhật ký kiểm toán của Dremio vẫn đúng tới từng người."</p>
+    <p class="avoid"><b>Lưu ý nội bộ:</b> chưa có lineage mức cột; chưa hỗ trợ phát hành thẳng sang Iceberg; thông báo lỗi chỉ qua webhook (chưa có email, Slack). Mọi người có vai trò dbt thấy tất cả dự án trong cùng workspace, chưa tách theo nhóm. Kết nối hỗ trợ: Dremio, Postgres, DuckDB.</p>
+  </article>
+
+  <!-- 5 Pipeline -->
+  <article class="sheet" id="svc-pipeline">
+    <div class="sheet-head">
+      <div class="chips"><span class="chip layer">Điều phối</span><span class="chip">Kỹ sư dữ liệu</span><span class="chip">Vận hành</span></div>
+      <h2>Data Pipeline</h2>
+      <p class="tagline">Ghép các bước dbt, Dremio SQL và Python thành một luồng kéo-thả, có rẽ nhánh, thử lại, xử lý lỗi và lịch chạy.</p>
+    </div>
+    <div class="block"><h4>Vấn đề → Giải pháp</h4>
+      <div class="pain">
+        <div><span class="before">Phải dựng và vận hành thêm Airflow chỉ để chạy theo lịch</span><span class="arrow">→</span><span>Pipeline có sẵn trong nền tảng, vẽ trên canvas, không viết code điều phối</span></div>
+        <div><span class="before">Một bước lỗi là cả luồng dừng, phải chạy lại từ đầu</span><span class="arrow">→</span><span>Thử lại theo từng bước; chạy lại chỉ phần lỗi, tái dùng kết quả bước đã thành công</span></div>
+        <div><span class="before">Máy chủ khởi động lại giữa chừng là mất lượt chạy</span><span class="arrow">→</span><span>Lượt chạy lưu vào CSDL trước khi xếp hàng; máy khác tự nhận và chạy tiếp</span></div>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="block"><h4>Các loại bước</h4><ul>
+        <li><b>Start</b>: tham số đầu vào (chữ, số, lựa chọn, checkbox).</li>
+        <li><b>dbt</b>: một lệnh dbt, chọn model, chọn target.</li>
+        <li><b>Dremio SQL</b>: gửi SQL, chờ job xong, trả số dòng; hủy luồng thì hủy luôn job.</li>
+        <li><b>Python</b>: chạy file trong dự án, nhận kết quả bước trước, trả kết quả cho bước sau.</li>
+        <li><b>Branch</b>: rẽ nhánh theo điều kiện, có nhánh ELSE.</li>
+        <li><b>End</b>: chọn giá trị trả về của lượt chạy.</li>
+        <li><b>Nhóm, ghi chú</b> để sắp xếp canvas.</li>
+      </ul></div>
+      <div class="block"><h4>Khả năng vận hành</h4><ul>
+        <li>Thử lại 1–10 lần, có thời gian chờ giữa các lần.</li>
+        <li>Mũi tên "on failure": chạy bước cảnh báo hoặc dọn dẹp khi bước trước lỗi.</li>
+        <li>Chạy một bước, chạy từ một bước, chạy lại lượt cũ.</li>
+        <li>Mỗi lượt chạy chụp lại định nghĩa, sửa Pipeline không ảnh hưởng lượt đang chạy.</li>
+        <li>Kiểm tra trước khi lưu: vòng lặp, cú pháp điều kiện, target không tồn tại.</li>
+        <li>Lịch cron mỗi phút, chỉ một máy chủ kích hoạt, không chạy chồng lượt.</li>
+        <li>Trạng thái từng bước cập nhật trực tiếp trên canvas.</li>
+      </ul></div>
+    </div>
+    <figure class="diagram">
+      <iframe src="diagrams/04-pipeline-run.html" title="Sơ đồ một lần chạy Pipeline" loading="lazy"></iframe>
+      <figcaption><span>Đường chạy chính, nhánh lỗi và cơ chế tự phục hồi.</span><a href="diagrams/04-pipeline-run.html" target="_blank" rel="noopener">Mở toàn màn hình ↗</a></figcaption>
+    </figure>
+    <p class="say">"Anh chị vẽ luồng như vẽ sơ đồ: nạp dữ liệu, chạy model, kiểm tra điều kiện, lỗi thì báo. Hệ thống tự thử lại và không bao giờ mất một lượt chạy."</p>
+    <p class="avoid"><b>Lưu ý nội bộ:</b> mỗi Pipeline thuộc một dự án dbt. Khi hủy lượt chạy, bước dbt đang chạy dở có thể vẫn chạy nốt. Kích hoạt theo sự kiện bên ngoài chưa phải tính năng hoàn chỉnh; giới thiệu là thủ công và cron.</p>
+  </article>
+
+  <!-- 6 Ontology -->
+  <article class="sheet" id="svc-ontology">
+    <div class="sheet-head">
+      <div class="chips"><span class="chip layer">Ngữ nghĩa</span><span class="chip">Data owner</span><span class="chip">Nghiệp vụ</span></div>
+      <h2>Ontology</h2>
+      <p class="tagline">Mô tả doanh nghiệp bằng ngôn ngữ nghiệp vụ: khách hàng, hợp đồng, giao dịch và các chỉ số, gắn vào dữ liệu thật và phát hành có phê duyệt.</p>
+    </div>
+    <div class="block"><h4>Vấn đề → Giải pháp</h4>
+      <div class="pain">
+        <div><span class="before">Mỗi phòng ban tính "doanh thu" một kiểu, số liệu vênh nhau</span><span class="arrow">→</span><span>Chỉ số định nghĩa một lần, có công thức, kiểm tra và phát hành chính thức</span></div>
+        <div><span class="before">Người nghiệp vụ không hiểu tên bảng kỹ thuật</span><span class="arrow">→</span><span>Duyệt dữ liệu theo đối tượng và quan hệ, xem đồ thị liên kết</span></div>
+        <div><span class="before">AI trả lời sai vì không hiểu nghĩa của dữ liệu</span><span class="arrow">→</span><span>Ontology làm ngữ cảnh cho AI: đối tượng, quan hệ, chỉ số đã được duyệt</span></div>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="block"><h4>Tính năng chính</h4><ul>
+        <li><b>Explore</b>: đồ thị ontology, danh sách bản ghi, lọc, tải CSV, chi tiết bản ghi và các đối tượng liên kết, xem theo mốc thời gian.</li>
+        <li><b>Workbench 4 bước</b>: Khái niệm → Ánh xạ → Chỉ số → Phát hành, có danh sách việc còn thiếu ở mỗi bước.</li>
+        <li><b>Ánh xạ</b> khái niệm vào dataset Dremio, gợi ý cột khóa, tự ánh xạ, AI hỗ trợ ánh xạ.</li>
+        <li><b>Metric Studio</b>: viết công thức, xem trước, kiểm tra.</li>
+        <li><b>AI soạn nháp</b>: đề xuất khái niệm từ mẫu hoặc nguồn dữ liệu, người dùng duyệt từng đề xuất.</li>
+        <li><b>Phát hành</b>: kiểm tra, gửi duyệt, phê duyệt hoặc từ chối, lịch sử phiên bản, quay lại phiên bản cũ.</li>
+        <li><b>Governance</b>: nhật ký kiểm toán, action, interface, vòng đời; yêu cầu thay đổi có phê duyệt.</li>
+      </ul></div>
+      <div class="block"><h4>Hoạt động thế nào</h4>
+        <ol class="steps">
+          <li>Workspace gọi dịch vụ Ontology bằng token Keycloak của người dùng.</li>
+          <li>Ontology đọc dữ liệu qua dataset Dremio đã ánh xạ.</li>
+          <li>Thay đổi đi theo vòng nháp → duyệt → phát hành; chỉ bản đã phát hành mới dùng chính thức.</li>
+        </ol>
+        <h4 style="margin-top:10px">Phân quyền</h4>
+        <p><b>ontology-viewer</b>: Explore, Requests. <b>ontology-editor</b>: thêm Workbench. <b>ontology-admin</b>: thêm Governance.</p>
+      </div>
+    </div>
+    <p class="say">"Anh chị định nghĩa 'khách hàng' và 'doanh thu' một lần, có người duyệt. Từ đó dashboard, báo cáo và AI đều dùng chung một định nghĩa."</p>
+    <p class="avoid"><b>Lưu ý nội bộ:</b> Ontology là dịch vụ triển khai riêng cạnh Hanas. Menu Ontology chỉ hiện khi tính năng AI được bật và người dùng có vai trò ontology. Cần dự toán công tư vấn để xây mô hình khái niệm cho từng khách hàng.</p>
+  </article>
+
+  <!-- 7 AI -->
+  <article class="sheet" id="svc-ai">
+    <div class="sheet-head">
+      <div class="chips"><span class="chip layer">AI</span><span class="chip">Mọi vai trò</span></div>
+      <h2>AI Agents</h2>
+      <p class="tagline">Trợ lý AI có mặt trong mọi màn hình, hiểu màn hình người dùng đang làm việc, và không làm gì nguy hiểm khi chưa được đồng ý.</p>
+    </div>
+    <div class="block"><h4>Vấn đề → Giải pháp</h4>
+      <div class="pain">
+        <div><span class="before">Người nghiệp vụ không viết được SQL, phải chờ đội kỹ thuật</span><span class="arrow">→</span><span>Hỏi bằng tiếng Việt, AI viết SQL, trả bảng và biểu đồ</span></div>
+        <div><span class="before">Chatbot chung chung, không biết người dùng đang làm gì</span><span class="arrow">→</span><span>Mỗi màn hình có agent chuyên trách và nhận ngữ cảnh của màn hình đó</span></div>
+        <div><span class="before">Lo AI tự ý sửa, xóa dữ liệu</span><span class="arrow">→</span><span>Bốn mức an toàn; thao tác ghi hiện thẻ phê duyệt để người dùng quyết định</span></div>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="block"><h4>Agent theo màn hình</h4>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Màn hình</th><th>Agent</th></tr></thead>
+          <tbody>
+            <tr><td>SQL Studio</td><td>SQL Copilot</td></tr>
+            <tr><td>dbt Studio</td><td>Project Copilot</td></tr>
+            <tr><td>Analytics</td><td>Dashboard Copilot</td></tr>
+            <tr><td>Ontology, màn khác</td><td>Hanas Analyst</td></tr>
+          </tbody>
+        </table></div>
+        <p>Câu hỏi đầu tiên được định tuyến tự động tới agent phù hợp; nếu không chắc, hệ thống hỏi lại người dùng.</p>
+      </div>
+      <div class="block"><h4>Tính năng chính</h4><ul>
+        <li>Trang chat đầy đủ: trả lời dạng stream, kết quả dạng bảng, biểu đồ, SQL; lịch sử, tìm kiếm, ghim hội thoại.</li>
+        <li>Panel AI bên phải trên mọi màn hình.</li>
+        <li>Thao tác trên màn hình: mở SQL vào tab, chèn SQL, chạy trình soạn, tải lại dashboard.</li>
+        <li>Với dbt: đọc, sửa file, chạy dbt, sinh model staging, dựng biểu đồ qua bộ công cụ riêng.</li>
+        <li><b>Tool Execution Security</b>: STRICT (mọi thao tác cần duyệt), SMART (rủi ro trung bình trở lên cần duyệt), AUTO (mặc định, công cụ được đánh dấu cần duyệt), OFF.</li>
+        <li>Thông báo khi AI trả lời xong lúc panel đang đóng.</li>
+      </ul></div>
+    </div>
+    <figure class="diagram">
+      <iframe src="diagrams/06-ai-agent.html" title="Sơ đồ trợ lý AI làm việc cùng người dùng" loading="lazy"></iframe>
+      <figcaption><span>Hỏi → làm việc với công cụ → phê duyệt thao tác.</span><a href="diagrams/06-ai-agent.html" target="_blank" rel="noopener">Mở toàn màn hình ↗</a></figcaption>
+    </figure>
+    <div class="block"><h4>Nguyên tắc an toàn</h4><ul>
+      <li>Nút "chạy" chỉ chạy đúng SQL người dùng đang thấy trong trình soạn, AI không tự chèn SQL khác vào lệnh chạy.</li>
+      <li>SQL không chắc chắn là chỉ-đọc luôn hỏi xác nhận.</li>
+      <li>Ngữ cảnh gửi cho AI có giới hạn kích thước và không chứa dữ liệu dòng.</li>
+      <li>Xem lại lịch sử chat không chạy lại thao tác cũ.</li>
+    </ul></div>
+    <p class="say">"Hỏi bằng tiếng Việt, AI làm phần kỹ thuật. Việc gì có thể thay đổi dữ liệu đều chờ anh chị bấm đồng ý."</p>
+    <p class="avoid"><b>Lưu ý nội bộ:</b> AI chạy trên KaPaS, triển khai riêng và cần cổng (gateway) định tuyến <code>/api/kapas</code>. Việc AI đọc ngữ cảnh màn hình đã xong phía giao diện; phía KaPaS đang hoàn thiện, nên demo trước khi hứa tính năng "AI nhìn thấy màn hình". Chất lượng câu trả lời phụ thuộc mô hình ngôn ngữ khách hàng chọn và Ontology đã xây.</p>
+  </article>
+
+  <!-- 8 Analytics -->
+  <article class="sheet" id="svc-analytics">
+    <div class="sheet-head">
+      <div class="chips"><span class="chip layer">Khai thác</span><span class="chip">Phân tích</span><span class="chip">Lãnh đạo</span></div>
+      <h2>Analytics & BI</h2>
+      <p class="tagline">Dashboard Superset nhúng ngay trong Workspace, cùng đăng nhập; kết nối Power BI và Tableau qua một cổng.</p>
+    </div>
+    <div class="cols">
+      <div class="block"><h4>Vấn đề → Giải pháp</h4><ul>
+        <li>Người dùng phải đăng nhập riêng vào công cụ BI → Superset nhúng trong Workspace, dùng chung SSO.</li>
+        <li>Dataset cho BI phải tạo tay → tạo dataset Superset trỏ tới view Dremio từ SQL Studio.</li>
+        <li>Quyền dashboard quản lý rời rạc → gán quyền dashboard theo vai trò ngay trong trang Permissions.</li>
+      </ul></div>
+      <div class="block"><h4>Tính năng chính</h4><ul>
+        <li>Mở danh sách dashboard Superset trong Workspace.</li>
+        <li>Từ một view: "Open Chart" xem biểu đồ Superset dùng view đó.</li>
+        <li>Mở Power BI, Tableau từ dataset; cấu hình Entra tenant cho Power BI.</li>
+        <li>BI ngoài kết nối qua JDBC, ODBC, Arrow Flight.</li>
+        <li>Menu Analytics chỉ hiện với người có vai trò Superset.</li>
+      </ul></div>
+    </div>
+    <p class="say">"Dashboard nằm ngay cạnh dữ liệu, cùng một lần đăng nhập. Ai đang dùng Power BI hay Tableau thì vẫn kết nối được."</p>
+    <p class="avoid"><b>Lưu ý nội bộ:</b> Superset là dịch vụ triển khai riêng và cần cấu hình bảo mật nhận token Keycloak. dbt Studio cũng có dashboard YAML riêng trong dự án; khi tư vấn, nói rõ dashboard nào dành cho ai.</p>
+  </article>
+
+  <!-- 9 Admin -->
+  <article class="sheet" id="svc-admin">
+    <div class="sheet-head">
+      <div class="chips"><span class="chip layer">Vận hành</span><span class="chip">Quản trị viên</span></div>
+      <h2>Quản trị nền tảng</h2>
+      <p class="tagline">Theo dõi tài nguyên, chia tải truy vấn, tăng tốc và cấu hình hệ thống từ cùng giao diện.</p>
+    </div>
+    <div class="cols">
+      <div class="block"><h4>Engine</h4><ul>
+        <li><b>Monitor</b>: mức dùng catalog, job, tài nguyên.</li>
+        <li><b>Node activity</b>: bật, tắt node tham gia thực thi.</li>
+        <li><b>Engines</b>: thêm, sửa, khởi động, dừng engine và worker.</li>
+        <li><b>Queues & Engine routing</b>: hàng đợi tải và luật định tuyến truy vấn theo người dùng, nhóm, loại việc.</li>
+        <li><b>Reflections</b>: tìm, làm mới, thử lại, bật tắt tăng tốc, lịch sử làm mới.</li>
+      </ul></div>
+      <div class="block"><h4>Hệ thống</h4><ul>
+        <li><b>Preferences</b>: bật tắt AI, dbt, Catalog, gợi ý SQL, thời gian chờ phiên, quyền tải dữ liệu.</li>
+        <li><b>Integrations</b>: Power BI, Tableau, nhà cung cấp token ngoài, cấu hình mô hình AI.</li>
+        <li><b>Support</b>: tải gói log chẩn đoán.</li>
+        <li><b>SQL Query Config</b>: sửa câu SQL đứng sau dashboard Overview và cảnh báo.</li>
+      </ul></div>
+    </div>
+    <p class="say">"Quản trị viên thấy ngay node nào đang quá tải, truy vấn nào chiếm tài nguyên, và chia hàng đợi để báo cáo lãnh đạo không phải chờ job nặng."</p>
+  </article>
+
+  <!-- 10 IAM -->
+  <article class="sheet" id="svc-iam">
+    <div class="sheet-head">
+      <div class="chips"><span class="chip layer">Bảo mật</span><span class="chip">Quản trị viên</span><span class="chip">An toàn thông tin</span></div>
+      <h2>Định danh & phân quyền</h2>
+      <p class="tagline">Keycloak là nguồn duy nhất về người dùng và vai trò; User API tạo người dùng đồng thời ở mọi nơi cần thiết.</p>
+    </div>
+    <div class="block"><h4>Vấn đề → Giải pháp</h4>
+      <div class="pain">
+        <div><span class="before">Tạo một nhân viên mới phải vào 4–5 hệ thống</span><span class="arrow">→</span><span>Một biểu mẫu tạo user ở Keycloak và Dremio, gán vai trò cho Ontology, Analytics, AI, dbt cùng lúc</span></div>
+        <div><span class="before">Tạo dở dang: có tài khoản hệ thống này mà thiếu hệ thống kia</span><span class="arrow">→</span><span>Lỗi ở Dremio thì tự hủy user vừa tạo ở Keycloak; trạng thái đồng bộ từng user hiển thị rõ</span></div>
+        <div><span class="before">Phân quyền dữ liệu bằng tay từng bảng</span><span class="arrow">→</span><span>Ma trận quyền theo user hoặc role, xem trước thay đổi rồi áp dụng hàng loạt</span></div>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="block"><h4>Tính năng chính</h4><ul>
+        <li><b>Users</b>: tạo, sửa, đặt lại mật khẩu, bật tắt, xóa có xác nhận ở cả hai hệ thống.</li>
+        <li><b>Roles</b>: vai trò Dremio, Superset, KaPaS, realm; đồng bộ vai trò Keycloak sang Dremio.</li>
+        <li><b>Permissions</b>: cấp quyền theo người, theo vai trò, theo đối tượng (kể cả quyền kế thừa); quyền dashboard Superset.</li>
+        <li><b>Token cá nhân</b> cho người dùng gọi API.</li>
+      </ul></div>
+      <div class="block"><h4>Nguyên tắc bảo mật</h4><ul>
+        <li>User API không lưu mật khẩu hay khóa nào; chuyển tiếp token của chính người thao tác, Keycloak và Dremio tự kiểm quyền.</li>
+        <li>Mật khẩu nguồn dữ liệu, token Git mã hóa AES-GCM.</li>
+        <li>Truy vấn chạy bằng danh tính người dùng, kể cả job theo lịch.</li>
+        <li>Mọi thao tác file trong dbt Studio có chặn truy cập ra ngoài thư mục dự án; lệnh Git chỉ cho phép danh sách trắng.</li>
+      </ul></div>
+    </div>
+    <p class="say">"Nhân sự mới vào, quản trị viên điền một biểu mẫu là người đó có đủ quyền ở mọi phân hệ. Nghỉ việc thì khóa một chỗ."</p>
+    <p class="avoid"><b>Lưu ý nội bộ:</b> khóa (disable) người dùng thực hiện ở Keycloak; Dremio không có thao tác disable riêng. Quyền vai trò dbt không tự suy ra từ quyền admin Dremio, cần gán riêng.</p>
+  </article>
+</section>
+
+<section id="vai-tro">
+  <div class="eyebrow">Theo vai trò</div>
+  <h2>Ai dùng gì</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Vai trò</th><th>Dùng chủ yếu</th><th>Giá trị nhận được</th></tr></thead>
+      <tbody>
+        <tr><td>Quản trị nền tảng</td><td>Overview, Engine, Users, Roles, Permissions, Preferences</td><td>Kiểm soát tài nguyên và quyền ở một nơi</td></tr>
+        <tr><td>Kỹ sư dữ liệu</td><td>Connections, SQL Studio, dbt Studio, Data Pipeline</td><td>Từ nguồn tới bảng sạch có test, có lịch, không cần cài đặt máy</td></tr>
+        <tr><td>Chuyên viên phân tích</td><td>Catalog, SQL Studio, Analytics, SQL Copilot</td><td>Tìm đúng dữ liệu, tự phân tích</td></tr>
+        <tr><td>Chủ sở hữu dữ liệu</td><td>Catalog (glossary, tag), Ontology Workbench, Governance</td><td>Định nghĩa thống nhất, biết dữ liệu được dùng ở đâu</td></tr>
+        <tr><td>Người dùng nghiệp vụ, lãnh đạo</td><td>Dashboard, Ontology Explore, AI Agents</td><td>Xem chỉ số, hỏi dữ liệu bằng tiếng Việt</td></tr>
+        <tr><td>An toàn thông tin</td><td>Keycloak, Permissions, nhật ký job Dremio, audit Ontology</td><td>Biết ai truy cập gì, bằng quyền nào</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="kich-ban">
+  <div class="eyebrow">Demo</div>
+  <h2>Kịch bản demo gợi ý</h2>
+  <div class="grid3">
+    <div class="card"><span class="eyebrow">15 phút · Lãnh đạo</span><h3>Từ nguồn tới câu trả lời</h3>
+      <ol class="steps"><li>Đăng nhập SSO, giao diện tiếng Việt.</li><li>Connections: hai nguồn đã kết nối.</li><li>SQL Studio: JOIN hai nguồn.</li><li>Hỏi AI một câu về doanh thu; xem bảng và biểu đồ.</li><li>Mở dashboard Superset.</li></ol></div>
+    <div class="card"><span class="eyebrow">30 phút · Đội dữ liệu</span><h3>Nhà máy dữ liệu</h3>
+      <ol class="steps"><li>Tạo dự án dbt từ mẫu Data Vault.</li><li>Sửa model, xem SQL biên dịch, preview.</li><li>Chạy build, xem log trực tiếp.</li><li>Commit Git.</li><li>Vẽ Pipeline: SQL nạp → dbt → Branch → on-failure; đặt lịch.</li><li>Cho một bước lỗi, xem thử lại và chạy lại phần lỗi.</li></ol></div>
+    <div class="card"><span class="eyebrow">20 phút · Quản trị, ATTT</span><h3>Quản trị và bảo mật</h3>
+      <ol class="steps"><li>Tạo user mới, gán vai trò dbt-viewer.</li><li>Đăng nhập bằng user đó: menu thu hẹp, IDE chỉ đọc.</li><li>Catalog: user không thấy bảng ngoài quyền.</li><li>Xem job Dremio ghi đúng tên người chạy.</li><li>Đổi mức an toàn AI sang STRICT, thử một thao tác ghi.</li></ol></div>
+  </div>
+</section>
+
+<section id="trien-khai">
+  <div class="eyebrow">Triển khai</div>
+  <h2>Thành phần cần triển khai</h2>
+  <div class="prose"><p>Tất cả thành phần chạy dạng container. Quy mô, tính sẵn sàng cao và sao lưu được thiết kế theo từng dự án.</p></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Thành phần</th><th>Phụ thuộc</th><th>Ghi chú vận hành</th></tr></thead>
+      <tbody>
+        <tr><td>Dremio</td><td>Ổ đĩa dữ liệu, kết nối mạng tới nguồn</td><td>Cổng web/REST 9047; JDBC/ODBC/Flight 31010–32010</td></tr>
+        <tr><td>Hanas Workspace</td><td>nginx, cấu hình địa chỉ các dịch vụ khi khởi động</td><td>Đổi địa chỉ dịch vụ không cần build lại</td></tr>
+        <tr><td>dbt Studio</td><td>Postgres 16, Redis 7, Keycloak, vùng workspace và storage</td><td>Chạy nhiều bản song song; lịch chạy có cơ chế chọn leader</td></tr>
+        <tr><td>Hanas Catalog</td><td>Postgres 16</td><td>catalog-api nhân bản tự do; ingest-runner nhiều bản an toàn; sao lưu pg_dump hằng ngày</td></tr>
+        <tr><td>User API</td><td>Keycloak, Dremio</td><td>Không có CSDL</td></tr>
+        <tr><td>Keycloak</td><td>CSDL của Keycloak</td><td>Một realm chung cho mọi dịch vụ; bản dịch giao diện lưu tại đây</td></tr>
+        <tr><td>Ontology, KaPaS, Superset</td><td>Triển khai riêng</td><td>Cần cổng API định tuyến tới từng dịch vụ</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="callout warn">Hiện chưa có Helm chart hay manifest Kubernetes đóng gói sẵn. Nếu khách hàng yêu cầu Kubernetes, đưa vào phạm vi dịch vụ triển khai.</p>
+</section>
+
+<section id="faq">
+  <div class="eyebrow">Xử lý câu hỏi</div>
+  <h2>Câu hỏi thường gặp</h2>
+  <div>
+    <details class="faq"><summary>Có phải chuyển toàn bộ dữ liệu về Hanas không?</summary><p>Không bắt buộc. Dremio truy vấn tại nguồn. Chỉ lưu thêm khi cần lớp dữ liệu sạch hoặc bản tăng tốc (reflection) cho báo cáo dùng nhiều.</p></details>
+    <details class="faq"><summary>Hanas có dùng chung một tài khoản để truy cập dữ liệu không?</summary><p>Không. Truy vấn từ SQL Studio, dbt Studio, Catalog và AI đều chạy bằng danh tính người dùng; job theo lịch chạy bằng quyền người tạo. Nhật ký job ghi đúng người.</p></details>
+    <details class="faq"><summary>AI có tự ý sửa hoặc xóa dữ liệu được không?</summary><p>Ở mức mặc định, thao tác ghi cần người dùng phê duyệt qua thẻ xác nhận. Quản trị viên có thể đặt mức STRICT để mọi thao tác đều cần duyệt. AI cũng chỉ có quyền của người đang hỏi.</p></details>
+    <details class="faq"><summary>Hanas có thay được Airflow không?</summary><p>Với luồng gồm dbt, SQL trên Dremio và Python, Data Pipeline đáp ứng: lịch cron, rẽ nhánh, thử lại, nhánh lỗi, chạy lại phần lỗi, tự phục hồi. Luồng cần điều phối nhiều hệ thống ngoài cần đánh giá riêng.</p></details>
+    <details class="faq"><summary>Catalog có thay được DataHub không?</summary><p>Có cho nhu cầu tìm kiếm, lineage mức bảng, glossary, tag và thu thập metadata từ Dremio, Oracle, dbt. Các tính năng Domain, Data Product, chất lượng dữ liệu chưa có.</p></details>
+    <details class="faq"><summary>Giao diện có tiếng Việt không? Có sửa câu chữ được không?</summary><p>Tiếng Việt mặc định, có tiếng Anh. Quản trị viên sửa câu chữ trực tiếp trong trang Bản dịch, người dùng thấy sau khi tải lại trang.</p></details>
+    <details class="faq"><summary>Khóa tài khoản người nghỉ việc thế nào?</summary><p>Khóa trên Keycloak (qua trang Users). Vì mọi dịch vụ dùng SSO, người đó mất quyền vào toàn bộ nền tảng. Lịch chạy họ tạo vẫn tồn tại; quản trị viên dbt tạm dừng hoặc xóa.</p></details>
+  </div>
+</section>
+
+<section id="khong-hua">
+  <div class="eyebrow">Giới hạn hiện tại</div>
+  <h2>Những điều không được hứa với khách hàng</h2>
+  <div class="prose"><p>Danh sách này lấy từ mã nguồn tại mốc <span class="mono">3bb7d41a5</span>. Khi khách cần một mục dưới đây, ghi vào phạm vi phát triển hoặc dịch vụ, không giới thiệu như tính năng có sẵn.</p></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mục</th><th>Thực trạng</th></tr></thead>
+      <tbody>
+        <tr><td>Lineage mức cột</td><td>Chưa có ở dbt Studio và Catalog; chỉ có mức bảng</td></tr>
+        <tr><td>Domain, Data Product, chất lượng dữ liệu trong Catalog</td><td>Chưa có</td></tr>
+        <tr><td>Streaming thời gian thực</td><td>Không đóng gói sẵn (bản cũ dùng Kafka)</td></tr>
+        <tr><td>Thông báo email, Slack</td><td>Chưa có; dbt Schedule chỉ có webhook, Pipeline dùng nhánh on-failure</td></tr>
+        <tr><td>Phát hành bảng Iceberg từ dbt Studio</td><td>Chưa hỗ trợ</td></tr>
+        <tr><td>Tách dự án dbt theo nhóm</td><td>Chưa có; mọi người có vai trò dbt dùng chung workspace</td></tr>
+        <tr><td>AI hiểu ngữ cảnh màn hình</td><td>Giao diện đã gửi; phía KaPaS đang hoàn thiện</td></tr>
+        <tr><td>Giải thích job (Explain job)</td><td>Nút có nhưng chưa hoạt động</td></tr>
+        <tr><td>Triển khai Kubernetes đóng gói sẵn</td><td>Chưa có Helm chart</td></tr>
+        <tr><td>Kết nối dbt ngoài Dremio, Postgres, DuckDB</td><td>Chưa hỗ trợ</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="thuat-ngu">
+  <div class="eyebrow">Thuật ngữ</div>
+  <h2>Thuật ngữ</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Thuật ngữ</th><th>Giải thích ngắn</th></tr></thead>
+      <tbody>
+        <tr><td>Source</td><td>Một nguồn dữ liệu đã kết nối vào Dremio (CSDL, kho đối tượng, catalog lakehouse)</td></tr>
+        <tr><td>Space / Workspace</td><td>Thư mục logic để tổ chức view theo phòng ban, dự án</td></tr>
+        <tr><td>View</td><td>Câu SQL được lưu thành bảng ảo, không chép dữ liệu</td></tr>
+        <tr><td>Reflection</td><td>Bản dữ liệu tăng tốc do Dremio quản lý và tự dùng khi truy vấn khớp</td></tr>
+        <tr><td>Job</td><td>Một lần chạy truy vấn trên Dremio, có nhật ký và hồ sơ thực thi</td></tr>
+        <tr><td>Engine, Queue</td><td>Nhóm máy thực thi và hàng đợi chia tải truy vấn</td></tr>
+        <tr><td>dbt model</td><td>Một file SQL định nghĩa một bảng hoặc view đích, có kiểm thử</td></tr>
+        <tr><td>Target</td><td>Môi trường đích của dbt, ví dụ dev hoặc prod</td></tr>
+        <tr><td>Pipeline, Step</td><td>Luồng điều phối và từng bước trong luồng</td></tr>
+        <tr><td>Lineage</td><td>Quan hệ nguồn gốc: bảng này được tạo từ bảng nào</td></tr>
+        <tr><td>Glossary</td><td>Từ điển thuật ngữ nghiệp vụ gắn vào dữ liệu</td></tr>
+        <tr><td>Ingestion</td><td>Thu thập metadata từ nguồn vào Catalog</td></tr>
+        <tr><td>Ontology</td><td>Mô hình đối tượng, quan hệ và chỉ số nghiệp vụ gắn với dữ liệu</td></tr>
+        <tr><td>Data Vault 2.0</td><td>Phương pháp mô hình kho dữ liệu gồm hub, link, satellite</td></tr>
+        <tr><td>SSO</td><td>Đăng nhập một lần cho mọi phân hệ</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  Hanas Data Platform · Sổ tay dịch vụ cho đội kinh doanh · Mốc mã nguồn <span class="mono">3bb7d41a5</span>, ngày 13/10/2026. Sơ đồ là trang tương tác: phóng to, tìm kiếm, chế độ trình chiếu và xuất ảnh PNG/SVG có trong từng sơ đồ.
+</footer>
+</main>
+</div>

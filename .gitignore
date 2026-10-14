@@ -1,0 +1,12 @@
+# Dữ liệu khách: không đưa lên git
+projects/
+samples/proposal_sample/
+samples/requirements-sample/
+samples/master_plan_sample/
+docs/toi-uu-log.md
+
+.DS_Store
+__pycache__/
+*.log
+node_modules/
+.claude/settings.local.json

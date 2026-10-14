@@ -1,0 +1,9 @@
+{
+  "name": "project-planer",
+  "owner": { "name": "Katalyst" },
+  "description": "Plugin presales của Katalyst cho Hanas Data Platform",
+  "plugins": [
+    { "name": "hanas-presale", "source": ".", "description": "4 skill (write-proposal, analyze-proposal, master-plan, auto-presale), 12 agent, script dựng Word/Excel và kiểm tra plan" },
+    { "name": "presale-board", "source": "./tools/presale-board", "description": "Bảng tiến độ presales: từng khách đang ở bước nào và lệnh tiếp theo" }
+  ]
+}

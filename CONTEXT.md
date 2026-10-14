@@ -1,6 +1,6 @@
 # Thuật ngữ dự án
 
-Dùng đúng các từ dưới đây trong proposal, WBS và master plan. Thuật ngữ sản phẩm Hanas nằm ở cuối `knowledge/hanas-product.md`.
+Dùng đúng các từ dưới đây trong proposal, WBS và master plan. Thuật ngữ sản phẩm nằm ở cuối `knowledge/<sp>-product.md`.
 
 **Proposal**: tài liệu đề xuất gửi khách (loại A: đề xuất giải pháp; loại B: hồ sơ thầu). _Tránh_: báo giá (báo giá là file riêng).
 **Params**: file `projects/<kh>/00-params.txt`, nguồn duy nhất cho kickoff, deadline, ngày lễ, giới hạn đội, mốc bắt buộc.

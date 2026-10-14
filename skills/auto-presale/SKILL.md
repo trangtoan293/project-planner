@@ -19,10 +19,10 @@ Cách dùng khuyên dùng (Claude tự làm tiếp qua nhiều lượt đến kh
 
 1. **Không dừng hỏi anh.** Bỏ bước 2.3 ("dừng cho anh xem") và bước 3 (interview) của `/write-proposal`, bước 3 (duyệt) của `/analyze-proposal`, bước 3 (hỏi anh) của `/master-plan`.
 2. **Tự chốt thay cho interview.** Với từng điểm ở mục 9 của `01-requirements.md` và mỗi tham số phải chốt, chọn phương án em sẽ ghi "(Recommended)" nếu hỏi anh, theo thứ tự ưu tiên:
-   - Dòng đã chốt trong `${CLAUDE_PLUGIN_ROOT}/knowledge/hanas-commercial.md` (giấy phép, K8S, CDC, view bảo mật…) và dòng [C] có sẵn trong `01-requirements.md`.
+   - Dòng đã chốt trong `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-commercial.md` (giấy phép, K8S, CDC, view bảo mật…) và dòng [C] có sẵn trong `01-requirements.md`.
    - Hồ sơ thầu (loại B): **đáp ứng đủ yêu cầu bắt buộc**, điều kiện chỉ là căn cứ thiết kế, rủi ro tính vào giá; không giới hạn vòng, không ngoại lệ ngưỡng, không change request cho mục khách đã yêu cầu. DR: đề xuất phương án khi tài liệu nhắc hạ tầng dự phòng.
    - Ngày: `kickoff` trong `00-params.txt` nếu anh đã điền; nếu chưa, lấy theo tài liệu khách (ví dụ N1 = ngày hợp đồng có hiệu lực) và giả định thứ Hai đầu tiên sau 3 tuần kể từ hôm nay. Deadline, mốc tính từ đó.
-   - Không tự thêm cam kết thương mại (miễn phí, giảm giá) ngoài tính năng có sẵn trong Hanas.
+   - Không tự thêm cam kết thương mại (miễn phí, giảm giá) ngoài tính năng có sẵn trong sản phẩm.
 
    Ghi mỗi điểm vào `01-requirements.md` với nhãn **`[D dd/mm]`** (draft tự chốt), và vào `00-auto-summary.md` mục "Quyết định tự chốt" (điểm · phương án · lý do · nếu anh không đồng ý thì sửa ở đâu).
 3. **Review tự động đến khi sạch.** Bước 7 của `/write-proposal`: 5 reviewer song song → `proposal-fixer` → chạy lại reviewer còn CRITICAL/HIGH cùng `proposal-reviewer-consistency`, tối đa 3 vòng. Mỗi vòng trong `02-review.md` kết bằng dòng `CÒN LẠI: CRITICAL <n> · HIGH <n>` (không tính ô `[…]` chờ thông tin thật). Khi vòng cuối là `CRITICAL 0 · HIGH 0` thì ghi `KẾT LUẬN: ĐẠT (tự động, anh xem 00-auto-summary.md trước khi gửi khách)` rồi xuất `02-proposal.docx`. Hết 3 vòng vẫn còn thì không ghi kết luận, ghi lỗi còn lại vào `00-auto-summary.md` và dừng.

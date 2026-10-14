@@ -34,7 +34,7 @@ Nên mở **phiên Claude mới cho mỗi bước** để ngữ cảnh của bư
 ```
 CLAUDE.md                  quy tắc cho Claude (đọc trước khi sửa repo)
 CONTEXT.md                 thuật ngữ
-knowledge/                 hanas-product.md · proposal-format.md · estimation.md
+knowledge/                 <product>-product.md (hanas, kvault) · proposal-format.md · estimation.md
 templates/                 00-params.txt (thông số dự án) · proposal-reference.docx (style Word)
 scripts/                   md2docx.py · build_master_plan.py · check_plan.py
 tests/                     test cho 2 script plan

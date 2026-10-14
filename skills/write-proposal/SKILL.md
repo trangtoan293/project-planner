@@ -1,6 +1,6 @@
 ---
 name: write-proposal
-description: Viết proposal Hanas đúng format từ yêu cầu khách hàng trong projects/<kh>/01-input/. Dùng khi anh gõ /write-proposal <kh>.
+description: Viết proposal đúng format từ yêu cầu khách hàng trong projects/<kh>/01-input/. Dùng khi anh gõ /write-proposal <kh>.
 disable-model-invocation: true
 ---
 
@@ -15,9 +15,9 @@ Quy tắc chung (bắt buộc): làm trong thư mục có `projects/`; đọc m�
 | Bước | Agent (`${CLAUDE_PLUGIN_ROOT}/agents/`) | Chạy song song |
 |---|---|---|
 | 2.1 Tách yêu cầu | `proposal-req-extractor` | Mỗi file một agent; file trên 15 trang chia khoảng ~12 trang, mỗi khoảng một agent |
-| 2.2 Đối chiếu Hanas | `proposal-fit-analyst` | Chạy nền trong lúc em tổng hợp 9 mục |
+| 2.2 Đối chiếu sản phẩm | `proposal-fit-analyst` | Chạy nền trong lúc em tổng hợp 9 mục |
 | 4 Viết | `proposal-section-writer` | Mỗi nhóm mục một agent, ghi file phần riêng |
-| 7 Review | `proposal-reviewer-coverage`, `-hanas`, `-consistency`, `-client`, `-style` | Cả 5 agent cùng lúc |
+| 7 Review | `proposal-reviewer-coverage`, `-product`, `-consistency`, `-client`, `-style` | Cả 5 agent cùng lúc |
 
 **Mặc định chạy agent bằng Codex** để tiết kiệm token Claude: `${CLAUDE_PLUGIN_ROOT}/scripts/codex_agent.sh <agent> <file-báo-cáo> "<nhiệm vụ>"` (gpt-6.1-sol, reasoning high; chạy từ thư mục có `projects/`), mỗi agent một lệnh Bash chạy nền (`run_in_background`), cùng một lượt. Mỗi agent ghi file riêng; đọc báo cáo trong file khi lệnh xong. Chỉ dùng subagent Claude (công cụ Agent, `subagent_type: presale:<agent>`, model sonnet) khi Codex lỗi hoặc máy không có `codex` CLI. Footer AGENTS (mod `agent-monitor`, cài toàn cục) hiện cả hai loại.
 
@@ -28,7 +28,8 @@ Gọi các agent chạy song song **trong cùng một lượt** (nhiều lệnh 
 - Chưa có `projects/<kh>/`: tạo `01-input/`, copy `${CLAUDE_PLUGIN_ROOT}/templates/00-params.txt` vào, rồi dừng lại và nhờ anh bỏ tài liệu vào.
 - Chuyển **từng file** trong `01-input/` sang text ở `01-input/.text/<file>.txt`, giữ mốc trang `=== p<n>`: `pandoc` cho .docx, `fitz` cho .pdf, `openpyxl` cho .xlsx. PDF scan (trang không có chữ) thì báo anh, không đoán.
 - Đọc **hết** từng file, kể cả phụ lục, bảng, chú thích, ghi chú cuối bảng. File dài thì đọc theo đoạn cho tới trang cuối. Ghi "đã đọc trang 1–N/N" vào đầu `01-requirements.md`. Dòng bảng bị ngắt sang trang sau thì ghép lại.
-- Đọc `${CLAUDE_PLUGIN_ROOT}/knowledge/hanas-product.md`, `${CLAUDE_PLUGIN_ROOT}/knowledge/proposal-format.md`, `${CLAUDE_PLUGIN_ROOT}/CONTEXT.md`.
+- `<sp>` là giá trị `product` trong `00-params.txt` (trống thì `hanas`). Chưa có `knowledge/<sp>-product.md` thì dừng, nhờ anh đưa tài liệu sản phẩm.
+- Đọc `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-product.md`, `${CLAUDE_PLUGIN_ROOT}/knowledge/proposal-format.md`, `${CLAUDE_PLUGIN_ROOT}/CONTEXT.md`.
 - **Không đọc proposal mẫu để lấy nội dung.** Chỉ mở `${CLAUDE_PLUGIN_ROOT}/samples/proposal_sample/` khi cần xem cách trình bày một loại bảng.
 
 ## 2. Tổng hợp yêu cầu (làm TRƯỚC khi hỏi và viết)
@@ -44,7 +45,7 @@ Bảng cuối file, cột **Mã | Trích yêu cầu | Loại | Nguồn (tài li�
 - Đi lần lượt **từng mục, từng bullet, từng dòng bảng**, kể cả phụ lục. Một bullet là một dòng. Câu dạng "should explain X, Y, Z" thành 3 dòng. Bảng khách yêu cầu điền (ví dụ bảng so sánh 12 tiêu chí) thì mỗi dòng bảng là một yêu cầu. Danh mục báo cáo thì mỗi báo cáo là một dòng.
 - Cột **Trích yêu cầu** ghi sát nguyên văn, không tóm tắt gộp. Con số giữ nguyên (210 ngày, 5 phút, 20 học viên). Không bỏ cụm bổ nghĩa và định nghĩa: "chi tiết mã lỗi", "tại thời điểm giao dịch", "theo tài khoản/thẻ", "(*bắt buộc)".
 - Cột **Loại** chọn một trong: `Câu hỏi` (khách hỏi trực tiếp, phải trả lời thẳng) · `Phải giải thích` · `Kết quả` · `Chức năng` · `Phi chức năng` · `Dịch vụ` · `Ràng buộc` · `Không mong đợi` · `Tiêu chí đánh giá` · `Bối cảnh`.
-- Đánh dấu ⚑ những yêu cầu đụng danh sách "không được hứa" trong `hanas-product.md`, và những yêu cầu mình định để ngoài phạm vi.
+- Đánh dấu ⚑ những yêu cầu đụng danh sách "không được hứa" trong `<sp>-product.md`, và những yêu cầu mình định để ngoài phạm vi.
 - Đếm số yêu cầu theo từng mục tài liệu, ví dụ "§8: 8 · §16: 17 · PL1: 40", để anh kiểm nhanh có sót mục nào không.
 
 ### 2.2 Tổng hợp 9 mục
@@ -71,7 +72,7 @@ Dấu hiệu phải đưa vào mục 9:
 - Báo cáo hoặc chức năng cần **nguồn ngoài nguồn chính** (trang nhật ký, JIRA, hệ thống khác cần tích hợp).
 - Khách nói thông tin chi tiết **sẽ cung cấp sau** (mapping, BRD, quy tắc đối soát, tần suất). Ghi giả định em sẽ dùng để ước lượng.
 - Mâu thuẫn giữa các mục: hai mốc tiến độ khác nhau, số lượng không khớp, thuật ngữ dùng hai nghĩa.
-- Ngưỡng hiệu năng hoặc SLA mà Hanas chưa chắc đạt.
+- Ngưỡng hiệu năng hoặc SLA mà sản phẩm chưa chắc đạt.
 - Tài liệu nhắc hạ tầng dự phòng (TTDL dự phòng, DR, sao lưu) mà không nói rõ phạm vi: hỏi anh, mặc định đề xuất phương án DR thay vì để ngoài phạm vi.
 - Mọi dòng ⚑.
 
@@ -89,9 +90,9 @@ Báo anh: số trang đã đọc, số yêu cầu theo mục, 9 mục tổng h�
 Interview theo cách của skill `grill-me` (Matt Pocock): hỏi từng câu, mỗi câu kèm đề xuất của em, đi lần lượt từng nhánh quyết định. Skill này chỉ anh gõ được (`/grill-me`); em không gọi được thì tự hỏi theo đúng cách đó. Danh sách câu hỏi lấy từ **mục 9** và các dòng [S] quan trọng, cộng các tham số dưới đây nếu tài liệu chưa trả lời. Áp dụng thêm cách làm của skill `domain-modeling` khi gặp thuật ngữ mơ hồ: đề xuất một nghĩa chính xác, đưa một tình huống cụ thể để anh chọn (ví dụ "Báo cáo #36 có cho người dùng nhập kết quả xác minh không, hay chỉ xem?").
 
 - **Tối đa 7–9 câu.** Chọn những điểm ảnh hưởng phạm vi, effort hoặc có thể làm loại hồ sơ. Các điểm nhỏ còn lại em tự đặt giả định theo đề xuất của mình, gom vào **một câu cuối** để anh duyệt cả danh sách một lần.
-- **Hồ sơ thầu (loại B):** đề xuất của em không được thu hẹp yêu cầu bắt buộc của E-HSMT (giới hạn số vòng, ngưỡng có ngoại lệ, change request cho mục khách đã yêu cầu). Phương án mặc định là "đáp ứng đủ, điều kiện chỉ là căn cứ thiết kế, rủi ro tính vào giá". Nếu anh vẫn muốn thu hẹp thì nói rõ rủi ro bị chấm không đạt. Xem dòng "Nguyên tắc hồ sơ thầu" trong `${CLAUDE_PLUGIN_ROOT}/knowledge/hanas-commercial.md`.
+- **Hồ sơ thầu (loại B):** đề xuất của em không được thu hẹp yêu cầu bắt buộc của E-HSMT (giới hạn số vòng, ngưỡng có ngoại lệ, change request cho mục khách đã yêu cầu). Phương án mặc định là "đáp ứng đủ, điều kiện chỉ là căn cứ thiết kế, rủi ro tính vào giá". Nếu anh vẫn muốn thu hẹp thì nói rõ rủi ro bị chấm không đạt. Xem dòng "Nguyên tắc hồ sơ thầu" trong `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-commercial.md`.
 - Hỏi **từng câu một**, câu quan trọng nhất trước (câu ảnh hưởng phạm vi và effort nhiều nhất). Mỗi câu kèm đề xuất của em và căn cứ (mã R, mục tài liệu).
-- Chia câu hỏi làm 2 nhóm. **Câu về sản phẩm Hanas** (giấy phép, SLA hãng, bản OSS/Enterprise, tính năng có hay chưa) ghi vào `${CLAUDE_PLUGIN_ROOT}/knowledge/hanas-commercial.md` để khách sau dùng lại; trước khi hỏi, đọc file này, câu nào đã có thì không hỏi lại. **Câu riêng của khách** ghi vào `01-requirements.md`.
+- Chia câu hỏi làm 2 nhóm. **Câu về sản phẩm** (giấy phép, SLA hãng, bản OSS/Enterprise, tính năng có hay chưa) ghi vào `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-commercial.md` để khách sau dùng lại; trước khi hỏi, đọc file này, câu nào đã có thì không hỏi lại. **Câu riêng của khách** ghi vào `01-requirements.md`.
 - Câu tài liệu đã trả lời thì không hỏi, chỉ liệt kê một lần để anh xác nhận.
 - Anh trả lời câu nào thì **cập nhật ngay** `01-requirements.md`: chuyển ý đó từ mục 9 sang mục tương ứng, nhãn [C dd/mm]. Không gom cuối buổi.
 - Dừng khi mục 9 chỉ còn những câu anh quyết định để làm giả định trong proposal (ghi rõ "Giả định: …").
@@ -101,7 +102,7 @@ Tham số phải chốt:
 1. Loại tài liệu (A: đề xuất giải pháp / B: hồ sơ thầu) và tên viết tắt của khách.
 2. **Hạn nộp hồ sơ (`submit_by`), kickoff, deadline, các mốc bắt buộc** (go-live từng đợt, nghiệm thu). Không có trong tài liệu thì hỏi. **Không suy ra từ dự án khác.**
 3. Phạm vi: trong / ngoài phạm vi, nguồn dữ liệu, số lượng đếm được (báo cáo, domain, dashboard…).
-4. Mô tả Hanas theo bản nào: **bản mới** trong `hanas-product.md` (Dremio, dbt Studio, Catalog…) là mặc định. Nếu khách đã nhận tài liệu bản cũ (NiFi, Airflow, Ranger…) thì hỏi anh.
+4. (Chỉ khi `<sp>` = hanas) Mô tả Hanas theo bản nào: **bản mới** trong `<sp>-product.md` (Dremio, dbt Studio, Catalog…) là mặc định. Nếu khách đã nhận tài liệu bản cũ (NiFi, Airflow, Ranger…) thì hỏi anh.
 5. Giới hạn đội ngũ (số người tối đa mỗi vai trò), nếu khách hoặc E-HSMT có quy định.
 6. Khách cần những tính năng nào nằm trong danh sách "không được hứa" → đưa vào phạm vi phát triển, ghi rõ.
 
@@ -134,7 +135,7 @@ Sửa tới khi `KẾT QUẢ: ĐẠT`. Lỗi máy bắt được thì sửa trư
 
 ## 7. Review nghiêm ngặt trước khi gửi khách
 
-Gọi **cùng lúc** 5 agent: `proposal-reviewer-coverage` (đủ và đúng ý từng R), `proposal-reviewer-hanas` (không hứa quá sản phẩm), `proposal-reviewer-consistency` (số, ngày, nhân sự, tên), `proposal-reviewer-client` (đóng vai người chấm phía khách), `proposal-reviewer-style` (câu chữ theo humanizer).
+Gọi **cùng lúc** 5 agent: `proposal-reviewer-coverage` (đủ và đúng ý từng R), `proposal-reviewer-product` (không hứa quá sản phẩm), `proposal-reviewer-consistency` (số, ngày, nhân sự, tên), `proposal-reviewer-client` (đóng vai người chấm phía khách), `proposal-reviewer-style` (câu chữ theo humanizer).
 
 1. Gộp kết quả vào `projects/<kh>/02-review.md`: mỗi vòng một mục `## Vòng n`, bảng `| Mức | Reviewer | Vị trí | Vấn đề | Đã xử lý |`, kết bằng dòng `CÒN LẠI: CRITICAL <n> · HIGH <n>` (không tính ô `[…]` chờ thông tin thật).
 2. Giao `proposal-fixer` sửa (một agent cho cả file, chạy bằng `codex-agent`). Sửa **mọi** CRITICAL và HIGH; MEDIUM sửa khi hợp lý, không sửa thì ghi lý do; LOW tùy. Sửa nội dung proposal, không sửa yêu cầu hay params để lách.

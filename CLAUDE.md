@@ -14,7 +14,7 @@ Repo hỗ trợ presales của Katalyst: yêu cầu khách → proposal → WBS 
 
 | Cần biết | Đọc ở đâu |
 |---|---|
-| Hanas là gì, làm được gì, **không được hứa gì** | `knowledge/hanas-product.md` (chép từ `samples/hanas_docs/index.html`) |
+| Sản phẩm đề xuất làm được gì, **không được hứa gì** | `knowledge/<product>-product.md`; `<product>` lấy từ `00-params.txt` (trống = `hanas`, chép từ `samples/hanas_docs/index.html`) |
 | Format và văn phong proposal | `knowledge/proposal-format.md` |
 | Benchmark effort, đội ngũ, giai đoạn | `knowledge/estimation.md` |
 | Thuật ngữ | `CONTEXT.md` |
@@ -29,7 +29,7 @@ Repo hỗ trợ presales của Katalyst: yêu cầu khách → proposal → WBS 
 
 ## Agent
 
-Repo này đồng thời là plugin `hanas-presale` (skill ở `skills/`, agent ở `agents/`) và marketplace `project-planner`. Các agent trong `agents/` chia việc theo bước: `proposal-req-extractor`, `proposal-fit-analyst`, `proposal-section-writer`, 5 `proposal-reviewer-*`, `proposal-fixer`, `wbs-drafter`, `wbs-reviewer`, `plan-builder`. Skill nào gọi agent nào, chạy song song ra sao: xem bảng đầu `skills/write-proposal/SKILL.md`. Mặc định chạy bằng Codex qua `~/.claude/bin/codex-agent` (gpt-6.1-sol, high; anh không muốn tốn token sonnet). Trạng thái ghi ở `~/.claude/agent-runs/`, hiện ở footer AGENTS của mod `agent-monitor` (cài phạm vi user, `/agent-monitor` để hiện lại). `scripts/codex_agent.sh` là bản đóng gói của script chung, tìm agent trong plugin trước.
+Repo này đồng thời là plugin `hanas-presale` (skill ở `skills/`, agent ở `agents/`) và marketplace `project-planner`. Các agent trong `agents/` chia việc theo bước: `proposal-req-extractor`, `proposal-fit-analyst`, `proposal-section-writer`, 5 `proposal-reviewer-*` (`-product` kiểm hứa quá sản phẩm), `proposal-fixer`, `wbs-drafter`, `wbs-reviewer`, `plan-builder`. Skill nào gọi agent nào, chạy song song ra sao: xem bảng đầu `skills/write-proposal/SKILL.md`. Mặc định chạy bằng Codex qua `~/.claude/bin/codex-agent` (gpt-6.1-sol, high; anh không muốn tốn token sonnet). Trạng thái ghi ở `~/.claude/agent-runs/`, hiện ở footer AGENTS của mod `agent-monitor` (cài phạm vi user, `/agent-monitor` để hiện lại). `scripts/codex_agent.sh` là bản đóng gói của script chung, tìm agent trong plugin trước.
 
 ## Script
 
@@ -49,3 +49,4 @@ Cần: `pandoc`, `python-docx`, `openpyxl`, `pymupdf` (fitz, để đọc PDF).
 - Hanas có phiên bản mới: thay `samples/hanas_docs/`, rồi chạy lại lệnh chuyển ở đầu `knowledge/hanas-product.md`.
 - Có dự án thật đã chạy xong: thêm một dòng vào `knowledge/estimation.md` §3 với số liệu **thực tế** (không phải số đã báo giá).
 - Thêm khách mới: thêm tên khách cũ vào `stale_terms` trong `templates/00-params.txt`.
+- Thêm sản phẩm mới: tài liệu gốc vào `samples/<product>_docs/`, chuyển thành `knowledge/<product>-product.md` (có bảng "Những điều không được hứa với khách hàng"), tạo `knowledge/<product>-commercial.md`, đặt `product: <product>` trong params của khách.

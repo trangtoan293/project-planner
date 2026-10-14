@@ -1,7 +1,7 @@
 # Yêu cầu: <tên dự án> (<KH>)
 
 Nguồn: `01-input/<file>` (<loại tài liệu>, đã đọc trang 1–N/N) · `01-input/<file>` (...)
-Ký hiệu: [T] trích từ tài liệu · [S] em suy ra, cần anh xác nhận · [C dd/mm] anh đã chốt · [D dd/mm] tự chốt khi chạy /auto-presale · ⚑ đụng danh sách "không được hứa" của Hanas hoặc cần anh quyết phạm vi.
+Ký hiệu: [T] trích từ tài liệu · [S] em suy ra, cần anh xác nhận · [C dd/mm] anh đã chốt · [D dd/mm] tự chốt khi chạy /auto-presale · ⚑ đụng danh sách "không được hứa" của sản phẩm hoặc cần anh quyết phạm vi.
 Mục nào tài liệu không nói thì ghi "Tài liệu không nêu" và đưa vào mục 9. Không để trống.
 
 ## Tổng hợp yêu cầu

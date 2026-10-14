@@ -2,6 +2,7 @@
 # Mọi ngày dạng YYYY-MM-DD. Dòng bắt đầu bằng # là ghi chú.
 
 customer: KHA                      # tên viết tắt của khách, dùng trong proposal
+product: hanas                     # sản phẩm đề xuất: knowledge/<product>-product.md và <product>-commercial.md
 kickoff: 2026-11-02                # ngày khởi động (phải là ngày làm việc)
 deadline: 2027-06-30               # hạn nghiệm thu/bàn giao theo RFP hoặc hợp đồng (bỏ trống nếu chưa có)
 submit_by:                         # hạn nộp hồ sơ / gửi proposal cho khách (panel Presales đếm ngược)

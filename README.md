@@ -5,9 +5,9 @@ Từ yêu cầu khách hàng ra proposal Hanas đúng format, WBS và master pla
 ## Cài đặt (plugin Claude Code)
 
 ```
-/plugin marketplace add trangtoan293/project-planer
-/plugin install hanas-presale@project-planer
-/plugin install presale-board@project-planer     # tùy chọn: bảng tiến độ
+/plugin marketplace add trangtoan293/project-planner
+/plugin install hanas-presale@project-planner
+/plugin install presale-board@project-planner     # tùy chọn: bảng tiến độ
 ```
 
 Cần `python3` với `pandoc`, `python-docx`, `openpyxl`, `pymupdf`. Chạy agent bằng Codex cần `codex` CLI; không có thì skill dùng subagent Claude.

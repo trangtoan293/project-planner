@@ -29,7 +29,7 @@ Repo hỗ trợ presales của Katalyst: yêu cầu khách → proposal → WBS 
 
 ## Agent
 
-Repo này đồng thời là plugin `hanas-presale` (skill ở `skills/`, agent ở `agents/`) và marketplace `project-planer`. Các agent trong `agents/` chia việc theo bước: `proposal-req-extractor`, `proposal-fit-analyst`, `proposal-section-writer`, 5 `proposal-reviewer-*`, `proposal-fixer`, `wbs-drafter`, `wbs-reviewer`, `plan-builder`. Skill nào gọi agent nào, chạy song song ra sao: xem bảng đầu `skills/write-proposal/SKILL.md`. Mặc định chạy bằng Codex qua `~/.claude/bin/codex-agent` (gpt-6.1-sol, high; anh không muốn tốn token sonnet). Trạng thái ghi ở `~/.claude/agent-runs/`, hiện ở footer AGENTS của mod `agent-monitor` (cài phạm vi user, `/agent-monitor` để hiện lại). `scripts/codex_agent.sh` là bản đóng gói của script chung, tìm agent trong plugin trước.
+Repo này đồng thời là plugin `hanas-presale` (skill ở `skills/`, agent ở `agents/`) và marketplace `project-planner`. Các agent trong `agents/` chia việc theo bước: `proposal-req-extractor`, `proposal-fit-analyst`, `proposal-section-writer`, 5 `proposal-reviewer-*`, `proposal-fixer`, `wbs-drafter`, `wbs-reviewer`, `plan-builder`. Skill nào gọi agent nào, chạy song song ra sao: xem bảng đầu `skills/write-proposal/SKILL.md`. Mặc định chạy bằng Codex qua `~/.claude/bin/codex-agent` (gpt-6.1-sol, high; anh không muốn tốn token sonnet). Trạng thái ghi ở `~/.claude/agent-runs/`, hiện ở footer AGENTS của mod `agent-monitor` (cài phạm vi user, `/agent-monitor` để hiện lại). `scripts/codex_agent.sh` là bản đóng gói của script chung, tìm agent trong plugin trước.
 
 ## Script
 

@@ -1,6 +1,6 @@
 import { expect, test } from 'claude-code/testing'
 
-// Ổ đĩa giả của repo project-planer: kha đã lên plan nhưng kiểm tra KHÔNG ĐẠT, khb mới tạo.
+// Ổ đĩa giả của repo project-planner: kha đã lên plan nhưng kiểm tra KHÔNG ĐẠT, khb mới tạo.
 const NOW = Date.now()
 const FILES: Record<string, { text: string; mtimeMs: number }> = {
   'templates/00-params.txt': { text: 'customer: KHA\n', mtimeMs: NOW },

@@ -21,12 +21,12 @@ Trang bìa (điền qua front matter của `md2docx.py`): vendor · tên tài li
    - 1.5 Vị trí trả lời các nội dung RFP: bảng **Nội dung RFP | Trả lời tại**. Bắt buộc phủ 100% mục yêu cầu của khách.
 2. **HIỂU BIẾT VỀ BÀI TOÁN CỦA <KH>**: 2.1 Khó khăn hiện tại · 2.2 Ràng buộc kỹ thuật và hướng xử lý (bảng **Ràng buộc (mục RFP) | Hướng xử lý**) · 2.3 **Những điều đề xuất này không làm** · 2.4 Phạm vi công việc (2.4.1 Phần mềm, 2.4.2 Dịch vụ triển khai, 2.4.3 Bảo hành/bảo trì, 2.4.4 Đào tạo; mỗi mục có dòng "Không bao gồm: …").
 3. **KIẾN TRÚC ĐỀ XUẤT**: cách tiếp cận (các nguyên tắc), kiến trúc tổng thể (hình + bảng **Lớp | Cấu phần service | Trách nhiệm trong dự án**), luồng dữ liệu chạy qua hệ thống trong một ngày/kỳ.
-4. **CÔNG NGHỆ ĐỀ XUẤT**: stack theo hạng mục RFP; bảng lý do/kỹ năng/độ phức tạp; mô tả từng service Hanas, mỗi service kết thúc bằng đoạn **"Áp dụng cho <KH>:"**.
+4. **CÔNG NGHỆ ĐỀ XUẤT**: stack theo hạng mục RFP; bảng lý do/kỹ năng/độ phức tạp; mô tả từng service của sản phẩm, mỗi service kết thúc bằng đoạn **"Áp dụng cho <KH>:"**.
 5–9. **Các mục nghiệp vụ theo RFP** (thu thập dữ liệu, nạp lịch sử/gia tăng, chất lượng và đối soát, data mart/báo cáo, BI, …). Mỗi mục trả lời đúng một mục RFP, dùng bảng **Trường hợp | Cách xử lý** hoặc **Cơ chế | Cách làm | Áp dụng cho**.
 10. **VẬN HÀNH**: supported / troubleshot / recovered / extended; sao lưu, khôi phục; RPO/RTO theo BCP của khách.
 11. **BẢO MẬT VÀ BẢO VỆ DỮ LIỆU CÁ NHÂN**: bảng **Hạng mục | Cách làm**, nêu Nghị định 13/2023/NĐ-CP.
 12. **BÀN GIAO VÀ CHUYỂN GIAO**: cách chuyển giao, bảng tài liệu theo thời điểm, sở hữu mã nguồn, các khóa đào tạo, việc khách cần chuẩn bị.
-13. **SO SÁNH PHƯƠNG ÁN** (khi RFP hỏi): Hanas so với tự xây và cloud, theo đúng tiêu chí RFP. Kết bằng **Khuyến nghị:**.
+13. **SO SÁNH PHƯƠNG ÁN** (khi RFP hỏi): Sản phẩm so với tự xây và cloud, theo đúng tiêu chí RFP. Kết bằng **Khuyến nghị:**.
 14. **KẾ HOẠCH TRIỂN KHAI**: 14.1 bảng **Hạng mục | Thời gian (T1–T4 = tuần) | Nội dung | Kết quả** · 14.2 mốc sớm nhất có giá trị · 14.3 phụ thuộc và yêu cầu với khách (**Bên | Cần cung cấp | Thời điểm**) · 14.4 giả định ảnh hưởng tiến độ · 14.5 phương pháp quản lý (Hybrid, sprint 2 tuần, steering hằng tháng) · 14.6 nhân sự (**Vị trí | SL | Công việc chính** + dòng **Tổng**; bảng phân vai **Giai đoạn | Vendor | Khách**).
 15. **ƯỚC TÍNH CHI PHÍ**: chi phí một lần, chi phí định kỳ, giả định. **Giá luôn để "[…]"**, kèm câu "Đơn giá và khối lượng chi tiết nằm trong Bảng báo giá kèm theo". Có thể đưa bảng effort MD (xem mẫu loại A, mục 11.2).
 16. **RỦI RO VÀ BIỆN PHÁP GIẢM THIỂU**: mỗi rủi ro là một mục con, kèm bảng 2 cột, 4 dòng **Độ rủi ro | Miêu tả | Biện pháp giảm nhẹ | Trách nhiệm**.
@@ -57,7 +57,7 @@ Kết bằng **Phụ lục A. Giả định** và **Phụ lục B. Bảng đối
 Quy tắc riêng loại B:
 - **Trích nguyên văn** yêu cầu E-HSMT (cột "Yêu cầu (trích nguyên văn Điểm x)") trước khi trả lời, không diễn giải: diễn giải làm rơi cụm bổ nghĩa ("chi tiết mã lỗi", "theo tài khoản/thẻ").
 - **Danh mục báo cáo** là bảng `STT | Tên báo cáo | Mô tả (chép nguyên Phụ lục) | Nhóm | Hình thức triển khai (bảng, bảng điều khiển, bảng + chi tiết)`, đủ mọi dòng của phụ lục.
-- Không thu hẹp yêu cầu bắt buộc bằng giả định hay điều kiện (xem `knowledge/hanas-commercial.md`, dòng "Nguyên tắc hồ sơ thầu").
+- Không thu hẹp yêu cầu bắt buộc bằng giả định hay điều kiện (xem `knowledge/<sp>-commercial.md`, dòng "Nguyên tắc hồ sơ thầu").
 - Độ dài tham khảo: bản loại B đã nộp 103 trang, danh mục báo cáo 27 trang. Phần II là phần dài nhất.
 
 ## 4. Quy tắc viết (áp dụng cả A và B)
@@ -67,6 +67,6 @@ Quy tắc riêng loại B:
 - Mọi yêu cầu của khách đều có chỗ trả lời và có cột "Căn cứ". Không bỏ sót mục nào của RFP.
 - Phạm vi có giới hạn đếm được ("tối đa 3 dashboard", "tối đa 10 chỉ số"). Vượt giới hạn thì xử lý bằng change request.
 - Giá để "[…]". Tiến độ ghi theo tuần T1… (loại A) hoặc ngày N1… (loại B), kèm tháng/năm thực tế **tính từ kickoff trong `00-params.txt`**.
-- **Mô tả Hanas lấy từ `knowledge/hanas-product.md`**, không lấy từ proposal mẫu. Không hứa các mục trong bảng "Những điều không được hứa với khách hàng".
+- **Mô tả sản phẩm lấy từ `knowledge/<sp>-product.md`**, không lấy từ proposal mẫu. Không hứa các mục trong bảng "Những điều không được hứa với khách hàng".
 - Tên vendor nhất quán trong toàn tài liệu (bìa, header, thân bài). Một mẫu cũ bị lẫn tên hai vendor, không lặp lại lỗi này.
 - Bảng: dòng đầu là tiêu đề, chữ đậm. Markdown viết `| **Cột** | ... |`; `md2docx.py` tự tô nền xanh.

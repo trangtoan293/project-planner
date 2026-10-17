@@ -21,7 +21,7 @@ def make(d: Path, review_tail="CÒN LẠI: CRITICAL 0 · HIGH 0\nKẾT LUẬN: �
         "01-requirements.md": SUMMARY + "\n| R001 | a | Kết quả | 1 | Mục II.1 | x |\n",
         "02-proposal.md": "# II. A\n## II.1. B\n",
         "02-review.md": "# Review\n## Vòng 1\nCÒN LẠI: CRITICAL 2 · HIGH 1\n## Vòng 2\n" + review_tail,
-        "03-wbs.md": "x", "03-wbs.csv": "x", "04-master-plan.xlsx": "x",
+        "03-wbs.md": "x", "03-wbs.csv": "x", "03-task-list.xlsx": "x", "04-master-plan.xlsx": "x",
         "00-auto-summary.md": "## Quyết định tự chốt\n- [D] ...\n",
     }
     for name, text in files.items():

@@ -8,25 +8,28 @@
 | 1 | **Bỏ file**: RFP, BRD, email vào `01-input/` | — | |
 | 2 | **Viết** proposal | `/write-proposal <tên-kh>` | `02-proposal.docx` |
 | 3 | **Chia** việc | `/analyze-proposal <tên-kh>` | `03-wbs.md` |
-| 4 | Lên **lịch** + nhân sự | `/master-plan <tên-kh>` | `04-master-plan.xlsx` + `04-check.txt` |
+| 4 | Lên **lịch** + nhân sự | `/master-plan <tên-kh>` | `03-task-list.xlsx` (gửi đội, không ngày/MD) → `04-master-plan.xlsx` + `04-check.txt` |
 
 Không nhớ đang ở bước nào thì gõ **`/presale`** (hoặc `/presale <tên-kh>` để mở thẳng khách đó).
 
 ## Bảng Presales
 
-Mỗi khách là một thẻ, có chuỗi 5 bước: **● xong · ◐ cần làm lại · ✗ lỗi · ▶ bước tiếp · ○ chưa làm**.
-Bảng tự phát hiện **◐ cần làm lại** khi anh sửa file nguồn sau khi đã sinh kết quả, ví dụ sửa `00-params.txt` sau khi dựng Excel. Thẻ của khách đang chọn hiện thêm: kickoff → deadline, lỗi kiểm tra đầu tiên, và danh sách file kèm thời điểm sửa gần nhất.
+Bảng chỉ hiện **một khách** (khách đang chọn): chuỗi 6 bước **● xong · ◐ cần làm lại · ✗ lỗi · ▶ bước tiếp · ○ chưa làm**, cùng tối đa 3 việc gấp (hạn nộp, review còn CRITICAL, plan chưa đạt, quyết định [D] chờ duyệt).
+Bảng tự phát hiện **◐ cần làm lại** khi anh sửa file nguồn sau khi đã sinh kết quả, ví dụ sửa `00-params.txt` sau khi dựng Excel.
 
 Bấm **Ctrl+X Tab** để chuyển con trỏ vào bảng, rồi dùng phím:
 
 | Phím | Làm gì |
 |---|---|
-| `1`–`9` | chọn khách |
+| bấm tên khách | sang khách khác (hoặc gõ `/presale <tên-kh>`) |
+| `t` | bật/tắt **Tóm tắt**: giải pháp, câu đề xuất chính, các mốc của plan (ngày, MD) |
 | `n` | điền **lệnh tiếp theo** vào ô chat (anh chỉ cần Enter) |
+| `s` | bật/tắt **Thông số**: thời gian, số người/tối đa và MD từng vai trò, tổng người, tổng MD (so với MD đã nêu trong proposal), yêu cầu, review, ô […] |
 | `c` | **kiểm tra lại** plan ngay (chạy `check_plan.py`, ghi `04-check.txt`) |
-| `k` | mở kết quả kiểm tra đầy đủ |
-| `o` · `p` · `w` · `x` | mở thư mục · proposal Word · WBS · master plan Excel |
+| `o` · `p` · `x` | mở thư mục khách · proposal Word · master plan Excel |
 | `Esc` | quay lại ô chat |
+
+Số người mỗi vai trò là số đông nhất trong cùng một ngày (cộng người × % của các việc chạy song song), do `check_plan.py` tính.
 
 ## Ở mỗi bước, anh chỉ cần
 

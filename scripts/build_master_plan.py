@@ -12,12 +12,18 @@ CSV (UTF-8, có header):
 - start: ĐỂ TRỐNG để script tự tính từ predecessors (hoặc kickoff nếu không có predecessor).
   Chỉ ghi YYYY-MM-DD khi ngày đó bị khách/hợp đồng cố định.
 - predecessors: mã WBS hoặc Task ID, cách nhau dấu phẩy; hỗ trợ FS (mặc định), SS, FF và lag: 1.2.1, 1.3.2SS+2, 1.4.1FF.
+- Cột tùy chọn: refs (mã R trong 01-requirements.md, ví dụ "R01 R05"), owner (vai trò chính: BA, DE, DevOps…),
+  note (dòng milestone: bàn giao, tiêu chí nghiệm thu).
+
+--team: file cho đội phát triển, chỉ có đầu việc, vai trò, phụ thuộc, căn cứ; KHÔNG có ngày và MD.
+  Ở chế độ này duration và các cột nhân sự được để trống.
 """
 import argparse
 import csv
 import re
 import sys
 from datetime import date, timedelta
+from pathlib import Path
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
@@ -42,7 +48,7 @@ THIN = Side(style="thin", color="BFBFBF")
 BORDER = Border(left=THIN, right=THIN, top=THIN, bottom=THIN)
 BLUE = "FF0000FF"
 LEVEL_STYLE = {1: ("FFD9E2F3", "FF000000"), 2: ("FFEEF3FA", "FF000000"), 3: ("FFD9E2F3", "FF1F3864")}
-WIDTHS = {"A": 8, "B": 9.7, "C": 46, "D": 9, "E": 14.4, "F": 14, "G": 12, "H": 17, "I": 8, "J": 9, "Z": 12}
+WIDTHS = {"A": 8, "B": 9.7, "C": 46, "D": 9, "E": 14.4, "F": 14, "G": 12, "H": 17, "I": 8, "J": 9, "Z": 12, "AA": 10}
 
 
 def parse_holidays(spec):
@@ -160,7 +166,7 @@ def schedule(tasks, holidays, kickoff):
             sys.exit("Predecessor bị vòng lặp: " + ", ".join(t["wbs"] for t in pending))
 
 
-def load_tasks(path, holidays, kickoff=None):
+def load_tasks(path, holidays, kickoff=None, timed=True):
     with open(path, encoding="utf-8-sig", newline="") as f:
         rows = [r for r in csv.DictReader(f) if (r.get("wbs") or "").strip()]
     if not rows:
@@ -173,8 +179,11 @@ def load_tasks(path, holidays, kickoff=None):
         wbs = r["wbs"].strip()
         t = {"wbs": wbs, "name": r["name"].strip(), "pred": (r.get("predecessors") or "").strip(),
              "level": wbs.count(".") + 1,
-             "parent": any(w.startswith(wbs + ".") for w in wbs_list)}
-        if not t["parent"]:
+             "parent": any(w.startswith(wbs + ".") for w in wbs_list),
+             # refs = None khi CSV không có cột refs (CSV cũ), để check_plan phân biệt với "có cột nhưng trống"
+             "refs": None if r.get("refs") is None else re.findall(r"R\d+", r["refs"]),
+             "owner": (r.get("owner") or "").strip(), "note": (r.get("note") or "").strip()}
+        if timed and not t["parent"]:
             t["days"] = int(num(r.get("duration"), "duration", wbs))
             if t["days"] < 1:
                 sys.exit(f"WBS {wbs}: dòng chi tiết cần duration >= 1")
@@ -186,6 +195,12 @@ def load_tasks(path, holidays, kickoff=None):
                     sys.exit(f"WBS {wbs}: {key}_n phải >= 0 và {key}_pct trong khoảng 0..1")
                 t[key] = (n, pct)
         tasks.append(t)
+    if not timed:
+        # ponytail: chỉ kiểm predecessor tồn tại; vòng lặp predecessor do bước dựng plan có ngày bắt
+        for t in tasks:
+            if not t["parent"]:
+                parse_preds(t, tasks)
+        return tasks
     schedule(tasks, holidays, kickoff)
     # dòng tổng hợp: ngày = min/max của các dòng chi tiết bên dưới
     for t in tasks:
@@ -223,8 +238,9 @@ def write_header(ws, max_people):
         for col, text in ((cn, f"{disp}\nSố\nngười"), (cp, f"{disp}\n%\nphân bổ"), (cm, f"{md_label}\nMD")):
             style(ws[f"{col}2"], fill="FF2E75B6", bold=True, color="FFFFFFFF", size=9, wrap=True)
             ws[f"{col}2"] = text
-    ws["Z2"] = "Kiểm tra"
-    style(ws["Z2"], fill="FF1F4E79", bold=True, color="FFFFFFFF", wrap=True)
+    for col, text in (("Z", "Kiểm tra"), ("AA", "Sprint")):
+        ws[f"{col}2"] = text
+        style(ws[f"{col}2"], fill="FF1F4E79", bold=True, color="FFFFFFFF", wrap=True)
     ws.row_dimensions[2].height = 43.5
 
 
@@ -236,6 +252,7 @@ def write_task(ws, r, idx, t, child_rows):
         "H": f'=_xlfn.TEXTJOIN(", ",TRUE(),{resources})',
         "I": "=" + "+".join(f"{cm}{r}" for *_, cm, _ in ROLES),
         "J": f'=IF($D{r}="","",VALUE(LEFT($D{r},FIND(" ",$D{r})-1)))',
+        "AA": t.get("sprint"),
     }
     for _, key, cn, cp, cm, _ in ROLES:
         if t["parent"]:
@@ -250,7 +267,7 @@ def write_task(ws, r, idx, t, child_rows):
     fill, color = LEVEL_STYLE.get(t["level"], (None, "FF000000")) if t["parent"] else (None, "FF000000")
     inputs = {c for _, _, cn, cp, *_ in ROLES for c in (cn, cp)}
     pct_cols = {cp for _, _, _, cp, *_ in ROLES}
-    for col in [get_column_letter(i) for i in range(1, 27)]:
+    for col in [get_column_letter(i) for i in range(1, 28)]:
         cell = ws[f"{col}{r}"]
         if col in values:
             cell.value = values[col]
@@ -296,7 +313,95 @@ def write_summary(ws, r0, pm_min, previous_total):
         r += 1
 
 
-def build(tasks, out, sheet_title, pm_min, previous_total):
+def pred_ids(t, tasks, task_id):
+    """Predecessors theo Task ID như file MS Project: 3, 5SS+2 days."""
+    return ",".join(
+        f"{task_id[p['wbs']]}{'' if kind == 'FS' and not lag else kind}"
+        f"{'' if not lag else f'{lag:+d} day' + ('s' if abs(lag) > 1 else '')}"
+        for p, kind, lag, _ in parse_preds(t, tasks))
+
+
+TEAM_COLS = [("WBS", 8), ("Task ID", 8), ("Việc", 50), ("Vai trò", 14), ("Phụ thuộc\n(Task ID)", 12),
+             ("Căn cứ\n(mã R)", 16), ("Bàn giao / tiêu chí nghiệm thu", 50)]
+
+
+def build_team(tasks, out, sheet_title):
+    """Danh sách đầu việc cho đội phát triển: không ngày, không MD, không % phân bổ."""
+    wb = Workbook()
+    ws = wb.active
+    ws.title = sheet_title[:31]
+    for i, (h, w) in enumerate(TEAM_COLS, 1):
+        style(ws.cell(1, i, h), fill="FF1F4E79", bold=True, color="FFFFFFFF", wrap=True)
+        ws.column_dimensions[get_column_letter(i)].width = w
+    task_id = {t["wbs"]: i + 1 for i, t in enumerate(tasks)}
+    for i, t in enumerate(tasks):
+        row = [t["wbs"], i + 1, t["name"], t["owner"] or None,
+               None if t["parent"] else pred_ids(t, tasks, task_id) or None,
+               " ".join(t["refs"] or []) or None, t["note"] or None]
+        fill, color = LEVEL_STYLE.get(t["level"], (None, "FF000000")) if t["parent"] else (None, "FF000000")
+        for j, v in enumerate(row, 1):
+            style(ws.cell(i + 2, j, v), fill=fill, bold=t["parent"], color=color,
+                  align="left" if j in (3, 6, 7) else "center", wrap=j in (3, 6, 7))
+    ws.freeze_panes = "D2"
+    wb.save(out)
+
+
+def sprint_no(d, kickoff, weeks):
+    return (d - kickoff).days // (7 * weeks) + 1
+
+
+def sprint_label(t, kickoff, weeks):
+    a, b = sprint_no(t["start"], kickoff, weeks), sprint_no(t["finish"], kickoff, weeks)
+    return f"S{a}" if a == b else f"S{a}–S{b}"
+
+
+def sprint_rows(tasks, kickoff, weeks, holidays):
+    """Mỗi sprint: khoảng ngày, số ngày làm việc, MD theo vai trò (người × % × số ngày làm việc của việc rơi vào sprint)."""
+    leaves = [t for t in tasks if not t["parent"]]
+    rows = []
+    for s in range(1, sprint_no(tasks[0]["finish"], kickoff, weeks) + 1):
+        start = kickoff + timedelta(weeks=weeks * (s - 1))
+        end = start + timedelta(weeks=weeks, days=-1)
+        md = {key: 0.0 for _, key, *_ in ROLES}
+        running = [t for t in leaves if t["start"] <= end and t["finish"] >= start]
+        for t in running:
+            days = count_workdays(max(start, t["start"]), min(end, t["finish"]), holidays)
+            for _, key, *_ in ROLES:
+                md[key] += days * t[key][0] * t[key][1]
+        milestones = [m["name"].split(" — ")[0] for m in tasks if m["level"] == 2
+                      and m["start"] <= end and m["finish"] >= start]
+        rows.append({"sprint": f"S{s}", "start": start, "end": end, "workdays": count_workdays(start, end, holidays),
+                     "md": md, "tasks": len(running), "milestones": ", ".join(milestones)})
+    return rows
+
+
+def write_sprints(wb, rows, capacity, weeks):
+    ws = wb.create_sheet("Sprint")
+    heads = (["Sprint", "Từ ngày", "Đến ngày", "Ngày làm việc"] + [f"{d} MD" for d, *_ in ROLES]
+             + ["Tổng MD", "Tải cao nhất\n(MD ÷ năng lực)", "Số việc đang chạy", "Milestone đang chạy", "Kiểm tra"])
+    ws["A1"] = (f"Sprint {weeks} tuần tính từ kickoff. Năng lực mỗi vai trò = số người trong team_max "
+                "× ngày làm việc của sprint. Số liệu tính lúc dựng file, sửa plan thì dựng lại.")
+    ws["A1"].font = Font(name=FONT, size=9, color=BLUE)
+    for i, h in enumerate(heads, 1):
+        style(ws.cell(2, i, h), fill="FF1F4E79", bold=True, color="FFFFFFFF", wrap=True)
+    for r, row in enumerate(rows, 3):
+        load = max((row["md"][key] / (capacity[key] * row["workdays"]) for _, key, *_ in ROLES
+                    if capacity[key] and row["workdays"]), default=0)
+        values = ([row["sprint"], fmt_date(row["start"]), fmt_date(row["end"]), row["workdays"]]
+                  + [round(row["md"][key], 1) for _, key, *_ in ROLES]
+                  + [round(sum(row["md"].values()), 1), load, row["tasks"], row["milestones"],
+                     "VƯỢT TẢI" if load > 1 + 1e-9 else "OK"])
+        for i, v in enumerate(values, 1):
+            style(ws.cell(r, i, v), fmt="0%" if i == 11 else "0.0" if 5 <= i <= 10 else None,
+                  align="left" if i == 13 else "center")
+    for i, w in enumerate([8, 14, 14, 9, 8, 8, 8, 8, 8, 9, 12, 9, 40, 10], 1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+    ws.row_dimensions[2].height = 43.5
+    ws.freeze_panes = "B3"
+
+
+def build(tasks, out, sheet_title, pm_min, previous_total, kickoff=None, sprint_weeks=2, holidays=frozenset(),
+          team_max=None):
     wb = Workbook()
     ws = wb.active
     ws.title = sheet_title[:31]
@@ -304,22 +409,23 @@ def build(tasks, out, sheet_title, pm_min, previous_total):
     max_people = {key: int(max(t[key][0] for t in leaves)) for _, key, *_ in ROLES}
     write_header(ws, max_people)
 
+    for t in tasks:
+        t["sprint"] = sprint_label(t, kickoff or tasks[0]["start"], sprint_weeks)
     row_of = {t["wbs"]: 3 + i for i, t in enumerate(tasks)}
     task_id = {t["wbs"]: i + 1 for i, t in enumerate(tasks)}
-    for t in leaves:  # cột Predecessors theo Task ID như file MS Project
-        t["pred_ids"] = ",".join(
-            f"{task_id[p['wbs']]}{'' if kind == 'FS' and not lag else kind}"
-            f"{'' if not lag else f'{lag:+d} day' + ('s' if abs(lag) > 1 else '')}"
-            for p, kind, lag, _ in parse_preds(t, tasks))
+    for t in leaves:
+        t["pred_ids"] = pred_ids(t, tasks, task_id)
     for i, t in enumerate(tasks):
         children = [row_of[c["wbs"]] for c in tasks
                     if c["wbs"].startswith(t["wbs"] + ".") and c["level"] == t["level"] + 1]
         write_task(ws, row_of[t["wbs"]], i + 1, t, children)
 
     write_summary(ws, 3 + len(tasks) + 2, pm_min, previous_total)
-    for col in [get_column_letter(i) for i in range(1, 27)]:
+    for col in [get_column_letter(i) for i in range(1, 28)]:
         ws.column_dimensions[col].width = WIDTHS.get(col, 8 if col in {"L", "O", "R", "U", "X"} else 6 if col in {"K", "N", "Q", "T", "W"} else 7)
     ws.freeze_panes = "D3"
+    capacity = {key: (team_max or {}).get(key, max_people[key]) for _, key, *_ in ROLES}
+    write_sprints(wb, sprint_rows(tasks, kickoff or tasks[0]["start"], sprint_weeks, holidays), capacity, sprint_weeks)
     wb.save(out)
 
 
@@ -332,22 +438,47 @@ def main():
     ap.add_argument("--pm-min", type=float, default=0.8)
     ap.add_argument("--previous-total", type=float, default=None, help="Tổng MD bản đã gửi khách (để kiểm tra không giảm)")
     ap.add_argument("--params", help="00-params.txt của dự án: lấy holidays, pm_min, previous_total từ đây")
+    ap.add_argument("--team", action="store_true", help="file cho đội phát triển: không ngày, không MD")
     a = ap.parse_args()
+    if a.team:
+        main_team(a)
+        return
     if a.params:
-        from check_plan import read_params  # cùng thư mục scripts/
+        from check_plan import kv_list, read_params  # cùng thư mục scripts/
         p = read_params(a.params)
         a.holidays = a.holidays or p.get("holidays", "")
         a.pm_min = float(p.get("pm_min", a.pm_min))
         a.previous_total = a.previous_total or (float(p["previous_total"]) if p.get("previous_total") else None)
         kickoff = date.fromisoformat(p["kickoff"])
+        sprint_weeks = int(p.get("sprint_weeks") or 2)
+        team_max = {k.lower(): float(v) for k, v in kv_list(p.get("team_max")).items()}
     else:
-        kickoff = None
-    tasks = load_tasks(a.csv, parse_holidays(a.holidays), kickoff)
+        kickoff, sprint_weeks, team_max = None, 2, None
+    holidays = parse_holidays(a.holidays)
+    tasks = load_tasks(a.csv, holidays, kickoff)
     if tasks[0]["level"] != 1 or sum(t["level"] == 1 for t in tasks) != 1:
         sys.exit("Dòng đầu tiên phải là dòng tổng dự án (WBS '1') và là dòng cấp 1 duy nhất")
-    build(tasks, a.out, a.sheet, a.pm_min, a.previous_total)
+    build(tasks, a.out, a.sheet, a.pm_min, a.previous_total, kickoff, sprint_weeks, holidays, team_max)
     total = sum(t["days"] * n * p for t in tasks if not t["parent"] for _, key, *_ in ROLES for n, p in [t[key]])
     print(f"Đã ghi {a.out}: {len(tasks)} dòng, {tasks[0]['days']} ngày làm việc, ~{total:.1f} MD")
+
+
+def main_team(a):
+    tasks = load_tasks(a.csv, set(), timed=False)
+    if tasks[0]["level"] != 1 or sum(t["level"] == 1 for t in tasks) != 1:
+        sys.exit("Dòng đầu tiên phải là dòng tổng dự án (WBS '1') và là dòng cấp 1 duy nhất")
+    build_team(tasks, a.out, "Task_List" if a.sheet == "Master_Plan" else a.sheet)
+    print(f"Đã ghi {a.out}: {len(tasks)} dòng, {sum(not t['parent'] for t in tasks)} việc chi tiết (không ngày, không MD)")
+    req = Path(a.csv).parent / "01-requirements.md"
+    if req.exists():
+        from check_plan import check_refs  # cùng thư mục scripts/
+        fails, warns = check_refs(req.read_text(encoding="utf-8"), tasks)
+        for w in warns:
+            print("WARN ", w)
+        for f in fails:
+            print("FAIL ", f)
+        print("REFS:", "KHÔNG ĐẠT" if fails else "ĐẠT")
+        sys.exit(1 if fails else 0)
 
 
 if __name__ == "__main__":

@@ -12,12 +12,16 @@ Kiểm tra:
   3. Ràng buộc predecessor (FS, SS, FF, có lag) được tôn trọng.
   4. Mốc bắt buộc (milestones) kết thúc đúng hạn.
   5. Số người mỗi vai trò không vượt team_max; % phân bổ trong 0..1.
-  6. Tổng MD khớp proposal_md (±5%); tỷ trọng PM trong 5–15%.
+  6. Tổng MD khớp proposal_md (±5%); WARN khi tỷ trọng vai trò ra ngoài khung estimation.md §3.
   7. Không còn tên khách hàng/dự án cũ (stale_terms) trong WBS và proposal.
   8. Ngày tháng trong proposal: cảnh báo ngày trước kickoff hoặc sau deadline.
   9. 01-requirements.md (cùng thư mục proposal): mọi yêu cầu có "Trả lời tại" trỏ tới mục có thật, không ghi khoảng;
      đủ 9 mục tổng hợp (templates/01-requirements.md) và không mục nào trống.
+ 10. Cột refs của WBS: mã R có thật trong 01-requirements.md; mọi R loại Chức năng, Phi chức năng, Kết quả,
+     Dịch vụ (trừ dòng ghi "ngoài phạm vi") thuộc ít nhất một milestone. 01-requirements.md lấy cùng thư mục
+     với proposal, hoặc với CSV khi không truyền proposal.
 """
+import math
 import re
 import sys
 from datetime import date, timedelta
@@ -27,6 +31,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 from build_master_plan import (ROLES, is_workday, load_tasks, parse_holidays,  # noqa: E402
                                parse_preds, shift_workdays)
 
+# Tỷ trọng thường gặp, khớp knowledge/estimation.md §3; lệch thì WARN để người xem giải thích, không chặn
+ROLE_SHARE = {"pm": (0.05, 0.12), "ba": (0.15, 0.30), "dev": (0.35, 0.50), "syse": (0.10, 0.15), "tester": (0.12, 0.17)}
 DATE_RE = re.compile(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b")
 
 
@@ -108,8 +114,10 @@ def check(params, tasks, proposal_text, holidays):
             target = float(params["proposal_md"])
             if abs(total - target) > 0.05 * target:
                 fails.append(f"Tổng MD plan {total:.1f} lệch > 5% so với proposal {target:g}")
-        if total and not 0.05 <= md["pm"] / total <= 0.15:
-            warns.append(f"PM chiếm {md['pm'] / total:.0%} tổng MD (thường 8–12%)")
+        for disp, key, *_ in ROLES:
+            lo, hi = ROLE_SHARE[key]
+            if total and not lo <= md[key] / total <= hi:
+                warns.append(f"{disp} chiếm {md[key] / total:.0%} tổng MD (thường {lo:.0%}–{hi:.0%}, estimation.md §3)")
     # 7. tên cũ
     text = "\n".join(t["name"] for t in tasks) + "\n" + proposal_text
     customer = params["customer"].lower()
@@ -126,6 +134,23 @@ def check(params, tasks, proposal_text, holidays):
         if d < kickoff - timedelta(days=90) or (deadline and d > deadline + timedelta(days=400)):
             warns.append(f"Proposal nhắc ngày {d:%d/%m/%Y} — xa kickoff/deadline, kiểm tra có phải ngày cũ không")
     return fails, warns, md, total
+
+
+def task_md(task, tasks):
+    """MD của một việc hoặc một nhóm (cộng các việc con)."""
+    leaves = [t for t in tasks if not t["parent"] and (t is task or t["wbs"].startswith(task["wbs"] + "."))]
+    return sum(t["days"] * t[key][0] * t[key][1] for t in leaves for _, key, *_ in ROLES)
+
+
+def peak_team(tasks):
+    """Số người cao nhất mỗi vai trò trong cùng một ngày: cộng tải (người × %) các việc chạy chồng nhau, làm tròn lên.
+    Một người chia 50% cho hai việc song song vẫn tính là 1 người."""
+    leaves = [t for t in tasks if not t["parent"]]
+    # ponytail: duyệt theo từng ngày lịch; dự án vài trăm ngày × vài trăm việc vẫn dưới 1 giây
+    days = {t["start"] + timedelta(n) for t in leaves for n in range((t["finish"] - t["start"]).days + 1)}
+    load = {key: max((sum(t[key][0] * t[key][1] for t in leaves if t["start"] <= d <= t["finish"]) for d in days), default=0)
+            for _, key, *_ in ROLES}
+    return {key: math.ceil(v - 1e-9) for key, v in load.items()}
 
 
 def check_requirements(req_text, proposal_text):
@@ -145,6 +170,26 @@ def check_requirements(req_text, proposal_text):
             fails.append(f"{cells[0]}: 'Trả lời tại' ghi khoảng '{where}', cần một mục cụ thể")
         fails += [f"{cells[0]}: không có mục '{r}' trong proposal" for r in refs if r not in heads]
     return fails
+
+
+IN_MILESTONE = {"Chức năng", "Phi chức năng", "Kết quả", "Dịch vụ"}
+
+
+def check_refs(req_text, tasks):
+    """Mỗi R phải làm trong phạm vi thuộc ít nhất một milestone (WBS 1.x) qua cột refs của CSV."""
+    if all(t.get("refs") is None for t in tasks):
+        return [], ["CSV chưa có cột refs: không kiểm được mỗi R thuộc milestone nào"]
+    reqs = {}
+    for line in req_text.splitlines():
+        cells = [c.strip().strip("*") for c in line.strip().strip("|").split("|")]
+        if len(cells) > 2 and re.fullmatch(r"R\d+", cells[0]):
+            reqs[cells[0]] = (cells[2], "ngoài phạm vi" in line.lower())
+    fails = [f"{t['wbs']}: refs '{r}' không có trong 01-requirements.md"
+             for t in tasks for r in t.get("refs") or [] if r not in reqs]
+    covered = {r for t in tasks for r in t.get("refs") or []}
+    fails += [f"{r} ({kind}) chưa thuộc milestone nào (thêm vào cột refs của việc làm nó)"
+              for r, (kind, out) in reqs.items() if kind in IN_MILESTONE and not out and r not in covered]
+    return fails, []
 
 
 SUMMARY = ["Mục tiêu dự án", "Yêu cầu dự án", "Phạm vi", "Công nghệ yêu cầu", "Kết quả mong muốn",
@@ -173,13 +218,25 @@ def main():
     tasks = [] if sys.argv[2] == "-" else load_tasks(sys.argv[2], holidays, kickoff)
     proposal = Path(sys.argv[3]).read_text(encoding="utf-8") if len(sys.argv) == 4 else ""
     fails, warns, md, total = check(params, tasks, proposal, holidays)
-    req = Path(sys.argv[3]).parent / "01-requirements.md" if len(sys.argv) == 4 else None
+    src = sys.argv[3] if len(sys.argv) == 4 else None if sys.argv[2] == "-" else sys.argv[2]
+    req = Path(src).parent / "01-requirements.md" if src else None
     if req and req.exists():
         req_text = req.read_text(encoding="utf-8")
-        fails += check_requirements(req_text, proposal) + check_summary(req_text)
+        if len(sys.argv) == 4:
+            fails += check_requirements(req_text, proposal) + check_summary(req_text)
+        if tasks:
+            ref_fails, ref_warns = check_refs(req_text, tasks)
+            fails += ref_fails
+            warns += ref_warns
     if tasks:
         print(f"Plan {tasks[0]['start']} → {tasks[0]['finish']} ({tasks[0]['days']} ngày làm việc), "
               f"{total:.1f} MD: " + ", ".join(f"{d} {md[k]:.1f}" for d, k, *_ in ROLES))
+        for t in tasks:
+            if t["level"] == 2:
+                n_refs = len({r for c in tasks if c is t or c["wbs"].startswith(t["wbs"] + ".") for r in c.get("refs") or []})
+                print(f"MỐC  {t['wbs']} | {t['name']} | {t['start']} | {t['finish']} | {task_md(t, tasks):.1f} | {n_refs} R")
+        peak = peak_team(tasks)
+        print("ĐỘI  " + ", ".join(f"{d} {peak[k]:g}" for d, k, *_ in ROLES) + f" (tổng {sum(peak.values()):g} người cùng lúc)")
     for w in warns:
         print("WARN ", w)
     for f in fails:

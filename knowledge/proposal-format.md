@@ -27,8 +27,8 @@ Trang bìa (điền qua front matter của `md2docx.py`): vendor · tên tài li
 11. **BẢO MẬT VÀ BẢO VỆ DỮ LIỆU CÁ NHÂN**: bảng **Hạng mục | Cách làm**, nêu Nghị định 13/2023/NĐ-CP.
 12. **BÀN GIAO VÀ CHUYỂN GIAO**: cách chuyển giao, bảng tài liệu theo thời điểm, sở hữu mã nguồn, các khóa đào tạo, việc khách cần chuẩn bị.
 13. **SO SÁNH PHƯƠNG ÁN** (khi RFP hỏi): Sản phẩm so với tự xây và cloud, theo đúng tiêu chí RFP. Kết bằng **Khuyến nghị:**.
-14. **KẾ HOẠCH TRIỂN KHAI**: 14.1 bảng **Hạng mục | Thời gian (T1–T4 = tuần) | Nội dung | Kết quả** · 14.2 mốc sớm nhất có giá trị · 14.3 phụ thuộc và yêu cầu với khách (**Bên | Cần cung cấp | Thời điểm**) · 14.4 giả định ảnh hưởng tiến độ · 14.5 phương pháp quản lý (Hybrid, sprint 2 tuần, steering hằng tháng) · 14.6 nhân sự (**Vị trí | SL | Công việc chính** + dòng **Tổng**; bảng phân vai **Giai đoạn | Vendor | Khách**).
-15. **ƯỚC TÍNH CHI PHÍ**: chi phí một lần, chi phí định kỳ, giả định. **Giá luôn để "[…]"**, kèm câu "Đơn giá và khối lượng chi tiết nằm trong Bảng báo giá kèm theo". Có thể đưa bảng effort MD (xem mẫu loại A, mục 11.2).
+14. **KẾ HOẠCH TRIỂN KHAI**: 14.1 bảng milestone **Milestone | Thời gian (T1–T4 = tuần) | Bàn giao (khách thấy gì chạy) | Tiêu chí nghiệm thu**, chia theo lát dọc như `knowledge/estimation.md` §4: `M0 — Nền tảng` (khởi động, khảo sát, thiết kế, cài Dev/UAT) → `M1` lát mỏng đầu tiên (1 nguồn, 1 domain, 1–2 báo cáo chạy thật) → `M2…Mn` mở rộng theo nguồn/domain/nhóm báo cáo → nghiệm thu tổng thể → hypercare, bảo hành. SIT, UAT, go-live của lát nào nằm trong milestone đó, không tách thành giai đoạn riêng. Khách đã quy định giai đoạn thì theo khách. Bảng này là khung cho milestone trong `03-wbs.md` · 14.2 mốc sớm nhất có giá trị (chính là M1) · 14.3 phụ thuộc và yêu cầu với khách (**Bên | Cần cung cấp | Thời điểm**) · 14.4 giả định ảnh hưởng tiến độ · 14.5 phương pháp quản lý (Hybrid, sprint 2 tuần, steering hằng tháng) · 14.6 nhân sự (**Vị trí | SL | Công việc chính** + dòng **Tổng**; bảng phân vai **Milestone | Vendor | Khách**).
+15. **ƯỚC TÍNH CHI PHÍ**: chi phí một lần, chi phí định kỳ, giả định. **Giá luôn để "[…]"**, kèm câu "Đơn giá và khối lượng chi tiết nằm trong Bảng báo giá kèm theo". Bảng effort MD (khi nêu) chia **theo đúng các milestone của bảng 14.1**: **Milestone | PM | BA | DEV | SysE | Tester | Tổng MD**, không chia theo hạng mục riêng, để khớp `03-wbs.md` và master plan.
 16. **RỦI RO VÀ BIỆN PHÁP GIẢM THIỂU**: mỗi rủi ro là một mục con, kèm bảng 2 cột, 4 dòng **Độ rủi ro | Miêu tả | Biện pháp giảm nhẹ | Trách nhiệm**.
 17. **BẢO HÀNH, HỖ TRỢ VÀ BẢO TRÌ**: thời gian (hypercare/bảo hành/bảo trì) · phạm vi (**Thuộc bảo hành | Không thuộc**) · phân loại sự cố (Khẩn cấp/Cao/Trung bình/Thấp) · quy trình 5 bước · bảo trì định kỳ · thay đổi và yêu cầu mới (quỹ man-day).
 
@@ -63,10 +63,32 @@ Quy tắc riêng loại B:
 ## 4. Quy tắc viết (áp dụng cả A và B)
 
 - Tiếng Việt, câu ngắn, khẳng định, không sáo rỗng ("hàng đầu", "toàn diện", "tối ưu" không có số liệu đi kèm thì bỏ). Giữ nguyên tên sản phẩm, giao thức và thuật ngữ kỹ thuật tiếng Anh.
-- Gọi khách bằng tên viết tắt nhất quán (ví dụ KHA). Tham chiếu chéo bằng "Mục X của tài liệu này".
+- Gọi khách bằng tên viết tắt nhất quán (ví dụ KHA). Tham chiếu chéo bằng "Mục X". Chỉ thêm "của tài liệu này" khi câu cũng nhắc mục của tài liệu khách, dễ nhầm.
 - Mọi yêu cầu của khách đều có chỗ trả lời và có cột "Căn cứ". Không bỏ sót mục nào của RFP.
 - Phạm vi có giới hạn đếm được ("tối đa 3 dashboard", "tối đa 10 chỉ số"). Vượt giới hạn thì xử lý bằng change request.
 - Giá để "[…]". Tiến độ ghi theo tuần T1… (loại A) hoặc ngày N1… (loại B), kèm tháng/năm thực tế **tính từ kickoff trong `00-params.txt`**.
 - **Mô tả sản phẩm lấy từ `knowledge/<sp>-product.md`**, không lấy từ proposal mẫu. Không hứa các mục trong bảng "Những điều không được hứa với khách hàng".
 - Tên vendor nhất quán trong toàn tài liệu (bìa, header, thân bài). Một mẫu cũ bị lẫn tên hai vendor, không lặp lại lỗi này.
 - Bảng: dòng đầu là tiêu đề, chữ đậm. Markdown viết `| **Cột** | ... |`; `md2docx.py` tự tô nền xanh.
+
+## 5. Dấu hiệu văn AI tiếng Việt
+
+`scripts/check_style.py` bắt tự động những dấu hiệu có ký hiệu ✓. Sửa bằng cách viết lại câu cho cụ thể hơn, không thay bằng từ đồng nghĩa.
+
+| Dấu hiệu | Ví dụ (từ proposal thật) | Viết lại thế nào |
+|---|---|---|
+| ✓ Câu chốt "Đây là…" | "Đây là phần dịch vụ phát triển để hoàn thiện năng lực hiện tại." | Gộp vào câu trước: "Katalyst phát triển thêm phần này trong dự án." Hoặc bỏ. |
+| ✓ "Việc + động từ" đầu câu | "Việc nghiệm thu cần số đo và biên bản…" | Đưa người làm lên đầu: "Hai bên nghiệm thu bằng số đo và biên bản…" |
+| ✓ "được" chồng nhiều lần | "Bản ghi vẫn được tạo khi chưa trích được một trường; trường đó được ghi nhận là thiếu" | Câu chủ động: "Hệ thống vẫn tạo bản ghi và đánh dấu trường chưa trích là 'thiếu'." |
+| ✓ Lặp "của tài liệu này" | "theo Mục 5 của tài liệu này… Mục 13.5 của tài liệu này" | "theo Mục 5… Mục 13.5". |
+| ✓ Đối lập "không chỉ… mà còn", "không phải X mà là Y" | "không chỉ lưu trữ mà còn khai thác dữ liệu" | Nói thẳng hai việc: "lưu trữ và khai thác dữ liệu". |
+| ✓ Từ sáo không có số | "toàn diện", "tối ưu", "mạnh mẽ", "linh hoạt", "hiệu quả", "liền mạch", "hàng đầu" | Thay bằng con số hoặc việc cụ thể ("chạy lại trong 15 phút"), không có thì bỏ. |
+| ✓ Ẩn dụ, lời quảng cáo | "nâng tầm", "chìa khóa", "hành trình", "đồng hành cùng", "mang lại giá trị" | Bỏ; nêu kết quả đo được. |
+| ✓ Mở câu dàn dựng | "Tóm lại,", "Nhìn chung,", "Đáng chú ý,", "Trong bối cảnh…", "Điều này giúp…" | Bỏ cụm mở, vào thẳng ý; "Điều này giúp X" → nêu chủ thể: "Cơ chế chia lô giúp X". |
+| ✓ Rào đón, đệm | "không có nghĩa là…", "nhằm đảm bảo" | Nói điều sẽ xảy ra: "Nạp lại tài liệu không khôi phục hiệu đính cũ." "nhằm đảm bảo" → "để". |
+| ✓ Nhãn in đậm đầu bullet, gạch ngang dày | "- **Bảo mật:** …", "A — B — C" | Bullet viết thành câu; dùng dấu phẩy, chấm phẩy. |
+| ✓ 3 câu liền cùng chủ ngữ | "Katalyst cài… Katalyst cấu hình… Katalyst kiểm…" | Gộp: "Katalyst cài, cấu hình và kiểm…", hoặc đổi chủ ngữ sang hệ thống, cán bộ. |
+| Câu nói về chính tài liệu | "Tài liệu này trình bày…", "Các mô tả trong tài liệu áp dụng theo phân biệt này" | Chỉ một lần ở phần mở đầu; còn lại bỏ. |
+| Rào đón phòng thủ lặp lại | Mỗi đoạn đều có "…vẫn thuộc phạm vi", "chưa chứng minh đã đạt…" | Gom giới hạn vào mục "Những điều đề xuất này không làm" hoặc Phụ lục giả định, nói một lần. |
+| Đoạn kết nhắc lại ý | "Như vậy, giải pháp đáp ứng đầy đủ các yêu cầu nêu trên." | Bỏ. |
+| Liệt kê ép đủ ba | "nhanh, an toàn và tiết kiệm" khi chỉ có căn cứ cho một ý | Giữ ý có căn cứ. |

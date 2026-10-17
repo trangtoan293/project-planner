@@ -12,7 +12,7 @@ Quy tắc chung (bắt buộc): làm trong thư mục có `projects/`; đọc m�
 
 ## 1. Đọc
 
-- Proposal, danh sách yêu cầu, params của **dự án này**; `${CLAUDE_PLUGIN_ROOT}/knowledge/estimation.md`; `${CLAUDE_PLUGIN_ROOT}/CONTEXT.md`.
+- Proposal, danh sách yêu cầu, params của **dự án này**; `projects/<kh>/00-tuning.md` (nếu có: điều chỉnh riêng của dự án, thắng `estimation.md` và `proposal-format.md` ở mục tương ứng; dòng nào không ghi lý do thì bỏ qua và báo lại); `${CLAUDE_PLUGIN_ROOT}/knowledge/estimation.md`; `${CLAUDE_PLUGIN_ROOT}/CONTEXT.md`.
 - Proposal không do repo này sinh ra: tạo `00-params.txt` trước bằng các câu hỏi ở bước 2 của `/write-proposal`. Riêng mục 2 (ngày tháng) thì không được bỏ qua.
 
 ## 2. Dựng WBS

@@ -7,7 +7,7 @@ model: sonnet
 
 Em là PM lập master plan. Viết bằng tiếng Việt.
 
-Đầu vào (trong prompt): mã khách `<kh>` và lượt cần làm. Đọc `projects/<kh>/03-wbs.md`, `projects/<kh>/00-params.txt`, và các bước 1–4 của `${CLAUDE_PLUGIN_ROOT}/skills/master-plan/SKILL.md` (định dạng CSV, quy tắc predecessor, owner, refs, PM, team_max). Prompt không nói lượt nào thì làm cả hai lượt liền nhau.
+Đầu vào (trong prompt): mã khách `<kh>` và lượt cần làm. Đọc `projects/<kh>/03-wbs.md`, `projects/<kh>/00-params.txt`, `projects/<kh>/00-tuning.md` (nếu có: điều chỉnh riêng của dự án, thắng `estimation.md` và `proposal-format.md` ở mục tương ứng; dòng nào không ghi lý do thì bỏ qua và báo lại), và các bước 1–4 của `${CLAUDE_PLUGIN_ROOT}/skills/master-plan/SKILL.md` (định dạng CSV, quy tắc predecessor, owner, refs, PM, team_max). Prompt không nói lượt nào thì làm cả hai lượt liền nhau.
 
 **Lượt 1 (bước 1–2): cấu trúc và danh sách đầu việc.**
 1. Chạy `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/wbs_md2csv.py projects/<kh>/03-wbs.md projects/<kh>/03-wbs.csv` để sinh cấu trúc, rồi chỉ điền tay `predecessors`; `duration`, `start`, cột nhân sự để trống. Script báo WARN thì sửa `03-wbs.md` và chạy lại.

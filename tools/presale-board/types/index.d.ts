@@ -82,8 +82,25 @@ export type Todo = {
   open?: string
 }
 
+/** Tóm tắt của scripts/trace.py --json: vì sao plan ra như vậy. */
+export type TraceSummary = {
+  customer: string
+  /** Số dòng điều chỉnh riêng trong 00-tuning.md (0 = dùng knowledge chung). */
+  tuning: number
+  has_wbs: boolean
+  timed: boolean
+  total_md: number
+  milestones: { code: string; name: string; md: number; refs: number; tasks: number; biggest: { name: string; md: number } | null }[]
+  /** Số người cao nhất cùng lúc / tối đa mỗi vai trò. */
+  people: { role: string; peak: number; max: number }[]
+  sprint: { count: number; weeks: number; top: string; load: number } | null
+}
+
+/** Khung Giải thích của một khách: đang đọc, có số liệu, hoặc lỗi. */
+export type Explain = { name: string; loading?: boolean; data?: TraceSummary; error?: string }
+
 declare module 'claude-code' {
   interface PluginState {
-    'presale-board': { projects: Project[]; selected: string; busy: string; showStats: boolean; showSummary: boolean }
+    'presale-board': { projects: Project[]; selected: string; busy: string; showStats: boolean; showSummary: boolean; showExplain: boolean; explain: Explain }
   }
 }

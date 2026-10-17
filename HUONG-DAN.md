@@ -24,6 +24,7 @@ Bấm **Ctrl+X Tab** để chuyển con trỏ vào bảng, rồi dùng phím:
 | bấm tên khách | sang khách khác (hoặc gõ `/presale <tên-kh>`) |
 | `t` | bật/tắt **Tóm tắt**: giải pháp, câu đề xuất chính, các mốc của plan (ngày, MD) |
 | `n` | điền **lệnh tiếp theo** vào ô chat (anh chỉ cần Enter) |
+| `g` | bật/tắt **Giải thích**: vì sao ra milestone, MD, người, sprint; trong khung này `v` hỏi Claude "vì sao…", `e` chỉnh riêng cho dự án (`00-tuning.md`), `h` mở trang [Cách hoạt động](docs/cach-hoat-dong.md) |
 | `s` | bật/tắt **Thông số**: thời gian, số người/tối đa và MD từng vai trò, tổng người, tổng MD (so với MD đã nêu trong proposal), yêu cầu, review, ô […] |
 | `c` | **kiểm tra lại** plan ngay (chạy `check_plan.py`, ghi `04-check.txt`) |
 | `o` · `p` · `x` | mở thư mục khách · proposal Word · master plan Excel |
@@ -50,4 +51,6 @@ Số người mỗi vai trò là số đông nhất trong cùng một ngày (c�
 | Sửa proposal rồi xuất lại Word | sửa `02-proposal.md`, gõ "xuất lại docx" |
 | Đổi kickoff hoặc ngày lễ | sửa `00-params.txt`, gõ `/master-plan <tên-kh>` |
 | Cập nhật tài liệu Hanas | thay `samples/hanas_docs/`, gõ "cập nhật knowledge Hanas" |
+| Hiểu vì sao một con số ra như vậy | bấm `g` trên bảng, hoặc hỏi "vì sao việc 1.2.2.1 của <tên-kh> ra 15 MD?" |
+| Dự án này cần đơn giá, milestone, vai trò khác mặc định | bấm `g` rồi `e`, ghi điều chỉnh **kèm lý do**, chạy lại bước Chia việc |
 | Dự án xong, muốn ước lượng sau này sát hơn | gõ "thêm số liệu thực tế dự án <tên-kh> vào estimation" |

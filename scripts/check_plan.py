@@ -49,6 +49,17 @@ def read_params(path):
     return params
 
 
+def role_share(params):
+    """Khung tỷ trọng vai trò: mặc định ROLE_SHARE, ghi đè bằng role_share trong 00-params.txt (PM=5-18, Tester=6-12)."""
+    out = dict(ROLE_SHARE)
+    for k, v in kv_list(params.get("role_share")).items():
+        lo, _, hi = v.partition("-")
+        if k.lower() not in out or not hi:
+            sys.exit(f"role_share: '{k}={v}' không hợp lệ (dạng PM=5-18, vai trò PM/BA/DEV/SysE/Tester)")
+        out[k.lower()] = (float(lo) / 100, float(hi) / 100)
+    return out
+
+
 def kv_list(spec, sep=","):
     out = {}
     for part in filter(None, (p.strip() for p in (spec or "").split(sep))):
@@ -114,8 +125,9 @@ def check(params, tasks, proposal_text, holidays):
             target = float(params["proposal_md"])
             if abs(total - target) > 0.05 * target:
                 fails.append(f"Tổng MD plan {total:.1f} lệch > 5% so với proposal {target:g}")
+        share = role_share(params)
         for disp, key, *_ in ROLES:
-            lo, hi = ROLE_SHARE[key]
+            lo, hi = share[key]
             if total and not lo <= md[key] / total <= hi:
                 warns.append(f"{disp} chiếm {md[key] / total:.0%} tổng MD (thường {lo:.0%}–{hi:.0%}, estimation.md §3)")
     # 7. tên cũ

@@ -83,7 +83,79 @@ def main():
     assert check_summary(real) == []                                          # mục nhiều dòng, có phần sau
     assert "mục 6. Nên làm còn trống" in check_summary(real.replace("### 6. Nên làm\n#### 2.1 Con\n- ý một\n- ý hai", "### 6. Nên làm\n"))[0]
     assert "thiếu mục 'Nên làm'" in check_summary(filled.replace("### 6. Nên làm", "### 6. Khác"))[0]
+
+    test_refs_and_team()
+    test_sprints()
     print("OK")
+
+
+def test_sprints():
+    import openpyxl
+    with tempfile.TemporaryDirectory() as d:
+        p, c, out = Path(d) / "params.txt", Path(d) / "wbs.csv", Path(d) / "plan.xlsx"
+        p.write_text(PARAMS, encoding="utf-8")
+        c.write_text(CLEAN, encoding="utf-8")
+        subprocess.run([sys.executable, ROOT / "scripts" / "build_master_plan.py", c, out, "--params", p],
+                       capture_output=True, text=True, check=True)
+        wb = openpyxl.load_workbook(out)
+        plan, sp = wb["Master_Plan"], wb["Sprint"]
+        assert plan["AA2"].value == "Sprint" and plan["AA4"].value == "S1" and plan["AA5"].value == "S1–S2", \
+            [plan[f"AA{r}"].value for r in range(2, 7)]                                 # 1.2: 09/11 → 23/11
+        rows = [r for r in sp.iter_rows(min_row=3, values_only=True) if r[0]]
+        assert [r[0] for r in rows] == ["S1", "S2"], rows                               # kickoff 02/11 → 24/11
+        assert rows[0][3] == 10 and rows[1][3] == 9, rows                               # 20/11 là ngày lễ
+        assert abs(sum(r[9] for r in rows) - 48) < 0.01, rows                           # tổng MD các sprint = plan
+        assert rows[0][13] == "OK"
+        c.write_text(CLEAN.replace("1.2,Xây dựng,10,2026-11-09,2,1,0.2,0,0,2,1", "1.2,Xây dựng,10,2026-11-09,2,1,0.2,0,0,5,1"),
+                     encoding="utf-8")                                                  # S1: DEV 5 người × 5 ngày = 25 MD > 2 × 10
+        subprocess.run([sys.executable, ROOT / "scripts" / "build_master_plan.py", c, out, "--params", p],
+                       capture_output=True, text=True, check=True)
+        rows = [r for r in openpyxl.load_workbook(out)["Sprint"].iter_rows(min_row=3, values_only=True) if r[0]]
+        assert rows[0][13] == "VƯỢT TẢI", rows
+
+
+REQ = """| **Mã** | **Trích yêu cầu** | **Loại** | **Nguồn** | **Trả lời tại** | **Trả lời tóm tắt** |
+| R01 | Nạp dữ liệu T24 | Chức năng | §2 | Mục 5.1 | x |
+| R02 | Đào tạo 20 học viên | Dịch vụ | §3 | Mục 12 | x |
+| R03 | Tên dự án | Bối cảnh | §1 | Mục 1.1 | x |
+| R04 | Tích hợp JIRA | Chức năng | §4 | Mục 2.3 | Ngoài phạm vi, change request |
+"""
+TEAM_CSV = """wbs,name,predecessors,owner,refs,note
+1,Dự án KHA,,,,
+1.1,M0 — Nền tảng,,,,Dev/UAT chạy được
+1.1.1,Cài Dev/UAT,,DevOps,,
+1.2,M1 — Lát T24,,,R01,Báo cáo 1 chạy trên UAT; biên bản demo
+1.2.1,Nạp T24 vào Raw,1.1.1,DE,R01,
+1.2.2,Đào tạo,1.2.1,BA,R02,
+"""
+
+
+def test_refs_and_team():
+    from check_plan import check_refs
+    tasks = [{"wbs": "1", "refs": []}, {"wbs": "1.1.1", "refs": ["R01"]}]
+    fails, _ = check_refs(REQ, tasks)
+    assert fails == ["R02 (Dịch vụ) chưa thuộc milestone nào (thêm vào cột refs của việc làm nó)"], fails  # R03 bối cảnh, R04 ngoài phạm vi: bỏ qua
+    assert check_refs(REQ, tasks + [{"wbs": "1.2", "refs": ["R02"]}]) == ([], [])
+    assert "refs 'R99' không có" in check_refs(REQ, tasks + [{"wbs": "1.3", "refs": ["R02", "R99"]}])[0][0]
+    assert "chưa có cột refs" in check_refs(REQ, [{"wbs": "1", "refs": None}])[1][0]          # CSV cũ: chỉ WARN
+
+    with tempfile.TemporaryDirectory() as d:
+        c, out = Path(d) / "03-wbs.csv", Path(d) / "03-task-list.xlsx"
+        c.write_text(TEAM_CSV, encoding="utf-8")
+        (Path(d) / "01-requirements.md").write_text(REQ, encoding="utf-8")
+        cmd = [sys.executable, ROOT / "scripts" / "build_master_plan.py", c, out, "--team"]
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        assert r.returncode == 0 and "REFS: ĐẠT" in r.stdout, r.stdout + r.stderr
+        import openpyxl
+        ws = openpyxl.load_workbook(out).active
+        head = [ws.cell(1, i).value for i in range(1, ws.max_column + 1)]
+        assert not any(h and ("MD" in h or "Start" in h or "Duration" in h) for h in head), head  # không ngày, không MD
+        rows = {ws.cell(i, 1).value: [ws.cell(i, j).value for j in range(1, 8)] for i in range(2, ws.max_row + 1)}
+        assert rows["1.2.1"][3:6] == ["DE", "3", "R01"], rows["1.2.1"]                       # vai trò, phụ thuộc theo Task ID, mã R
+        assert rows["1.2"][6] == "Báo cáo 1 chạy trên UAT; biên bản demo"
+        c.write_text(TEAM_CSV.replace("1.2.1,BA,R02", "1.2.1,BA,"), encoding="utf-8")       # bỏ R02 → thiếu
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        assert r.returncode == 1 and "R02 (Dịch vụ) chưa thuộc milestone" in r.stdout, r.stdout
 
 
 if __name__ == "__main__":

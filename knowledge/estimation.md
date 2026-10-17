@@ -45,18 +45,14 @@ Effort cho change request (quỹ man-day sau go-live): sửa chỉ tiêu trên t
 
 Tỷ trọng thường gặp: PM 5–12%, BA 15–30%, DEV 35–50%, SysE 10–15%, Tester 12–17%.
 
-## 4. Khung giai đoạn thường dùng (theo tuần, tính từ kickoff)
+## 4. Khung milestone thường dùng (theo tuần, tính từ kickoff)
 
-| Giai đoạn | Khung thường gặp | Ghi chú |
+Hồ sơ thầu hoặc khách đã quy định giai đoạn thì theo đúng giai đoạn đó. Khách không quy định thì chia milestone theo lát dọc (bước 2.1 của `analyze-proposal`):
+
+| Milestone | Khung thường gặp | Bên trong |
 |---|---|---|
-| Khởi động, khảo sát | T1–T4 | khóa phạm vi, ký BRD/tài liệu yêu cầu |
-| Thiết kế | T3–T6 | chồng lên khảo sát |
-| Cài đặt nền tảng Dev/UAT → Prod | T2–T8 | phụ thuộc hạ tầng khách (cần trước ~T5) |
-| Tích hợp nguồn, mô hình dữ liệu | T4–T14 | |
-| Xây dựng theo đợt/domain | đợt 1 → đợt 2 …, mỗi đợt 4–6 tuần | sprint 2 tuần |
-| SIT | 2–4 tuần mỗi đợt | |
-| UAT | 2 tuần trước mỗi go-live | khách thực hiện |
-| Chạy song song (báo cáo định kỳ) | 2 kỳ báo cáo | |
-| Go-live, hypercare | 2 tuần mỗi domain, 4 tuần sau go-live cuối | |
-| Đào tạo | người dùng 2 ngày, kỹ thuật 3 ngày | |
-| Bảo hành | 12 tháng sau nghiệm thu tổng thể | |
+| M0 — Nền tảng | T1–T6 | khởi động, khảo sát, khóa phạm vi/ký BRD (T1–T4); thiết kế kiến trúc chồng lên khảo sát; cài Dev/UAT (phụ thuộc hạ tầng khách, cần trước ~T5) |
+| M1 — Lát mỏng đầu tiên | T5–T12 | 1 nguồn, 1 domain, 1–2 báo cáo chạy thật; SIT 1–2 tuần, UAT 1 tuần, biên bản demo |
+| M2…Mn — Mở rộng theo đợt/domain | mỗi đợt 4–6 tuần, sprint 2 tuần | thêm nguồn/domain/nhóm báo cáo; SIT 2–4 tuần mỗi đợt; UAT 2 tuần trước mỗi go-live (khách thực hiện); cài Prod trước go-live đầu tiên |
+| Nghiệm thu tổng thể | sau go-live cuối | chạy song song 2 kỳ báo cáo (báo cáo định kỳ); đào tạo người dùng 2 ngày, kỹ thuật 3 ngày |
+| Hypercare, bảo hành | 2 tuần mỗi domain, 4 tuần sau go-live cuối; bảo hành 12 tháng sau nghiệm thu | khớp `post_deadline` |

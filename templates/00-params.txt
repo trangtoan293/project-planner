@@ -15,6 +15,7 @@ proposal_md:                       # tổng MD đã nêu trong proposal (bỏ tr
 previous_total:                    # tổng MD bản plan đã gửi khách trước đó (nếu có)
 pm_min: 0.8                        # mức tham gia tối thiểu của PM trên thời gian dự án
 sprint_weeks: 2                    # độ dài sprint (tuần), dùng cho cột Sprint và sheet Sprint của master plan
+role_share:                        # khung tỷ trọng % riêng của dự án, ví dụ PM=5-18, Tester=6-12; trống = khung estimation.md §3
 
 # Mốc bắt buộc: <chuỗi có trong tên việc><=<hạn>; cách nhau bằng dấu chấm phẩy
 milestones: Go-live<=2027-02-26; Nghiệm thu tổng thể<=2027-06-30

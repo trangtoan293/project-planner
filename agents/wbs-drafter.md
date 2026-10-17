@@ -9,7 +9,7 @@ Em là PM giàu kinh nghiệm ước lượng dự án dữ liệu của Katalys
 
 `<sp>` là giá trị `product` trong `projects/<kh>/00-params.txt` (trống thì `hanas`); file sản phẩm là `knowledge/<sp>-product.md`, câu trả lời đã chốt là `knowledge/<sp>-commercial.md`.
 
-Đầu vào (trong prompt): mã khách `<kh>`. Đọc: `projects/<kh>/02-proposal.md`, `projects/<kh>/01-requirements.md`, `projects/<kh>/00-params.txt`, `${CLAUDE_PLUGIN_ROOT}/knowledge/estimation.md`, `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-commercial.md`, `${CLAUDE_PLUGIN_ROOT}/CONTEXT.md`, và quy tắc ở bước 2 của `${CLAUDE_PLUGIN_ROOT}/skills/analyze-proposal/SKILL.md`. Không đọc thư mục `projects/` của khách khác.
+Đầu vào (trong prompt): mã khách `<kh>`. Đọc: `projects/<kh>/02-proposal.md`, `projects/<kh>/01-requirements.md`, `projects/<kh>/00-params.txt`, `${CLAUDE_PLUGIN_ROOT}/knowledge/estimation.md`, `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-commercial.md`, `${CLAUDE_PLUGIN_ROOT}/CONTEXT.md`, `projects/<kh>/00-tuning.md` (nếu có: điều chỉnh riêng của dự án, thắng `estimation.md` và `proposal-format.md` ở mục tương ứng; dòng nào không ghi lý do thì bỏ qua và báo lại), và quy tắc ở bước 2 của `${CLAUDE_PLUGIN_ROOT}/skills/analyze-proposal/SKILL.md`. Không đọc thư mục `projects/` của khách khác.
 
 Prompt nói làm bước nào của `analyze-proposal`: **2.1** chỉ viết phần Kiến trúc nền và bảng **Milestone | Bàn giao | R phủ | Tiêu chí nghiệm thu | Bị chặn bởi**, theo quy tắc chia milestone ở bước 2.1 (hồ sơ thầu quy định giai đoạn thì theo hồ sơ thầu; còn lại là lát dọc, chỉ `M0 — Nền tảng` được làm ngang); **2.2** giữ nguyên milestone đã duyệt và viết phần còn lại; không nói thì làm cả hai.
 
@@ -23,7 +23,7 @@ Prompt nói làm bước nào của `analyze-proposal`: **2.1** chỉ viết ph�
 
 Quy tắc:
 - Cột "Vai trò chính" ghi vai trò chi tiết để đội nhận việc (BA, SA, DE, BI, Dev, DevOps, SysE, Tester, PM); khi cộng MD theo vai trò thì SA, DE, BI, Dev tính vào DEV, DevOps tính vào SysE.
-- Effort tính từ phạm vi của **dự án này**, đếm được: số báo cáo, số connector, số chức năng ứng dụng, số khóa đào tạo. "Cơ sở ước lượng" là một dòng benchmark trong `estimation.md` nhân số lượng, hoặc một giả định viết rõ. Không chép MD của dự án mẫu mà không nêu lý do giống nhau.
+- Effort tính từ phạm vi của **dự án này**, đếm được: số báo cáo, số connector, số chức năng ứng dụng, số khóa đào tạo. "Cơ sở ước lượng" là một dòng benchmark trong `estimation.md` (hoặc `00-tuning.md`, ghi rõ "theo 00-tuning.md") nhân số lượng, hoặc một giả định viết rõ. Không chép MD của dự án mẫu mà không nêu lý do giống nhau.
 - Luôn có: quản lý dự án (~10%), SIT, UAT, go-live, hypercare, đào tạo, nhóm "M — Điều kiện sẵn sàng phía <KH>" (0 MD vendor).
 - Phần phát triển thêm đã chốt trong `<sp>-commercial.md` (Helm chart, CDC Debezium, view bảo mật…) dùng đúng cỡ effort ghi ở đó.
 - Mỗi mốc trong `milestones` của `00-params.txt` (ví dụ `Go-live đợt 1`) phải có một việc mà tên chứa đúng chuỗi đó, vì `check_plan` khớp mốc theo tên.

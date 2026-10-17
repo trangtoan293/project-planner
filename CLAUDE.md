@@ -18,6 +18,8 @@ Repo hỗ trợ presales của Katalyst: yêu cầu khách → proposal → WBS 
 | Format và văn phong proposal | `knowledge/proposal-format.md` |
 | Benchmark effort, đội ngũ, giai đoạn | `knowledge/estimation.md` |
 | Thuật ngữ | `CONTEXT.md` |
+| Logic từ yêu cầu → milestone → MD → người, chỗ chỉnh cho từng dự án | `docs/cach-hoat-dong.md`; skill `explain` trả lời "vì sao" bằng `scripts/trace.py` |
+| Điều chỉnh riêng một dự án (đơn giá, khung milestone, vai trò) | `projects/<kh>/00-tuning.md` (mẫu `templates/00-tuning.md`), thắng knowledge chung |
 | Ngày tháng, giới hạn của **một dự án** | `projects/<kh>/00-params.txt`, duy nhất ở đây |
 
 ## Quy tắc chống dữ liệu cũ (bắt buộc)
@@ -42,7 +44,9 @@ python3 scripts/build_master_plan.py <wbs.csv> <task-list.xlsx> --team         #
 python3 scripts/check_plan.py <params> <wbs.csv|-> [proposal.md]              # kiểm tra timeline, nhân sự, dữ liệu cũ
 python3 scripts/check_style.py <proposal.md>                                   # bắt văn AI tiếng Việt, không tốn token
 python3 scripts/check_auto.py <kh>                                            # /auto-presale đã xong trọn quy trình chưa
-python3 tests/test_build_master_plan.py && python3 tests/test_check_plan.py && python3 tests/test_md2docx.py && python3 tests/test_check_auto.py && python3 tests/test_check_style.py && python3 tests/test_wbs_md2csv.py   # sau khi sửa script
+python3 scripts/trace.py projects/<kh> [R12|1.2.2.1|M1|S5|DEV]                 # giải thích con số: căn cứ, công thức, lịch, sprint
+python3 tests/test_build_master_plan.py && python3 tests/test_check_plan.py && python3 tests/test_md2docx.py && python3 tests/test_check_auto.py && python3 tests/test_check_style.py && python3 tests/test_wbs_md2csv.py && python3 tests/test_trace.py   # sau khi sửa script
+claude plugin test tools/presale-board                                         # sau khi sửa bảng Presales
 ```
 
 Cần: `pandoc`, `python-docx`, `openpyxl`, `pymupdf` (fitz, để đọc PDF).

@@ -1,7 +1,7 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
-import type { Files, Project, Todo } from '../types'
+import type { Explain, Files, Project, Todo, TraceSummary } from '../types'
 import {
   FILE_NAMES, buildSteps, countPlaceholders, daysLeft, isValidName, nextStep, parseCheck, parseHeadline, parseParams, parseRequirements,
   parseProposal, parseReview, parseTeamMax, shortDate, todos,
@@ -16,7 +16,10 @@ const selected = atom({ plugin: 'presale-board', key: 'selected' } as const, '')
 const busy = atom({ plugin: 'presale-board', key: 'busy' } as const, '')
 const showStats = atom({ plugin: 'presale-board', key: 'showStats' } as const, false)
 const showSummary = atom({ plugin: 'presale-board', key: 'showSummary' } as const, true)
+const showExplain = atom({ plugin: 'presale-board', key: 'showExplain' } as const, false)
+const explain = atom({ plugin: 'presale-board', key: 'explain' } as const, { name: '' } as Explain)
 const MAX_MILESTONES = 6
+const DOC = 'docs/cach-hoat-dong.md'
 
 const GLYPH: Record<StepState, string> = { done: '●', stale: '◐', fail: '✗', todo: '○' }
 const COLOR: Record<StepState, string> = { done: 'success', stale: 'warning', fail: 'error', todo: 'subtle' }
@@ -100,6 +103,31 @@ const rerunCheck = async ($: EngineInterface, name: string) => {
   }
 }
 
+// Khung Giải thích: chạy scripts/trace.py (chỉ đọc file) và giữ kết quả theo khách
+const runTrace = async ($: EngineInterface, name: string) => {
+  await update($, explain, () => ({ name, loading: true }))
+  try {
+    const run = await $.process.run(['python3', 'scripts/trace.py', `projects/${name}`, '--json'], { cwd: repoRoot($), timeoutMs: 30000 })
+    const result: Explain = run.exitCode === 0
+      ? { name, data: JSON.parse(run.stdout) as TraceSummary }
+      : { name, error: run.stderr.trim().split('\n').pop() ?? 'lỗi không rõ' }
+    await update($, explain, () => result)
+  } catch (err) {
+    await update($, explain, () => ({ name, error: String(err) }))
+  }
+}
+
+// Mở 00-tuning.md của khách; chưa có thì chép từ templates/00-tuning.md
+const openTuning = async ($: EngineInterface, name: string) => {
+  const path = `projects/${name}/00-tuning.md`
+  if (!(await $.fs.exists(await at($, path)))) {
+    const template = await $.fs.read(await at($, 'templates/00-tuning.md'))
+    await $.fs.write(await at($, path), template.replace('<KH>', name.toUpperCase()))
+    $.ui.toast(`Đã tạo ${path} từ mẫu: ghi điều chỉnh kèm lý do, rồi chạy lại bước Chia việc`)
+  }
+  await openPath($, path)
+}
+
 const createProject = async ($: EngineInterface, name: string) => {
   if (!isValidName(name)) return `Tên "${name}" không hợp lệ: dùng chữ thường, số, gạch ngang (ví dụ: kha, khb-dwh).`
   const dir = `projects/${name}`
@@ -145,10 +173,20 @@ export const register: Register = on => {
     const pick = await read($, selected)
     const stats = await read($, showStats)
     const summary = await read($, showSummary)
+    const explaining = await read($, showExplain)
+    const why = await read($, explain)
     const index = Math.max(0, list.findIndex(p => p.name === pick))
     const p = list[index]
     const now = Date.now()
-    const select = (step: number) => update($, selected, () => list[(index + step + list.length) % list.length]?.name ?? '')
+    const select = async (step: number) => {
+      const name = list[(index + step + list.length) % list.length]?.name ?? ''
+      await update($, selected, () => name)
+      if (explaining) await runTrace($, name)
+    }
+    const toggleExplain = async () => {
+      await update($, showExplain, v => !v)
+      if (!explaining) await runTrace($, p?.name ?? '')
+    }
     const line = (label: string, value: string, color?: string) => (
       <Text key={label} wrap="truncate-end"><Text color="subtle">{label.padEnd(12)}</Text><Text color={color}>{value}</Text></Text>
     )
@@ -232,6 +270,81 @@ export const register: Register = on => {
       )
     }
 
+    // Giải thích: vì sao ra milestone, MD, người, sprint (scripts/trace.py --json) và chỗ chỉnh cho dự án
+    const COLS = (md: string, r: string, n: string) => `${md.padStart(6)}${r.padStart(5)}${n.padStart(6)}`
+    const explainBody = (s: TraceSummary) => (
+      <Box flexDirection="column">
+        <Text>
+          <Text color="subtle">Nguồn  </Text>
+          {s.tuning ? <Text color="warning">{`${s.tuning} điều chỉnh riêng (00-tuning.md)`}</Text> : 'knowledge chung (estimation.md)'}
+          {!s.tuning && <Text color="subtle"> · e để chỉnh</Text>}
+        </Text>
+        {!s.has_wbs && <Text color="subtle">Chưa có 03-wbs.md: chạy bước Chia việc trước.</Text>}
+        {s.milestones.length > 0 && (
+          <Box flexDirection="column" marginTop={1}>
+            <Box flexDirection="row">
+              <Box flexGrow={1}><Text color="subtle">Milestone</Text></Box>
+              <Text color="subtle">{COLS('MD', 'R', 'Việc')}</Text>
+            </Box>
+            {s.milestones.map(m => (
+              <Box key={`ms-${m.code}`} flexDirection="column">
+                <Box flexDirection="row">
+                  <Box flexGrow={1} flexShrink={1}><Text bold wrap="truncate-end">{m.name.replace(/\s+[—–-]\s+/, ' ')}</Text></Box>
+                  <Text>{COLS(m.md.toFixed(0), String(m.refs), String(m.tasks))}</Text>
+                </Box>
+                {m.biggest && (
+                  <Box flexDirection="row">
+                    <Box flexGrow={1} flexShrink={1}><Text color="subtle" wrap="truncate-end">{`   lớn nhất · ${m.biggest.name}`}</Text></Box>
+                    <Text color="subtle">{`${m.biggest.md.toFixed(0).padStart(4)} MD`}</Text>
+                  </Box>
+                )}
+              </Box>
+            ))}
+            <Box flexDirection="row">
+              <Box flexGrow={1}><Text bold>Tổng</Text></Box>
+              <Text bold>{COLS(s.total_md.toFixed(0), '', '')}</Text>
+            </Box>
+          </Box>
+        )}
+        {s.timed && s.sprint ? (
+          <Box flexDirection="column" marginTop={1}>
+            <Text color="subtle">Người cao nhất cùng lúc / tối đa</Text>
+            <Text>
+              {s.people.map((p, i) => (
+                <Text key={`pp-${p.role}`}>
+                  {i > 0 && '   '}{p.role} <Text bold color={p.peak > p.max ? 'error' : undefined}>{`${p.peak}/${p.max}`}</Text>
+                </Text>
+              ))}
+            </Text>
+            <Text>
+              <Text color="subtle">Sprint  </Text>
+              {`${s.sprint.count} sprint × ${s.sprint.weeks} tuần · tải cao nhất ${s.sprint.top} `}
+              <Text bold color={s.sprint.load > 1 ? 'error' : s.sprint.load >= 0.95 ? 'warning' : 'success'}>{`${Math.round(s.sprint.load * 100)}%`}</Text>
+            </Text>
+          </Box>
+        ) : s.has_wbs && <Text color="subtle">Chưa điền thời gian, người: chưa có lịch và sprint.</Text>}
+        <Box flexDirection="column" marginTop={1}>
+          <Text color="subtle">Cách tính</Text>
+          <Text>  MD việc = khối lượng × đơn giá  <Text color="subtle">(03-wbs.md)</Text></Text>
+          <Text>  MD lịch = ngày × người × %  <Text color="subtle">(master plan)</Text></Text>
+        </Box>
+      </Box>
+    )
+    const explainPanel = () => (
+      <Box flexDirection="column" borderStyle="single" borderColor="subtle" paddingX={1} marginTop={1}>
+        <Text bold>Vì sao ra plan này</Text>
+        {why.name !== p.name ? <Text color="subtle">Bấm g hai lần để cập nhật cho {p.name.toUpperCase()}</Text>
+          : why.loading ? <Text color="subtle">Đang đọc…</Text>
+          : why.error ? <Text color="error" wrap="wrap">{`Không chạy được trace.py: ${why.error}`}</Text>
+          : why.data && explainBody(why.data)}
+        <Box flexDirection="row" flexWrap="wrap" gap={1} marginTop={1}>
+          <Button key="ask-why" hotkey="v" label="Hỏi vì sao…" onPress={() => void $.prompt.fill({ text: `Giải thích vì sao ${p.name}: ` })} />
+          <Button key="tuning" hotkey="e" label="Chỉnh cho dự án" onPress={() => void openTuning($, p.name)} />
+          <Button key="how" hotkey="h" label="Cách hoạt động" onPress={() => void openPath($, DOC)} />
+        </Box>
+      </Box>
+    )
+
     return (
       <Box flexDirection="column">
         <Box flexDirection="row" justifyContent="space-between">
@@ -272,6 +385,7 @@ export const register: Register = on => {
           )}
           <Button key="summary" hotkey="t" label={summary ? 'Ẩn tóm tắt' : 'Tóm tắt'} onPress={() => void update($, showSummary, v => !v)} />
           <Button key="stats" hotkey="s" label={stats ? 'Ẩn thông số' : 'Thông số'} onPress={() => void update($, showStats, v => !v)} />
+          <Button key="explain" hotkey="g" label={explaining ? 'Ẩn giải thích' : 'Giải thích'} onPress={() => void toggleExplain()} />
           <Button key="open-dir" hotkey="o" label="Thư mục" onPress={() => void openPath($, `projects/${p.name}`)} />
           <Button key="open-proposal" hotkey="p" label="Proposal" onPress={() => void openPath($, `projects/${p.name}/${p.files.proposalDocx ? FILE_NAMES.proposalDocx : FILE_NAMES.proposalMd}`)} />
           <Button key="open-plan" hotkey="x" label="Excel" onPress={() => void openPath($, `projects/${p.name}/${FILE_NAMES.plan}`)} />
@@ -280,7 +394,8 @@ export const register: Register = on => {
         </Box>
         {summary && summaryPanel()}
         {stats && statsPanel()}
-        <Text color="subtle">{`${list.length > 1 ? 'bấm tên để đổi khách · ' : ''}n bước tiếp · t tóm tắt · s thông số · o p x mở thư mục/file · c kiểm tra · /auto-presale ${p.name} chạy tự động`}</Text>
+        {explaining && explainPanel()}
+        <Text color="subtle">{`${list.length > 1 ? 'bấm tên để đổi khách · ' : ''}n bước tiếp · t tóm tắt · s thông số · g giải thích · o p x mở thư mục/file · c kiểm tra · /auto-presale ${p.name} chạy tự động`}</Text>
       </Box>
     )
   })

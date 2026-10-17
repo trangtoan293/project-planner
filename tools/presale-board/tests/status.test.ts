@@ -2,8 +2,8 @@ import { expect, test } from 'claude-code/testing'
 
 import type { Project } from '../types'
 import {
-  ago, buildSteps, countPlaceholders, daysLeft, isValidName, nextStep, parseCheck, parseParams, parseRequirements, parseReview,
-  shortDate, todos,
+  ago, buildSteps, countPlaceholders, daysLeft, isValidName, nextStep, parseCheck, parseHeadline, parseParams, parseRequirements, parseReview,
+  parseProposal, parseTeamMax, shortDate, todos,
 } from '../hooks/status'
 
 const T = 1_800_000_000_000
@@ -11,9 +11,10 @@ const clean = { reqRows: 201, flags: 21, gapsOpen: 0, gapsTotal: 13, decided: 6,
 const done: Project = {
   name: 'kha',
   inputCount: 2,
+  proposal: {},
   files: { input: T, params: T, requirements: T, proposalMd: T, proposalDocx: T + 10, review: T + 15, wbsMd: T + 20, wbsCsv: T + 30, plan: T + 40, check: T + 50 },
   params: {},
-  check: { result: 'pass', failCount: 0, warnCount: 0 },
+  check: { result: 'pass', failCount: 0, warnCount: 0, milestones: [], team: {} },
   health: { ...clean, review: { round: 2, critical: 0, high: 0, concluded: true } },
 }
 
@@ -52,20 +53,19 @@ test('đọc sức khỏe hồ sơ: yêu cầu, review, ô […]', async () => {
   expect(countPlaceholders('Tên […], CV […], giá […]')).toBe(3)
 })
 
-test('việc cần anh: gấp nhất lên đầu, đủ các loại', async () => {
+test('việc cần anh: chỉ việc gấp và quyết định chờ duyệt', async () => {
   const NOW = Date.UTC(2026, 9, 14, 3)
   const khc: Project = {
     ...done, name: 'khc',
     files: { ...done.files, autoSummary: T },
     params: { submitBy: '2026-10-17' },
-    check: { result: 'fail', failCount: 1, warnCount: 0, firstFail: '1.3 trễ' },
+    check: { result: 'fail', failCount: 1, warnCount: 0, firstFail: '1.3 trễ', milestones: [], team: {} },
     health: { ...clean, drafted: 11, gapsOpen: 2, placeholders: 32, review: { round: 1, critical: 5, high: 4, concluded: false } },
   }
   const list = todos([done, khc], NOW)
-  expect(list.map(t => t.level)).toEqual(['urgent', 'urgent', 'urgent', 'warn', 'warn', 'info'])
+  expect(list.map(t => t.level)).toEqual(['urgent', 'urgent', 'urgent', 'warn'])
   expect(list[0]?.text).toBe('Nộp hồ sơ còn 3 ngày (17/10/26)')
   expect(list.find(t => t.text.startsWith('Duyệt 11'))?.open).toBe('projects/khc/00-auto-summary.md')
-  expect(list.find(t => t.text.startsWith('Điền 32'))?.open).toBe('projects/khc/02-proposal.md')
   expect(todos([done], NOW)).toEqual([])                              // khách đã xong: không có việc
   expect(daysLeft('2026-10-10', NOW)).toBe(-4)
 })
@@ -92,4 +92,17 @@ test('định dạng thời gian và tên khách', async () => {
   expect(shortDate('2026-11-02')).toBe('02/11/26')
   expect(isValidName('khb-dwh')).toBe(true)
   expect(isValidName('../etc')).toBe(false)
+})
+
+test('đọc thông số: MD theo vai trò, mốc, đội cùng lúc, tóm tắt proposal', async () => {
+  const plan = parseHeadline('Plan 2026-11-02 → 2027-06-29 (164 ngày làm việc), 806.2 MD: PM 131.2, BA 116.0, SysE 59.0')
+  expect(plan).toEqual({ start: '2026-11-02', finish: '2027-06-29', days: 164, totalMd: 806.2, md: { PM: 131.2, BA: 116.0, SysE: 59.0 } })
+  expect(parseHeadline(undefined)).toBe(undefined)
+  expect(parseTeamMax('PM=1, BA=2, SysE=1')).toEqual({ PM: 1, BA: 2, SysE: 1 })
+  const c = parseCheck('Plan x\nMỐC  1.2 | M2 — Thiết kế | 2026-11-02 | 2026-11-27 | 73.0\nĐỘI  PM 1, DEV 5 (tổng 6 người cùng lúc)\nKẾT QUẢ: ĐẠT\n')
+  expect(c.milestones).toEqual([{ wbs: '1.2', name: 'M2 — Thiết kế', start: '2026-11-02', finish: '2026-11-27', md: 73 }])
+  expect(c.team).toEqual({ PM: 1, DEV: 5 })
+  expect(parseProposal('---\nsubtitle: "KHO DỮ LIỆU"\n---\n# 1\n| đề xuất | x |\nKatalyst **đề xuất** nền tảng A. Câu sau.'))
+    .toEqual({ solution: 'KHO DỮ LIỆU', pitch: 'Katalyst đề xuất nền tảng A.' })
+  expect(parseProposal(undefined)).toEqual({ solution: undefined, pitch: undefined })
 })

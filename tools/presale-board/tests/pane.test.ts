@@ -4,17 +4,17 @@ import { expect, test } from 'claude-code/testing'
 const NOW = Date.now()
 const FILES: Record<string, { text: string; mtimeMs: number }> = {
   'templates/00-params.txt': { text: 'customer: KHA\n', mtimeMs: NOW },
-  'projects/kha/00-params.txt': { text: 'kickoff: 2026-11-02\ndeadline: 2027-06-30\nproposal_md: 845\nsubmit_by: 2020-01-01\n', mtimeMs: NOW - 9e6 },
+  'projects/kha/00-params.txt': { text: 'kickoff: 2026-11-02\ndeadline: 2027-06-30\nproposal_md: 845\nsubmit_by: 2020-01-01\nteam_max: PM=1, DEV=5, SysE=1\n', mtimeMs: NOW - 9e6 },
   'projects/kha/01-requirements.md': { text: '### 9. Khoảng trống\n1. Giả định: x\n2. CDC [D 14/10]\n## Thuật ngữ\n| R001 | ⚑ a | x | 1 | Mục II.1 | |\n', mtimeMs: NOW - 9e6 },
   'projects/kha/02-review.md': { text: '## Vòng 2\nCÒN LẠI: CRITICAL 0 · HIGH 0\nKẾT LUẬN: ĐẠT\n', mtimeMs: NOW - 7.5e6 },
   'projects/kha/01-input/rfp.pdf': { text: '', mtimeMs: NOW - 9e6 },
-  'projects/kha/02-proposal.md': { text: 'Tên […], CV […]', mtimeMs: NOW - 8e6 },
+  'projects/kha/02-proposal.md': { text: '---\nsubtitle: KHO DỮ LIỆU KHA\n---\n# 1. TÓM TẮT\nKatalyst đề xuất xây kho dữ liệu cho 5 domain. Tên […], CV […]', mtimeMs: NOW - 8e6 },
   'projects/kha/02-proposal.docx': { text: '', mtimeMs: NOW - 7e6 },
   'projects/kha/03-wbs.md': { text: '', mtimeMs: NOW - 6e6 },
   'projects/kha/03-wbs.csv': { text: '', mtimeMs: NOW - 5e6 },
   'projects/kha/04-master-plan.xlsx': { text: '', mtimeMs: NOW - 4e6 },
   'projects/kha/04-check.txt': {
-    text: 'Plan 2026-11-02 → 2027-07-02 (170 ngày), 850.0 MD\nFAIL 1.3 kết thúc 2027-07-02 sau deadline 2027-06-30\nKẾT QUẢ: KHÔNG ĐẠT\n',
+    text: 'Plan 2026-11-02 → 2027-07-02 (170 ngày làm việc), 850.0 MD: PM 100.0, DEV 700.0, SysE 50.0\nMỐC  1.1 | M1 — Quản lý dự án | 2026-11-02 | 2027-07-02 | 100.0\nMỐC  1.2 | M2 — Xây dựng | 2026-11-09 | 2027-06-01 | 750.0\nĐỘI  PM 1, DEV 4, SysE 1 (tổng 6 người cùng lúc)\nFAIL 1.3 kết thúc 2027-07-02 sau deadline 2027-06-30\nKẾT QUẢ: KHÔNG ĐẠT\n',
     mtimeMs: NOW - 3e6,
   },
   'projects/khb/01-input/.keep': { text: '', mtimeMs: NOW },
@@ -23,7 +23,7 @@ const FILES: Record<string, { text: string; mtimeMs: number }> = {
 const rel = (path: string) => path.replace(/^.*?\/(?=(projects|templates)(\/|$))/, '')
 const isDir = (path: string) => Object.keys(FILES).some(f => f.startsWith(`${path}/`))
 
-test('bảng hiện pipeline, sức khỏe hồ sơ, việc cần anh; phím chọn khách và điền lệnh', async ($, on) => {
+test('bảng chỉ hiện một khách; nút Thông số mở nhân sự, MD; bấm tên để đổi khách; tóm tắt và thông số có nút ẩn/hiện', async ($, on) => {
   const filled: string[] = []
   // phiên đã đổi thư mục sang chỗ khác: bảng vẫn phải đọc projects/ theo vị trí plugin
   on('session.root', async () => ({ value: '/elsewhere' }))
@@ -59,23 +59,43 @@ test('bảng hiện pipeline, sức khỏe hồ sơ, việc cần anh; phím ch�
 
   const drawn = JSON.stringify(await ui.drawn())
   expect(drawn).toContain('KHA')
-  expect(drawn).toContain('02/11/26')              // kickoff từ 00-params.txt
-  expect(drawn).toContain('sau deadline')          // dòng FAIL đầu tiên
-  expect(drawn).toContain('1 dòng R · ⚑ 1')        // sức khỏe: yêu cầu
-  expect(drawn).toContain('1 tự chốt [D] chờ duyệt')
-  expect(drawn).toContain('KẾT LUẬN: ĐẠT')
-  expect(drawn).toContain('2 ô […] cần điền khi nộp')
-  expect(drawn).toContain('VIỆC CẦN ANH')
-  expect(drawn).toContain('Quá hạn nộp')           // submit_by đã qua
-  expect(drawn).toContain('Review')                // bước mới trong pipeline
-  expect(drawn).toContain('Bỏ RFP/BRD vào projects/khb/01-input/')
+  expect(drawn).toContain('02/11/26 → 30/06/27')    // ngày dự án ở dòng đầu
+  expect(drawn).not.toContain('quá hạn nộp')        // dòng đầu không lặp hạn nộp (việc gấp ghi 'Quá hạn nộp')
+  expect(drawn).not.toContain('KHB')               // chỉ hiện khách đang chọn
+  expect(drawn).toContain('Quá hạn nộp')           // việc gấp
+  expect(drawn).toContain('Plan chưa đạt')
+  expect(drawn).toContain('1 quyết định tự chốt')
+  expect(drawn).not.toContain('ô […]')             // việc nhỏ không hiện ngoài bảng thông số
+  expect(drawn).toContain('KHO DỮ LIỆU KHA')       // tóm tắt mở sẵn: giải pháp
+  expect(drawn).toContain('Katalyst đề xuất xây kho dữ liệu cho 5 domain.')
+  expect(drawn).toContain('M2 Xây dựng')           // các mốc của plan
+  expect(drawn).toContain('750 MD')
+  expect(drawn).not.toContain('Người/max')         // thông số ẩn tới khi bấm
+  expect(drawn).not.toContain('Khách khác')
 
+  await ui.press({ key: 'summary' })
+  expect(JSON.stringify(await ui.drawn())).not.toContain('M2 Xây dựng')   // ẩn tóm tắt
+
+  await ui.press({ key: 'stats' })
+  const stats = JSON.stringify(await ui.drawn())
+  expect(stats).toContain('02/11/26 → 02/07/27')
+  expect(stats).toContain('170 ngày làm việc')
+  expect(stats).toContain('4/5')                   // DEV cao nhất 4 người, tối đa 5
+  expect(stats).toContain('700.0')
+  expect(stats).toContain('6/7')                   // tổng người
+  expect(stats).toContain('850.0')
+  expect(stats).toContain('(proposal 845)')
+  expect(stats).toContain('1 dòng R · ⚑ 1')
+  expect(stats).toContain('2 ô […] cần điền khi nộp')
+  expect(stats).toContain('KẾT LUẬN: ĐẠT')
+
+  expect(drawn).toContain('Thư mục')
   await ui.press({ key: 'next' })
   expect(filled).toEqual(['/master-plan kha'])
 
-  await ui.press({ key: 'pick-khb' })
+  await ui.press({ key: 'next-kh' })
   const after = JSON.stringify(await ui.drawn())
-  expect(after).not.toContain('1 dòng R · ⚑ 1')       // kha thu gọn (việc của kha vẫn ở VIỆC CẦN ANH)
-  expect(after).toContain('Plan chưa đạt')
-  expect(after).toContain('Bỏ RFP/BRD vào projects/khb/01-input/')    // khb mở rộng
+  expect(after).toContain('KHB')
+  expect(after).not.toContain('Plan chưa đạt')
+  expect(after).toContain('Bỏ RFP/BRD vào projects/khb/01-input/')
 })

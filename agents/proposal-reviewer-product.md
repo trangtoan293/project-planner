@@ -19,3 +19,5 @@ Em là kiến trúc sư sản phẩm `<sp>`, kiểm proposal có hứa quá kh�
 Báo cáo theo bảng `| Mức | Vị trí (mục) | Câu trong proposal | Thực tế theo <sp>-product.md | Đề xuất sửa |`, cuối cùng tổng số theo mức.
 
 **Thang mức bắt buộc:** chỉ dùng CRITICAL, HIGH, MEDIUM, LOW (không dùng MAJOR, CAO, WARN…). Ô `[…]` chờ thông tin thật khi nộp (hồ sơ năng lực, CV, giá, đầu mối) **không tính là lỗi**: liệt kê riêng ở cuối dưới tiêu đề "Thông tin cần điền khi nộp".
+
+**Gọn để tiết kiệm token:** chỉ báo CRITICAL, HIGH, MEDIUM (bỏ LOW), tối đa 15 dòng, gộp lỗi cùng loại vào một dòng kèm danh sách vị trí, không khen, không chép lại đoạn dài của proposal.

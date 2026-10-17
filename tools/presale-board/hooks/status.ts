@@ -1,4 +1,4 @@
-import type { CheckSummary, Files, Health, Params, Project, ReviewSummary, Todo } from '../types'
+import type { CheckSummary, Files, Health, Params, PlanTotals, Project, ProposalSummary, ReviewSummary, Todo } from '../types'
 
 /** Tên file trong projects/<kh>/ ứng với từng khóa của Files. */
 export const FILE_NAMES: Record<Exclude<keyof Files, 'input'>, string> = {
@@ -112,9 +112,8 @@ export const daysLeft = (iso: string | undefined, now: number): number | undefin
   return Math.round((due - Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())) / 86_400_000)
 }
 
-const RANK: Record<Todo['level'], number> = { urgent: 0, warn: 1, info: 2 }
-
-/** Việc cần anh làm, gom từ mọi khách, gấp nhất lên đầu. */
+/** Việc thật sự cần anh: hạn nộp, review còn CRITICAL, plan chưa đạt, quyết định tự chốt chờ duyệt. Gấp lên đầu. */
+// ponytail: khoảng trống, file cũ, ô […] đã hiện ở pipeline và bảng Thông số, không lặp lại ở đây
 export const todos = (list: Project[], now: number): Todo[] =>
   list.flatMap(p => {
     const kh = p.name
@@ -126,7 +125,7 @@ export const todos = (list: Project[], now: number): Todo[] =>
       out.push({ customer: kh, level: 'urgent', text: left < 0 ? `Quá hạn nộp ${-left} ngày (${shortDate(p.params.submitBy)})` : `Nộp hồ sơ còn ${left} ngày (${shortDate(p.params.submitBy)})` })
     }
     if (h.review && !h.review.concluded && h.review.critical > 0) {
-      out.push({ customer: kh, level: 'urgent', text: `Review vòng ${h.review.round} còn ${h.review.critical} CRITICAL, ${h.review.high} HIGH`, prompt: `Chạy vòng review tiếp cho ${kh} (bước 7 /write-proposal)` })
+      out.push({ customer: kh, level: 'urgent', text: `Review còn ${h.review.critical} CRITICAL, ${h.review.high} HIGH`, prompt: `Chạy vòng review tiếp cho ${kh} (bước 7 /write-proposal)` })
     }
     if (p.check.result === 'fail') {
       out.push({ customer: kh, level: 'urgent', text: `Plan chưa đạt: ${p.check.firstFail ?? 'xem 04-check.txt'}`, prompt: `/master-plan ${kh}` })
@@ -134,24 +133,23 @@ export const todos = (list: Project[], now: number): Todo[] =>
     if (h.drafted > 0) {
       out.push({ customer: kh, level: 'warn', text: `Duyệt ${h.drafted} quyết định tự chốt [D]`, open: `projects/${kh}/${p.files.autoSummary ? FILE_NAMES.autoSummary : FILE_NAMES.requirements}` })
     }
-    if (h.gapsOpen > 0) {
-      out.push({ customer: kh, level: 'warn', text: `Chốt ${h.gapsOpen} khoảng trống yêu cầu`, prompt: `/write-proposal ${kh}` })
-    }
-    for (const step of buildSteps(p)) {
-      if (step.state === 'stale' && step.note && step.label !== 'Yêu cầu') out.push({ customer: kh, level: 'warn', text: `${step.label}: ${step.note}`, prompt: nextStep(p).prompt })
-    }
-    if (h.placeholders > 0 && p.files.proposalDocx) {
-      out.push({ customer: kh, level: 'info', text: `Điền ${h.placeholders} ô […] trước khi nộp`, open: `projects/${kh}/${FILE_NAMES.proposalMd}` })
-    }
     return out
-  }).sort((a, b) => RANK[a.level] - RANK[b.level])
+  }).sort((a, b) => (a.level === b.level ? 0 : a.level === 'urgent' ? -1 : 1))
 
 /** Tóm tắt 04-check.txt do scripts/check_plan.py ghi. */
 export const parseCheck = (text: string | undefined): CheckSummary => {
-  if (text === undefined) return { result: 'none', failCount: 0, warnCount: 0 }
+  if (text === undefined) return { result: 'none', failCount: 0, warnCount: 0, milestones: [], team: {} }
   const lines = text.split('\n')
   const fails = lines.filter(l => l.startsWith('FAIL'))
+  const milestones = lines.filter(l => l.startsWith('MỐC ')).map(l => {
+    const [wbs, name, start, finish, md] = l.slice(4).split('|').map(x => x.trim())
+    return { wbs: wbs ?? '', name: name ?? '', start: start ?? '', finish: finish ?? '', md: Number(md) || 0 }
+  })
+  const teamLine = lines.find(l => l.startsWith('ĐỘI '))?.slice(4).replace(/\(.*$/, '') ?? ''
+  const team = Object.fromEntries(teamLine.split(',').map(x => x.trim().split(/\s+/)).filter(x => x.length === 2).map(([r, n]) => [r ?? '', Number(n)]))
   return {
+    milestones,
+    team,
     result: text.includes('KẾT QUẢ: ĐẠT') ? 'pass' : text.includes('KHÔNG ĐẠT') ? 'fail' : 'none',
     firstFail: fails[0]?.replace(/^FAIL\s+/, ''),
     failCount: fails.length,
@@ -167,6 +165,28 @@ export const parseParams = (text: string | undefined): Params => {
     return v ? v : undefined
   }
   return { kickoff: get('kickoff'), deadline: get('deadline'), proposalMd: get('proposal_md'), teamMax: get('team_max'), submitBy: get('submit_by') }
+}
+
+/** "PM=1, BA=2" → { PM: 1, BA: 2 } */
+export const parseTeamMax = (text: string | undefined): Record<string, number> =>
+  Object.fromEntries((text ?? '').split(',').map(s => s.split('=').map(x => x.trim())).filter(([k, v]) => k && v).map(([k, v]) => [k ?? '', Number(v)]))
+
+/** Dòng đầu 04-check.txt: "Plan 2026-11-02 → 2027-06-29 (164 ngày làm việc), 806.2 MD: PM 131.2, BA 116.0" */
+export const parseHeadline = (line: string | undefined): PlanTotals | undefined => {
+  const m = line?.match(/^Plan (\S+) → (\S+) \((\d+) ngày[^)]*\), ([\d.]+) MD(?::\s*(.*))?/)
+  if (!m) return undefined
+  const md = Object.fromEntries((m[5] ?? '').split(',').map(x => x.trim().split(/\s+/)).filter(x => x.length === 2).map(([r, v]) => [r ?? '', Number(v)]))
+  return { start: m[1] ?? '', finish: m[2] ?? '', days: Number(m[3]), totalMd: Number(m[4]), md }
+}
+
+/** Tên giải pháp (subtitle ở front matter) và câu đầu tiên có chữ "đề xuất" trong thân bài. */
+export const parseProposal = (text: string | undefined): ProposalSummary => {
+  const t = text ?? ''
+  const solution = t.match(/^subtitle:\s*"?([^"\n]+)"?/m)?.[1]?.trim()
+  const body = t.replace(/^---\n[\s\S]*?\n---\n/, '')
+  const para = body.split('\n').find(l => /đề xuất/i.test(l) && !/^\s*(#|\||[-*] |>)/.test(l))
+  const pitch = para?.replace(/\*\*/g, '').match(/[^.!?]*đề xuất[^.!?]*[.!?]?/i)?.[0]?.trim()
+  return { solution, pitch }
 }
 
 /** "5 phút", "3 giờ", "2 ngày" trước. */

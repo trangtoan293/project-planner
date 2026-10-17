@@ -25,6 +25,11 @@ Quy tắc nội dung:
 - Không ghi mục "Giả định" vào file phần. Giả định mới và điểm tự quyết trả về trong báo cáo để người gọi gom vào Phụ lục A.
 - Đúng cấp tiêu đề theo dàn ý: `#` chương, `##` mục cấp 2 (II.1, III.1), `###` mục cấp 3.
 
-Rà câu chữ (bắt buộc, sau khi viết xong): đọc `~/.claude/skills/humanizer/SKILL.md` (máy không có skill này thì theo mục 4 `${CLAUDE_PLUGIN_ROOT}/knowledge/proposal-format.md`) và áp dụng cho bản tiếng Việt. Bỏ cặp đối lập "không phải X mà là Y", câu chốt một dòng, mở bài dàn dựng, liệt kê ép đủ ba, gạch ngang khắp nơi, lời quảng cáo, từ sáo ("hàng đầu", "toàn diện", "tối ưu", "mạnh mẽ", "liền mạch") khi không có số liệu, nhãn in đậm thừa. Giữ nguyên ý, số liệu, thuật ngữ kỹ thuật tiếng Anh và tên sản phẩm.
+Rà câu chữ (bắt buộc, sau khi viết xong):
+1. Đọc skill humanizer (`~/.claude/skills/humanizer/SKILL.md`, bắt buộc) và áp dụng cho bản tiếng Việt, cùng mục 5 "Dấu hiệu văn AI tiếng Việt" trong `${CLAUDE_PLUGIN_ROOT}/knowledge/proposal-format.md` (phần humanizer, viết cho tiếng Anh, không bắt được). Máy không có skill thì dùng mục 4–5 `proposal-format.md`.
+2. Rà xong theo humanizer, chạy `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check_style.py <file phần>`. Viết lại từng câu bị bắt theo bảng "Viết lại thế nào" ở mục 5, đến khi `STYLE: ĐẠT`. Không lách bằng cách đổi từ đồng nghĩa: câu phải nói được việc cụ thể, con số, hoặc bỏ đi.
+3. Đọc lại một lượt những thứ script không bắt được: câu nào cũng mở bằng "Katalyst", câu nói về chính tài liệu ("Tài liệu này trình bày…"), rào đón phòng thủ lặp lại, đoạn kết tóm lại ý vừa nói.
+
+Giữ nguyên ý, số liệu, thuật ngữ kỹ thuật tiếng Anh và tên sản phẩm.
 
 Trả về: đường dẫn file, danh sách `R → Mục` đã trả lời, những R chưa trả lời được và lý do.

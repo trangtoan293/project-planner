@@ -29,7 +29,16 @@ export type CheckSummary = {
   warnCount: number
   /** Dòng tóm tắt đầu file: "Plan 2026-11-02 → 2027-06-30 (…), 845.0 MD: …" */
   headline?: string
+  /** Các dòng "MỐC  1.1 | tên | bắt đầu | kết thúc | MD" (nhóm cấp 2 của WBS). */
+  milestones: Milestone[]
+  /** Dòng "ĐỘI  PM 1, BA 2 (…)": số người cao nhất cùng lúc mỗi vai trò. */
+  team: Record<string, number>
 }
+
+export type Milestone = { wbs: string; name: string; start: string; finish: string; md: number }
+
+/** Tóm tắt proposal: tên giải pháp (subtitle ở front matter) và câu đề xuất đầu tiên. */
+export type ProposalSummary = { solution?: string; pitch?: string }
 
 /** Vòng review cuối trong 02-review.md; critical/high = -1 khi vòng đó chưa ghi dòng "CÒN LẠI". */
 export type ReviewSummary = { round: number; critical: number; high: number; concluded: boolean }
@@ -50,8 +59,12 @@ export type Health = {
   placeholders: number
 }
 
+/** Tổng của plan, đọc từ dòng đầu 04-check.txt. */
+export type PlanTotals = { start: string; finish: string; days: number; totalMd: number; md: Record<string, number> }
+
 export type Project = {
   name: string
+  proposal: ProposalSummary
   inputCount: number
   files: Files
   params: Params
@@ -62,7 +75,7 @@ export type Project = {
 /** Một việc cần anh làm, gom từ mọi khách, xếp theo mức gấp. */
 export type Todo = {
   customer: string
-  level: 'urgent' | 'warn' | 'info'
+  level: 'urgent' | 'warn'
   text: string
   /** Câu lệnh điền sẵn vào ô chat, hoặc file mở bằng ứng dụng mặc định (đường dẫn tương đối gốc repo). */
   prompt?: string
@@ -71,6 +84,6 @@ export type Todo = {
 
 declare module 'claude-code' {
   interface PluginState {
-    'presale-board': { projects: Project[]; selected: string; busy: string }
+    'presale-board': { projects: Project[]; selected: string; busy: string; showStats: boolean; showSummary: boolean }
   }
 }

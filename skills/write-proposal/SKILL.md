@@ -17,7 +17,7 @@ Quy tắc chung (bắt buộc): làm trong thư mục có `projects/`; đọc m�
 | 2.1 Tách yêu cầu | `proposal-req-extractor` | Mỗi file một agent; file trên 15 trang chia khoảng ~12 trang, mỗi khoảng một agent |
 | 2.2 Đối chiếu sản phẩm | `proposal-fit-analyst` | Chạy nền trong lúc em tổng hợp 9 mục |
 | 4 Viết | `proposal-section-writer` | Mỗi nhóm mục một agent, ghi file phần riêng |
-| 7 Review | `proposal-reviewer-coverage`, `-product`, `-consistency`, `-client`, `-style` | Cả 5 agent cùng lúc |
+| 7 Review | `proposal-reviewer-coverage`, `-product`, `-consistency`, `-client` | Cả 4 agent cùng lúc, chỉ vòng 1 |
 
 **Mặc định chạy agent bằng Codex** để tiết kiệm token Claude: `${CLAUDE_PLUGIN_ROOT}/scripts/codex_agent.sh <agent> <file-báo-cáo> "<nhiệm vụ>"` (gpt-6.1-sol, reasoning high; chạy từ thư mục có `projects/`), mỗi agent một lệnh Bash chạy nền (`run_in_background`), cùng một lượt. Mỗi agent ghi file riêng; đọc báo cáo trong file khi lệnh xong. Chỉ dùng subagent Claude (công cụ Agent, `subagent_type: presale:<agent>`, model sonnet) khi Codex lỗi hoặc máy không có `codex` CLI. Footer AGENTS (mod `agent-monitor`, cài toàn cục) hiện cả hai loại.
 
@@ -131,16 +131,24 @@ Mở lại `01-requirements.md` và xét từng dòng:
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check_plan.py projects/<kh>/00-params.txt - projects/<kh>/02-proposal.md
 ```
 
-Sửa tới khi `KẾT QUẢ: ĐẠT`. Lỗi máy bắt được thì sửa trước, để vòng review tập trung vào nội dung.
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check_style.py projects/<kh>/02-proposal.md
+```
 
-## 7. Review nghiêm ngặt trước khi gửi khách
+Sửa tới khi cả hai `ĐẠT`. Câu bị bắt thì viết lại theo skill `humanizer` (và mục 5 `proposal-format.md`); script chỉ để phát hiện, không thay humanizer. `check_style.py` bắt văn AI tiếng Việt (đối lập "không chỉ… mà còn", "Đây là…", "Việc + động từ" đầu câu, "được" chồng, từ sáo không số liệu…); viết lại câu theo mục 4 `proposal-format.md`, không chỉ xóa từ. Câu nào cố ý giữ (ví dụ trích nguyên văn yêu cầu khách) thì ghi lý do trong `02-review.md`. Lỗi máy bắt được thì sửa trước, để review tập trung vào nội dung.
 
-Gọi **cùng lúc** 5 agent: `proposal-reviewer-coverage` (đủ và đúng ý từng R), `proposal-reviewer-product` (không hứa quá sản phẩm), `proposal-reviewer-consistency` (số, ngày, nhân sự, tên), `proposal-reviewer-client` (đóng vai người chấm phía khách), `proposal-reviewer-style` (câu chữ theo humanizer).
+## 7. Review trước khi gửi khách (tối đa 2 vòng)
 
-1. Gộp kết quả vào `projects/<kh>/02-review.md`: mỗi vòng một mục `## Vòng n`, bảng `| Mức | Reviewer | Vị trí | Vấn đề | Đã xử lý |`, kết bằng dòng `CÒN LẠI: CRITICAL <n> · HIGH <n>` (không tính ô `[…]` chờ thông tin thật).
-2. Giao `proposal-fixer` sửa (một agent cho cả file, chạy bằng `codex-agent`). Sửa **mọi** CRITICAL và HIGH; MEDIUM sửa khi hợp lý, không sửa thì ghi lý do; LOW tùy. Sửa nội dung proposal, không sửa yêu cầu hay params để lách.
-3. Vòng sau chỉ chạy lại những reviewer còn CRITICAL/HIGH, cộng `proposal-reviewer-consistency` (vì sửa chỗ này dễ lệch chỗ khác). Tối đa 3 vòng. Hết 3 vòng vẫn còn CRITICAL/HIGH thì dừng, báo anh từng lỗi.
-4. Hết CRITICAL/HIGH thì trình anh: số lỗi đã sửa theo mức, MEDIUM để lại và lý do, nhận xét của `proposal-reviewer-client` (3 điểm mạnh, 3 điểm yếu, câu khách có thể hỏi). **Anh đồng ý** thì em mới ghi dòng cuối `KẾT LUẬN: ĐẠT` vào `02-review.md`.
+Câu chữ đã qua humanizer lúc viết (writer) và lúc sửa (fixer), `check_style.py` ở bước 6 kiểm lại, nên không cần agent review riêng cho câu chữ. Review chỉ chạy agent cho nội dung.
+
+**Vòng 1.** Gọi **cùng lúc** 4 agent: `proposal-reviewer-coverage` (đủ và đúng ý từng R), `proposal-reviewer-product` (không hứa quá sản phẩm), `proposal-reviewer-consistency` (số, ngày, nhân sự, tên), `proposal-reviewer-client` (đóng vai người chấm phía khách). Mỗi reviewer chỉ báo CRITICAL/HIGH/MEDIUM, tối đa 15 dòng, không khen.
+
+1. Gộp vào `projects/<kh>/02-review.md`: mục `## Vòng 1`, bảng `| Mức | Reviewer | Vị trí | Vấn đề | Đã xử lý |`, kết bằng dòng `CÒN LẠI: CRITICAL <n> · HIGH <n>` (không tính ô `[…]` chờ thông tin thật). Lỗi trùng giữa các reviewer gộp một dòng.
+2. Giao `proposal-fixer` sửa một lần cho cả file: mọi CRITICAL và HIGH, MEDIUM khi hợp lý (không sửa thì ghi lý do). Sửa nội dung proposal, không sửa yêu cầu hay params để lách. Fixer chạy lại `check_plan.py` và `check_style.py` trước khi trả.
+
+**Vòng 2** (chỉ khi vòng 1 có CRITICAL/HIGH). **Không chạy lại 4 reviewer.** Gọi một `proposal-reviewer-consistency` với danh sách lỗi CRITICAL/HIGH của vòng 1 và cách fixer đã sửa: kiểm từng lỗi đã hết chưa, và chỗ sửa có làm lệch số, ngày, tham chiếu ở mục khác không. Ghi `## Vòng 2` cùng dòng `CÒN LẠI`. Còn lỗi thì em tự sửa những lỗi đó (không gọi thêm vòng), rồi ghi rõ trong `## Vòng 2` cách đã sửa. Lỗi cần anh quyết thì dừng, báo anh.
+
+Hết CRITICAL/HIGH thì trình anh: số lỗi đã sửa theo mức, MEDIUM để lại và lý do, nhận xét của `proposal-reviewer-client` (3 điểm mạnh, 3 điểm yếu, câu khách có thể hỏi). **Anh đồng ý** thì em mới ghi dòng cuối `KẾT LUẬN: ĐẠT` vào `02-review.md`.
 
 ## 8. Xuất file
 
@@ -158,5 +166,6 @@ Script không xuất nếu `02-review.md` chưa có `KẾT LUẬN: ĐẠT`. Cầ
 - [ ] Mọi dòng có "Trả lời tại" trỏ tới một mục có thật, và "Trả lời tóm tắt" trả lời đúng ý yêu cầu. `check_plan.py` kiểm phần mục có thật.
 - [ ] Không còn `TODO`, `???` hay `<...>` trong proposal.
 - [ ] `check_plan.py` (chế độ chỉ proposal) in `KẾT QUẢ: ĐẠT`, và anh đã xem từng dòng WARN.
-- [ ] `02-review.md` có `KẾT LUẬN: ĐẠT`: 5 reviewer không còn CRITICAL/HIGH và anh đã duyệt.
+- [ ] `check_style.py` in `STYLE: ĐẠT` (hoặc câu còn lại có lý do).
+- [ ] `02-review.md` có `KẾT LUẬN: ĐẠT`: không còn CRITICAL/HIGH sau tối đa 2 vòng và anh đã duyệt.
 - [ ] Đã sinh `02-proposal.docx`. Báo anh: đường dẫn file, danh sách giả định đã đưa vào, các câu hỏi còn mở.

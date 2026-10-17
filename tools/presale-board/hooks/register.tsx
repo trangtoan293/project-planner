@@ -3,8 +3,8 @@ import type { EngineInterface, Register } from 'claude-code'
 
 import type { Files, Project, Todo } from '../types'
 import {
-  FILE_NAMES, buildSteps, countPlaceholders, daysLeft, isValidName, nextStep, parseCheck, parseParams, parseRequirements,
-  parseReview, shortDate, todos,
+  FILE_NAMES, buildSteps, countPlaceholders, daysLeft, isValidName, nextStep, parseCheck, parseHeadline, parseParams, parseRequirements,
+  parseProposal, parseReview, parseTeamMax, shortDate, todos,
 } from './status'
 import type { StepState } from './status'
 
@@ -14,10 +14,13 @@ const REFRESH_MS = 4000
 const projects = atom({ plugin: 'presale-board', key: 'projects' } as const, [])
 const selected = atom({ plugin: 'presale-board', key: 'selected' } as const, '')
 const busy = atom({ plugin: 'presale-board', key: 'busy' } as const, '')
+const showStats = atom({ plugin: 'presale-board', key: 'showStats' } as const, false)
+const showSummary = atom({ plugin: 'presale-board', key: 'showSummary' } as const, true)
+const MAX_MILESTONES = 6
 
 const GLYPH: Record<StepState, string> = { done: '●', stale: '◐', fail: '✗', todo: '○' }
 const COLOR: Record<StepState, string> = { done: 'success', stale: 'warning', fail: 'error', todo: 'subtle' }
-const TODO_COLOR: Record<Todo['level'], string> = { urgent: 'error', warn: 'warning', info: 'subtle' }
+const TODO_COLOR: Record<Todo['level'], string> = { urgent: 'error', warn: 'warning' }
 
 // ---------- đọc dữ liệu ----------
 
@@ -42,16 +45,19 @@ const scanProject = async ($: EngineInterface, name: string): Promise<Project> =
     : []
   const files: Files = { input: input.length ? Math.max(...input.map(f => f.mtimeMs)) : undefined }
   for (const [key, file] of Object.entries(FILE_NAMES)) files[key as keyof typeof FILE_NAMES] = mtime.get(file)
+  const params = parseParams(await readOptional($, `${dir}/${FILE_NAMES.params}`))
+  const proposal = await readOptional($, `${dir}/${FILE_NAMES.proposalMd}`)
   return {
     name,
     inputCount: input.length,
     files,
-    params: parseParams(await readOptional($, `${dir}/${FILE_NAMES.params}`)),
+    params,
+    proposal: parseProposal(proposal),
     check: parseCheck(await readOptional($, `${dir}/${FILE_NAMES.check}`)),
     health: {
       ...parseRequirements(await readOptional($, `${dir}/${FILE_NAMES.requirements}`)),
       review: parseReview(await readOptional($, `${dir}/${FILE_NAMES.review}`)),
-      placeholders: countPlaceholders(await readOptional($, `${dir}/${FILE_NAMES.proposalMd}`)),
+      placeholders: countPlaceholders(proposal),
     },
   }
 }
@@ -137,14 +143,111 @@ export const register: Register = on => {
     const list = await read($, projects)
     const running = await read($, busy)
     const pick = await read($, selected)
-    const chosen = list.find(p => p.name === pick) ?? list[0]
+    const stats = await read($, showStats)
+    const summary = await read($, showSummary)
+    const index = Math.max(0, list.findIndex(p => p.name === pick))
+    const p = list[index]
     const now = Date.now()
-    const inbox = todos(list, now)
+    const select = (step: number) => update($, selected, () => list[(index + step + list.length) % list.length]?.name ?? '')
+    const line = (label: string, value: string, color?: string) => (
+      <Text key={label} wrap="truncate-end"><Text color="subtle">{label.padEnd(12)}</Text><Text color={color}>{value}</Text></Text>
+    )
 
-    const pipeline = (p: Project) => {
-      const steps = buildSteps(p)
-      const current = steps.findIndex(s => s.state !== 'done')
+    if (!p) {
       return (
+        <Box borderStyle="round" borderColor="subtle" paddingX={1} flexDirection="column">
+          <Text>Chưa có khách nào.</Text>
+          <Text color="subtle">Gõ /presale new &lt;tên-kh&gt; để bắt đầu.</Text>
+        </Box>
+      )
+    }
+
+    const steps = buildSteps(p)
+    const current = steps.findIndex(s => s.state !== 'done')
+    const next = nextStep(p)
+    const inbox = todos([p], now).slice(0, 3)
+    const left = daysLeft(p.params.submitBy, now)
+
+    // Bảng thông số: nhân sự, MD, thời gian; mở bằng nút "Thông số"
+    const statsPanel = () => {
+      const hp = p.health  // không đặt tên h: trùng hàm h của JSX
+      const r = hp.review
+      const plan = parseHeadline(p.check.headline)
+      const max = parseTeamMax(p.params.teamMax)
+      const roles = [...new Set([...Object.keys(max), ...Object.keys(p.check.team), ...Object.keys(plan?.md ?? {})])]
+      const people = roles.reduce((n, role) => n + (p.check.team[role] ?? 0), 0)
+      const maxPeople = roles.reduce((n, role) => n + (max[role] ?? 0), 0)
+      const md = (v: number | undefined) => (v === undefined ? '—' : v.toFixed(1)).padStart(7)
+      return (
+        <Box flexDirection="column" borderStyle="single" borderColor="subtle" paddingX={1} marginTop={1}>
+          {line('Thời gian', plan
+            ? `${shortDate(plan.start)} → ${shortDate(plan.finish)} · ${plan.days} ngày làm việc${p.params.deadline ? ` · hạn ${shortDate(p.params.deadline)}` : ''}`
+            : `kickoff ${shortDate(p.params.kickoff)} · hạn ${shortDate(p.params.deadline)} · chưa có plan`)}
+          {roles.length > 0 && <Text color="subtle">{`${'Vai trò'.padEnd(12)}${'Người/max'.padStart(9)}${'MD'.padStart(9)}`}</Text>}
+          {roles.map(role => (
+            <Text key={`role-${role}`}>
+              {role.padEnd(12)}
+              <Text color={(p.check.team[role] ?? 0) > (max[role] ?? Infinity) ? 'error' : undefined}>{`${p.check.team[role] ?? '—'}/${max[role] ?? '—'}`.padStart(9)}</Text>
+              {`  ${md(plan?.md[role])}`}
+            </Text>
+          ))}
+          {roles.length > 0 && (
+            <Text bold>
+              {'Tổng'.padEnd(12)}{`${people || '—'}/${maxPeople || '—'}`.padStart(9)}{`  ${md(plan?.totalMd)}`}
+              {p.params.proposalMd && <Text color={plan && Math.abs(plan.totalMd - Number(p.params.proposalMd)) > 0.5 ? 'warning' : 'subtle'}>{`  (proposal ${p.params.proposalMd})`}</Text>}
+            </Text>
+          )}
+          {p.files.requirements && line('Yêu cầu', `${hp.reqRows} dòng R · ⚑ ${hp.flags} · khoảng trống ${hp.gapsOpen ? `${hp.gapsOpen}/${hp.gapsTotal} chưa chốt` : 'đã chốt hết'}`, hp.gapsOpen ? 'warning' : undefined)}
+          {(hp.decided > 0 || hp.drafted > 0) && line('Quyết định', `${hp.decided} anh chốt [C] · ${hp.drafted} tự chốt [D]${hp.drafted ? ' chờ duyệt' : ''}`, hp.drafted ? 'warning' : undefined)}
+          {r && line('Review', r.concluded ? `vòng ${r.round} · KẾT LUẬN: ĐẠT` : r.critical < 0 ? `vòng ${r.round} · chưa ghi số lỗi còn lại` : `vòng ${r.round} · còn ${r.critical} CRITICAL, ${r.high} HIGH`, r.concluded ? 'success' : r.critical > 0 ? 'error' : 'warning')}
+          {p.files.proposalMd && line('Proposal', `${hp.placeholders ? `${hp.placeholders} ô […] cần điền khi nộp` : 'không còn ô […]'}${p.files.proposalDocx ? '' : ' · chưa xuất .docx'}`, hp.placeholders ? 'warning' : undefined)}
+          {p.check.firstFail && line('Kiểm tra', `✗ ${p.check.firstFail}${p.check.failCount > 1 ? ` (+${p.check.failCount - 1} lỗi)` : ''}`, 'error')}
+        </Box>
+      )
+    }
+
+    // Tóm tắt high-level: proposal đề xuất gì, plan chia mốc ra sao
+    const summaryPanel = () => {
+      const ms = p.check.milestones
+      const plan = parseHeadline(p.check.headline)
+      return (
+        <Box flexDirection="column" borderStyle="single" borderColor="subtle" paddingX={1} marginTop={1}>
+          <Text bold>Proposal</Text>
+          {p.proposal.solution || p.proposal.pitch ? (
+            <Box flexDirection="column">
+              {p.proposal.solution && line('Giải pháp', p.proposal.solution)}
+              {p.proposal.pitch && <Text wrap="wrap" color="subtle">{p.proposal.pitch}</Text>}
+            </Box>
+          ) : <Text color="subtle">Chưa có 02-proposal.md</Text>}
+          <Text bold>{plan ? `Plan · ${plan.totalMd.toFixed(1)} MD · ${shortDate(plan.start)} → ${shortDate(plan.finish)}` : 'Plan'}</Text>
+          {ms.length === 0 && <Text color="subtle">{p.check.headline ? 'Bấm c (Kiểm tra) để hiện các mốc' : `Chưa có plan · /master-plan ${p.name}`}</Text>}
+          {ms.slice(0, MAX_MILESTONES).map(m => (
+            <Box key={`ms-${m.wbs}`} flexDirection="row" justifyContent="space-between">
+              <Text wrap="truncate-end">{m.name.replace(/\s+[—–-]\s+/, ' ')}</Text>
+              <Text color="subtle">{`  ${shortDate(m.start).slice(0, 5)}→${shortDate(m.finish).slice(0, 5)} ${m.md.toFixed(0).padStart(5)} MD`}</Text>
+            </Box>
+          ))}
+          {ms.length > MAX_MILESTONES && <Text color="subtle">{`+${ms.length - MAX_MILESTONES} mốc khác (Excel: phím x)`}</Text>}
+        </Box>
+      )
+    }
+
+    return (
+      <Box flexDirection="column">
+        <Box flexDirection="row" justifyContent="space-between">
+          <Box flexDirection="row">
+            {/* bấm tên khách để sang khách khác; không gắn phím để khỏi hiện "k:" trước tên */}
+            {list.length > 1
+              ? <Button key="next-kh" plain label={p.name.toUpperCase()} onPress={() => void select(1)} />
+              : <Text bold color="claude">{p.name.toUpperCase()}</Text>}
+            {list.length > 1 && <Text color="subtle">{`  ${index + 1}/${list.length} ↻`}</Text>}
+          </Box>
+          <Text color="subtle">
+            {`${shortDate(p.params.kickoff)} → ${shortDate(p.params.deadline)}`}
+            {/* hạn nộp ≤ 7 ngày đã nằm ở dòng việc gấp bên dưới, không lặp lại */}
+            {left !== undefined && left > 7 && <Text>{` · nộp còn ${left} ngày`}</Text>}
+          </Text>
+        </Box>
         <Box flexDirection="row" flexWrap="wrap">
           {steps.map((s, i) => (
             <Text key={s.label}>
@@ -155,102 +258,29 @@ export const register: Register = on => {
             </Text>
           ))}
         </Box>
-      )
-    }
-
-    // Sức khỏe hồ sơ: mỗi dòng một con số để quyết định việc tiếp theo; dòng nào chưa có dữ liệu thì ẩn
-    const health = (p: Project) => {
-      const hp = p.health  // không đặt tên h: trùng hàm h của JSX
-      const r = hp.review
-      const line = (label: string, value: string, color?: string) => (
-        <Text key={label} wrap="truncate-end"><Text color="subtle">{label.padEnd(11)}</Text><Text color={color}>{value}</Text></Text>
-      )
-      return (
-        <Box flexDirection="column" marginTop={1}>
-          {p.files.requirements && line('Yêu cầu', `${hp.reqRows} dòng R · ⚑ ${hp.flags} · khoảng trống ${hp.gapsOpen ? `${hp.gapsOpen}/${hp.gapsTotal} chưa chốt` : 'đã chốt hết'}`, hp.gapsOpen ? 'warning' : undefined)}
-          {(hp.decided > 0 || hp.drafted > 0) && line('Quyết định', `${hp.decided} anh chốt [C] · ${hp.drafted} tự chốt [D]${hp.drafted ? ' chờ duyệt' : ''}`, hp.drafted ? 'warning' : undefined)}
-          {r && line('Review', r.concluded ? `vòng ${r.round} · KẾT LUẬN: ĐẠT` : r.critical < 0 ? `vòng ${r.round} · chưa ghi số lỗi còn lại` : `vòng ${r.round} · còn ${r.critical} CRITICAL, ${r.high} HIGH`, r.concluded ? 'success' : r.critical > 0 ? 'error' : 'warning')}
-          {p.files.proposalMd && line('Proposal', `${hp.placeholders ? `${hp.placeholders} ô […] cần điền khi nộp` : 'không còn ô […]'}${p.files.proposalDocx ? '' : ' · chưa xuất .docx'}`, hp.placeholders ? 'warning' : undefined)}
-          {p.check.headline && line('Plan', p.check.headline.replace(/^Plan /, ''), p.check.result === 'fail' ? 'error' : undefined)}
-          {p.check.firstFail && line('', `✗ ${p.check.firstFail}${p.check.failCount > 1 ? ` (+${p.check.failCount - 1} lỗi)` : ''}`, 'error')}
-        </Box>
-      )
-    }
-
-    const actions = (p: Project) => {
-      const next = nextStep(p)
-      return (
+        {inbox.map((t, i) => (
+          <Button key={`todo-${i}`} plain onPress={() => void (t.open ? openPath($, t.open) : t.prompt ? $.prompt.fill({ text: t.prompt }) : undefined)}>
+            <Text color={TODO_COLOR[t.level]}>{t.level === 'urgent' ? '! ' : '• '}</Text>
+            {t.text}
+          </Button>
+        ))}
         <Box flexDirection="row" flexWrap="wrap" gap={1} marginTop={1}>
           {next.prompt ? (
             <Button key="next" hotkey="n" variant="primary" label={`▶ ${next.label}`} onPress={() => void $.prompt.fill({ text: next.prompt ?? '' })} />
           ) : (
             <Text color={next.label.startsWith('Xong') ? 'success' : 'warning'}>→ {next.label}</Text>
           )}
-          <Button key="auto" hotkey="a" label="Tự động" onPress={() => void $.prompt.fill({ text: `/auto-presale ${p.name}` })} />
+          <Button key="summary" hotkey="t" label={summary ? 'Ẩn tóm tắt' : 'Tóm tắt'} onPress={() => void update($, showSummary, v => !v)} />
+          <Button key="stats" hotkey="s" label={stats ? 'Ẩn thông số' : 'Thông số'} onPress={() => void update($, showStats, v => !v)} />
           <Button key="open-dir" hotkey="o" label="Thư mục" onPress={() => void openPath($, `projects/${p.name}`)} />
           <Button key="open-proposal" hotkey="p" label="Proposal" onPress={() => void openPath($, `projects/${p.name}/${p.files.proposalDocx ? FILE_NAMES.proposalDocx : FILE_NAMES.proposalMd}`)} />
           <Button key="open-plan" hotkey="x" label="Excel" onPress={() => void openPath($, `projects/${p.name}/${FILE_NAMES.plan}`)} />
-          <Button key="check" hotkey="c" label={running === p.name ? 'Đang kiểm tra…' : 'Kiểm tra lại'}
+          <Button key="check" hotkey="c" label={running === p.name ? 'Đang kiểm tra…' : 'Kiểm tra'}
             onPress={() => void (running ? undefined : rerunCheck($, p.name))} />
         </Box>
-      )
-    }
-
-    const card = (p: Project, i: number) => {
-      const isChosen = p.name === chosen?.name
-      const { kickoff, deadline, submitBy } = p.params
-      const left = daysLeft(submitBy, now)
-      return (
-        <Box key={`card-${p.name}`} flexDirection="column" borderStyle="round" borderColor={isChosen ? 'claude' : 'subtle'} paddingX={1}>
-          <Box flexDirection="row" justifyContent="space-between">
-            <Button key={`pick-${p.name}`} plain hotkey={i < 9 ? String(i + 1) : undefined} label={p.name.toUpperCase()}
-              onPress={() => void update($, selected, () => p.name)} />
-            <Text>
-              {left !== undefined && <Text color={left <= 3 ? 'error' : left <= 7 ? 'warning' : 'subtle'}>{left < 0 ? `quá hạn nộp ${-left} ngày · ` : `nộp còn ${left} ngày · `}</Text>}
-              <Text color="subtle">{`dự án ${shortDate(kickoff)} → ${shortDate(deadline)}`}</Text>
-            </Text>
-          </Box>
-          {pipeline(p)}
-          {isChosen ? (
-            <Box flexDirection="column">
-              {health(p)}
-              {actions(p)}
-            </Box>
-          ) : (
-            <Text color="subtle">→ {nextStep(p).label}</Text>
-          )}
-        </Box>
-      )
-    }
-
-    return (
-      <Box flexDirection="column">
-        <Box flexDirection="row" justifyContent="space-between">
-          <Text bold color="claude">PRESALES</Text>
-          <Text color="subtle">{`${list.length} khách · ${inbox.length} việc cần anh`}</Text>
-        </Box>
-        {list.length === 0 && (
-          <Box borderStyle="round" borderColor="subtle" paddingX={1} flexDirection="column">
-            <Text>Chưa có khách nào.</Text>
-            <Text color="subtle">Gõ /presale new &lt;tên-kh&gt; để bắt đầu.</Text>
-          </Box>
-        )}
-        {list.map(card)}
-        {inbox.length > 0 && (
-          <Box flexDirection="column" marginTop={1}>
-            <Text bold>VIỆC CẦN ANH</Text>
-            {inbox.slice(0, 8).map((t, i) => (
-              <Button key={`todo-${i}`} plain onPress={() => void (t.open ? openPath($, t.open) : t.prompt ? $.prompt.fill({ text: t.prompt }) : update($, selected, () => t.customer))}>
-                <Text color={TODO_COLOR[t.level]}>{t.level === 'urgent' ? '!' : t.level === 'warn' ? '•' : '·'}</Text>
-                <Text bold>{` ${t.customer.toUpperCase()} `}</Text>
-                {t.text}
-                <Text color="subtle">{t.open ? '  ↗ mở file' : t.prompt ? '  ↵ điền lệnh' : ''}</Text>
-              </Button>
-            ))}
-            {inbox.length > 8 && <Text color="subtle">{`  +${inbox.length - 8} việc khác`}</Text>}
-          </Box>
-        )}
-        <Text color="subtle">{'Ctrl+X Tab vào bảng · 1–9 khách · n bước tiếp · a tự động · o p x mở file · c kiểm tra'}</Text>
+        {summary && summaryPanel()}
+        {stats && statsPanel()}
+        <Text color="subtle">{`${list.length > 1 ? 'bấm tên để đổi khách · ' : ''}n bước tiếp · t tóm tắt · s thông số · o p x mở thư mục/file · c kiểm tra · /auto-presale ${p.name} chạy tự động`}</Text>
       </Box>
     )
   })

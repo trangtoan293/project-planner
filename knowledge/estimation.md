@@ -20,15 +20,15 @@ Số liệu lấy từ các proposal và master plan mẫu. Đây là **benchmar
 | Tích hợp 1 hệ thống nguồn lớn (Core T24) đến Raw Vault | 70 |
 | Tích hợp 1 hệ thống nguồn vừa (CMS thẻ) | 55 |
 | Business Vault, mart, logic tập trung, đối soát | 90 |
-| Cấu hình báo cáo có sẵn | ~2 MD/báo cáo |
-| Cập nhật báo cáo theo văn bản mới | ~4 MD/báo cáo |
-| Tệp CIC (cấu hình + kiểm tra JSON) | ~5 MD/tệp |
-| Báo cáo customization mới | ~8 MD/báo cáo |
+| Cấu hình báo cáo có sẵn | ~3 MD/báo cáo |
+| Cập nhật báo cáo theo văn bản mới | ~5 MD/báo cáo |
+| Tệp CIC (cấu hình + kiểm tra JSON) | ~7 MD/tệp |
+| Báo cáo customization mới | ~10 MD/báo cáo |
 | Workflow Maker-Checker, phân quyền, audit | 20 |
-| Tích hợp nộp CIC/NHNN, ký số | 25 |
-| SIT, UAT, chạy song song 2 kỳ | 90 (~11%) |
-| Đào tạo, chuyển giao tài liệu | 20 |
-| Go-live, hypercare 4 tuần | 30 |
+| Tích hợp nộp CIC/NHNN, ký số | 40 |
+| SIT, UAT, chạy song song 2 kỳ | 110 (~11%) |
+| Đào tạo, chuyển giao tài liệu | 40 |
+| Go-live, hypercare 4 tuần | 40 |
 | Quản lý dự án, QA | ~10% tổng |
 
 Effort cho change request (quỹ man-day sau go-live): sửa chỉ tiêu trên template có sẵn 0,5–2 · báo cáo ma trận mới, dữ liệu đã có 3–6 · báo cáo mới cần thêm nguồn 6–12 · tệp CIC mới 8–15. Quỹ đề xuất 60 MD/năm.

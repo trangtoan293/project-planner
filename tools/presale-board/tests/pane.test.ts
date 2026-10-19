@@ -122,7 +122,7 @@ test('bảng chỉ hiện một khách; nút Thông số mở nhân sự, MD; b�
   expect(why).toContain('M1 Marketing')                 // tên milestone bỏ gạch ngang
   expect(why).toContain('lớn nhất · Tích hợp Opera PMS, 25 bảng')
   expect(why).toContain('   219   32    38')            // cột MD, R, Việc thẳng hàng
-  expect(why).toContain('DEV ')
+  expect(why).toContain('"DEV"')
   expect(why).toContain('6/5')                           // vượt tối đa
   expect(why).toContain('18 sprint × 2 tuần · tải cao nhất S2 ')
   expect(why).toContain('100%')

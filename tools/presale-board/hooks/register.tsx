@@ -1,7 +1,7 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
-import type { Explain, Files, Project, Todo, TraceSummary } from '../types'
+import type { Explain, Files, Project, Todo, TraceSummary, View } from '../types'
 import {
   FILE_NAMES, buildSteps, countPlaceholders, daysLeft, isValidName, nextStep, parseCheck, parseHeadline, parseParams, parseRequirements,
   parseProposal, parseReview, parseTeamMax, shortDate, todos,
@@ -14,9 +14,12 @@ const REFRESH_MS = 4000
 const projects = atom({ plugin: 'presale-board', key: 'projects' } as const, [])
 const selected = atom({ plugin: 'presale-board', key: 'selected' } as const, '')
 const busy = atom({ plugin: 'presale-board', key: 'busy' } as const, '')
-const showStats = atom({ plugin: 'presale-board', key: 'showStats' } as const, false)
-const showSummary = atom({ plugin: 'presale-board', key: 'showSummary' } as const, true)
-const showExplain = atom({ plugin: 'presale-board', key: 'showExplain' } as const, false)
+const view = atom({ plugin: 'presale-board', key: 'view' } as const, 'summary' as View)
+const TABS: { view: Exclude<View, ''>; key: string; hotkey: string; label: string }[] = [
+  { view: 'summary', key: 'summary', hotkey: 't', label: 'Tóm tắt' },
+  { view: 'stats', key: 'stats', hotkey: 's', label: 'Thông số' },
+  { view: 'explain', key: 'explain', hotkey: 'g', label: 'Giải thích' },
+]
 const explain = atom({ plugin: 'presale-board', key: 'explain' } as const, { name: '' } as Explain)
 const MAX_MILESTONES = 6
 const DOC = 'docs/cach-hoat-dong.md'
@@ -171,9 +174,7 @@ export const register: Register = on => {
     const list = await read($, projects)
     const running = await read($, busy)
     const pick = await read($, selected)
-    const stats = await read($, showStats)
-    const summary = await read($, showSummary)
-    const explaining = await read($, showExplain)
+    const open = await read($, view)
     const why = await read($, explain)
     const index = Math.max(0, list.findIndex(p => p.name === pick))
     const p = list[index]
@@ -181,11 +182,12 @@ export const register: Register = on => {
     const select = async (step: number) => {
       const name = list[(index + step + list.length) % list.length]?.name ?? ''
       await update($, selected, () => name)
-      if (explaining) await runTrace($, name)
+      if (open === 'explain') await runTrace($, name)
     }
-    const toggleExplain = async () => {
-      await update($, showExplain, v => !v)
-      if (!explaining) await runTrace($, p?.name ?? '')
+    // thanh tab: bấm tab đang mở thì đóng; mở Giải thích thì đọc lại trace.py
+    const pickTab = async (tab: Exclude<View, ''>) => {
+      await update($, view, v => (v === tab ? '' : tab))
+      if (tab === 'explain' && open !== 'explain') await runTrace($, p?.name ?? '')
     }
     const line = (label: string, value: string, color?: string) => (
       <Text key={label} wrap="truncate-end"><Text color="subtle">{label.padEnd(12)}</Text><Text color={color}>{value}</Text></Text>
@@ -337,10 +339,10 @@ export const register: Register = on => {
           : why.loading ? <Text color="subtle">Đang đọc…</Text>
           : why.error ? <Text color="error" wrap="wrap">{`Không chạy được trace.py: ${why.error}`}</Text>
           : why.data && explainBody(why.data)}
-        <Box flexDirection="row" flexWrap="wrap" gap={1} marginTop={1}>
-          <Button key="ask-why" hotkey="v" label="Hỏi vì sao…" onPress={() => void $.prompt.fill({ text: `Giải thích vì sao ${p.name}: ` })} />
-          <Button key="tuning" hotkey="e" label="Chỉnh cho dự án" onPress={() => void openTuning($, p.name)} />
-          <Button key="how" hotkey="h" label="Cách hoạt động" onPress={() => void openPath($, DOC)} />
+        <Box flexDirection="row" flexWrap="wrap" gap={2} marginTop={1}>
+          <Button key="ask-why" plain hotkey="v" label="Hỏi vì sao…" onPress={() => void $.prompt.fill({ text: `Giải thích vì sao ${p.name}: ` })} />
+          <Button key="tuning" plain hotkey="e" label="Chỉnh cho dự án" onPress={() => void openTuning($, p.name)} />
+          <Button key="how" plain hotkey="h" label="Cách hoạt động" onPress={() => void openPath($, DOC)} />
         </Box>
       </Box>
     )
@@ -377,25 +379,37 @@ export const register: Register = on => {
             {t.text}
           </Button>
         ))}
-        <Box flexDirection="row" flexWrap="wrap" gap={1} marginTop={1}>
+        {/* tầng 1: việc cần làm tiếp và kiểm tra lại */}
+        <Box flexDirection="row" gap={1} marginTop={1}>
           {next.prompt ? (
             <Button key="next" hotkey="n" variant="primary" label={`▶ ${next.label}`} onPress={() => void $.prompt.fill({ text: next.prompt ?? '' })} />
           ) : (
-            <Text color={next.label.startsWith('Xong') ? 'success' : 'warning'}>→ {next.label}</Text>
+            <Text color={next.label.startsWith('Xong') ? 'success' : 'warning'}>{`✓ ${next.label}`}</Text>
           )}
-          <Button key="summary" hotkey="t" label={summary ? 'Ẩn tóm tắt' : 'Tóm tắt'} onPress={() => void update($, showSummary, v => !v)} />
-          <Button key="stats" hotkey="s" label={stats ? 'Ẩn thông số' : 'Thông số'} onPress={() => void update($, showStats, v => !v)} />
-          <Button key="explain" hotkey="g" label={explaining ? 'Ẩn giải thích' : 'Giải thích'} onPress={() => void toggleExplain()} />
-          <Button key="open-dir" hotkey="o" label="Thư mục" onPress={() => void openPath($, `projects/${p.name}`)} />
-          <Button key="open-proposal" hotkey="p" label="Proposal" onPress={() => void openPath($, `projects/${p.name}/${p.files.proposalDocx ? FILE_NAMES.proposalDocx : FILE_NAMES.proposalMd}`)} />
-          <Button key="open-plan" hotkey="x" label="Excel" onPress={() => void openPath($, `projects/${p.name}/${FILE_NAMES.plan}`)} />
-          <Button key="check" hotkey="c" label={running === p.name ? 'Đang kiểm tra…' : 'Kiểm tra'}
+          <Button key="check" hotkey="c" variant="secondary" label={running === p.name ? 'Đang kiểm tra…' : 'Kiểm tra'}
             onPress={() => void (running ? undefined : rerunCheck($, p.name))} />
         </Box>
-        {summary && summaryPanel()}
-        {stats && statsPanel()}
-        {explaining && explainPanel()}
-        <Text color="subtle">{`${list.length > 1 ? 'bấm tên để đổi khách · ' : ''}n bước tiếp · t tóm tắt · s thông số · g giải thích · o p x mở thư mục/file · c kiểm tra · /auto-presale ${p.name} chạy tự động`}</Text>
+        {/* tầng 2: thanh tab (một khung mỗi lúc) bên trái, mở file bên phải */}
+        <Box flexDirection="row" justifyContent="space-between" marginTop={1}>
+          <Box flexDirection="row" gap={2}>
+            {TABS.map(t => (
+              <Button key={t.key} plain hotkey={t.hotkey} dimColor={open !== t.view} onPress={() => void pickTab(t.view)}>
+                <Text bold={open === t.view} underline={open === t.view}>{t.label}</Text>
+              </Button>
+            ))}
+          </Box>
+          <Box flexDirection="row" gap={2}>
+            <Text color="subtle">Mở</Text>
+            <Button key="open-dir" plain dimColor hotkey="o" label="Thư mục" onPress={() => void openPath($, `projects/${p.name}`)} />
+            <Button key="open-proposal" plain dimColor hotkey="p" label="Proposal" onPress={() => void openPath($, `projects/${p.name}/${p.files.proposalDocx ? FILE_NAMES.proposalDocx : FILE_NAMES.proposalMd}`)} />
+            <Button key="open-plan" plain dimColor hotkey="x" label="Excel" onPress={() => void openPath($, `projects/${p.name}/${FILE_NAMES.plan}`)} />
+          </Box>
+        </Box>
+        {/* tầng 3: khung đang mở */}
+        {open === 'summary' && summaryPanel()}
+        {open === 'stats' && statsPanel()}
+        {open === 'explain' && explainPanel()}
+        <Text color="subtle">{`Ctrl+X Tab để dùng phím tắt${list.length > 1 ? ' · bấm tên khách để đổi khách' : ''} · /auto-presale ${p.name} chạy tự động`}</Text>
       </Box>
     )
   })

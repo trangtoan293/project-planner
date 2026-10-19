@@ -5,7 +5,7 @@
 
 # Knowledge Platform: sổ tay sản phẩm
 
-Trong proposal gọi sản phẩm là **Knowledge Platform** (tên nội bộ, tên repo là Knowledge Vault; không dùng tên nội bộ với khách). Proposal Knowledge Platform không nhắc tới Hanas. Nền là Tencent WeKnora (MIT), Katalyst phát triển thêm lớp pháp lý Việt Nam, trích xuất, đối chiếu tuân thủ và tích hợp định danh.
+Trong proposal gọi sản phẩm là **Knowledge Platform** (tên nội bộ, tên repo là Knowledge Vault; không dùng tên nội bộ với khách). Proposal Knowledge Platform không nhắc tới Hanas, không nhắc Tencent WeKnora (nền mã nguồn chỉ là thông tin nội bộ; với khách nói Knowledge Platform do Katalyst phát triển). Nền là Tencent WeKnora (MIT), Katalyst phát triển thêm lớp pháp lý Việt Nam, trích xuất, đối chiếu tuân thủ và tích hợp định danh.
 
 **Đọc trước khi viết proposal:**
 - Báo cáo bên dưới là lời Katalyst tự mô tả. Mức đáp ứng thật lấy theo mục "Mức đáp ứng đã kiểm trên mã nguồn" và bảng "Những điều không được hứa với khách hàng" ở cuối file.

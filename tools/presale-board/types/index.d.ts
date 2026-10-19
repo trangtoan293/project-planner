@@ -82,6 +82,9 @@ export type Todo = {
   open?: string
 }
 
+/** Khung đang mở dưới thanh tab: một khung mỗi lúc, '' = không mở khung nào. */
+export type View = 'summary' | 'stats' | 'explain' | ''
+
 /** Tóm tắt của scripts/trace.py --json: vì sao plan ra như vậy. */
 export type TraceSummary = {
   customer: string
@@ -101,6 +104,6 @@ export type Explain = { name: string; loading?: boolean; data?: TraceSummary; er
 
 declare module 'claude-code' {
   interface PluginState {
-    'presale-board': { projects: Project[]; selected: string; busy: string; showStats: boolean; showSummary: boolean; showExplain: boolean; explain: Explain }
+    'presale-board': { projects: Project[]; selected: string; busy: string; view: View; explain: Explain }
   }
 }

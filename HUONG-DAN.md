@@ -17,7 +17,7 @@ Không nhớ đang ở bước nào thì gõ **`/presale`** (hoặc `/presale <t
 Bảng chỉ hiện **một khách** (khách đang chọn): chuỗi 6 bước **● xong · ◐ cần làm lại · ✗ lỗi · ▶ bước tiếp · ○ chưa làm**, cùng tối đa 3 việc gấp (hạn nộp, review còn CRITICAL, plan chưa đạt, quyết định [D] chờ duyệt).
 Bảng tự phát hiện **◐ cần làm lại** khi anh sửa file nguồn sau khi đã sinh kết quả, ví dụ sửa `00-params.txt` sau khi dựng Excel.
 
-Bấm **Ctrl+X Tab** để chuyển con trỏ vào bảng, rồi dùng phím:
+Bảng chia 3 tầng: **nút việc tiếp theo** và Kiểm tra; **thanh tab** Tóm tắt · Thông số · Giải thích (mỗi lúc mở một khung, bấm lại tab đang mở để đóng) cùng nhóm **Mở** file bên phải; rồi khung đang mở. Bấm **Ctrl+X Tab** để chuyển con trỏ vào bảng, rồi dùng phím:
 
 | Phím | Làm gì |
 |---|---|

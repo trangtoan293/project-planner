@@ -13,3 +13,4 @@ Dùng đúng các từ dưới đây trong proposal, WBS và master plan. Thuậ
 **Go-live**: chuyển sang vận hành chính thức. **Hypercare**: hỗ trợ tăng cường ngay sau go-live.
 **T1, T2…**: tuần thứ n tính từ kickoff (loại A). **N1, N2…**: ngày thứ n từ khi hợp đồng có hiệu lực (loại B).
 **Dữ liệu cũ (stale data)**: ngày tháng, tên khách, phạm vi hoặc số nhân sự lấy nhầm từ dự án hay mẫu khác. `check_plan.py` có nhiệm vụ chặn nó.
+**Thuật ngữ thương mại Hanas** (Edition, Named User, User Type, Perpetual, Subscription, Maintenance, SLA Level, bảo hành, Work Package, Norm, Change Request, Defect): theo `CONTEXT.md` của Commercial Toolkit. Bảo hành, Maintenance và SLA là ba thứ khác nhau, không dùng lẫn. _Tránh_: "gói", "add-on", "seat".

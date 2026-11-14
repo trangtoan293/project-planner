@@ -54,7 +54,7 @@ Liệt kê mọi thứ proposal **cam kết bàn giao**: phạm vi, gói bàn gi
 0. Kiến trúc nền và bảng milestone đã duyệt ở 2.1 (giữ nguyên, chỉ thêm MD).
 1. Bảng WBS: **WBS | Việc | Căn cứ (mục proposal / R##) | Vai trò chính | MD | Cơ sở ước lượng**.
    - Cấp: `1` dự án → `1.x` "M<n> — …" (đúng milestone đã duyệt) → (`1.x.y` nhóm) → việc chi tiết. SIT, UAT, go-live của từng lát nằm trong milestone của lát đó.
-   - "Cơ sở ước lượng" là một dòng benchmark trong `estimation.md` (ví dụ "báo cáo customization ~8 MD × 6"), hoặc một giả định viết rõ. **Không chép MD của dự án mẫu mà không nêu lý do giống nhau.**
+   - "Cơ sở ước lượng" là một dòng benchmark trong `estimation.md` (ví dụ "báo cáo customization ~10 MD × 6", hoặc mã Work Package của toolkit như "WP-RPT-NEW 10 MD × 6", xem §5), hoặc một giả định viết rõ. **Không chép MD của dự án mẫu mà không nêu lý do giống nhau.**
    - Luôn có: quản lý dự án (~10%), SIT, UAT, go-live, hypercare, đào tạo, việc phía khách (nhóm "M — Điều kiện sẵn sàng phía <KH>", 0 MD vendor).
 2. Tổng MD theo milestone và theo vai trò; so với các dự án cùng loại trong `estimation.md` §3.
 3. Giả định, phụ thuộc phía khách, rủi ro ảnh hưởng effort.

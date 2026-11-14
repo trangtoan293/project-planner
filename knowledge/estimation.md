@@ -2,6 +2,8 @@
 
 Số liệu lấy từ các proposal và master plan mẫu. Đây là **benchmark để so sánh, không phải đáp án**: effort của dự án mới phải tính từ phạm vi của chính dự án đó, rồi mới đối chiếu với bảng này.
 
+Commercial Toolkit (`/Users/toantrang/Documents/Data_Platform/commercial-toolkkit/`, ADR 0005) giữ Norm Library, Milestone Framework, MD/MM và thời gian thô dùng để báo giá; file này giữ benchmark dự án tham chiếu và quy ước master plan. Hai bên khác nhau thì sửa ở toolkit trước rồi cập nhật ở đây (§4, §5).
+
 ## 1. Công thức và quy ước (theo master plan mẫu)
 
 - **MD = Số ngày (Duration, ngày làm việc) × Số người × % phân bổ.**
@@ -26,7 +28,7 @@ Số liệu lấy từ các proposal và master plan mẫu. Đây là **benchmar
 | Báo cáo customization mới | ~10 MD/báo cáo |
 | Workflow Maker-Checker, phân quyền, audit | 20 |
 | Tích hợp nộp CIC/NHNN, ký số | 40 |
-| SIT, UAT, chạy song song 2 kỳ | 110 (~11%) |
+| SIT, UAT, chạy song song 2 kỳ | 110 (~13%) |
 | Đào tạo, chuyển giao tài liệu | 40 |
 | Go-live, hypercare 4 tuần | 40 |
 | Quản lý dự án, QA | ~10% tổng |
@@ -47,12 +49,22 @@ Tỷ trọng thường gặp: PM 5–12%, BA 15–30%, DEV 35–50%, SysE 10–1
 
 ## 4. Khung milestone thường dùng (theo tuần, tính từ kickoff)
 
-Hồ sơ thầu hoặc khách đã quy định giai đoạn thì theo đúng giai đoạn đó. Khách không quy định thì chia milestone theo lát dọc (bước 2.1 của `analyze-proposal`):
+Hồ sơ thầu hoặc khách đã quy định giai đoạn thì theo đúng giai đoạn đó. Khách không quy định thì chia milestone theo lát dọc (bước 2.1 của `analyze-proposal`). Bản gốc là `data/estimation/milestones.csv` của toolkit (Milestone Framework); đợt thanh toán dịch vụ chọn từ các mốc này nên tiêu chí nghiệm thu phải giữ đếm được.
 
-| Milestone | Khung thường gặp | Bên trong |
-|---|---|---|
-| M0 — Nền tảng | T1–T6 | khởi động, khảo sát, khóa phạm vi/ký BRD (T1–T4); thiết kế kiến trúc chồng lên khảo sát; cài Dev/UAT (phụ thuộc hạ tầng khách, cần trước ~T5) |
-| M1 — Lát mỏng đầu tiên | T5–T12 | 1 nguồn, 1 domain, 1–2 báo cáo chạy thật; SIT 1–2 tuần, UAT 1 tuần, biên bản demo |
-| M2…Mn — Mở rộng theo đợt/domain | mỗi đợt 4–6 tuần, sprint 2 tuần | thêm nguồn/domain/nhóm báo cáo; SIT 2–4 tuần mỗi đợt; UAT 2 tuần trước mỗi go-live (khách thực hiện); cài Prod trước go-live đầu tiên |
-| Nghiệm thu tổng thể | sau go-live cuối | chạy song song 2 kỳ báo cáo (báo cáo định kỳ); đào tạo người dùng 2 ngày, kỹ thuật 3 ngày |
-| Hypercare, bảo hành | 2 tuần mỗi domain, 4 tuần sau go-live cuối; bảo hành 12 tháng sau nghiệm thu | khớp `post_deadline` |
+| Milestone | Khung thường gặp | Bên trong | Tiêu chí nghiệm thu |
+|---|---|---|---|
+| M0 — Nền tảng | T1–T6 | khởi động, khảo sát, khóa phạm vi/ký BRD (T1–T4); thiết kế kiến trúc chồng lên khảo sát; cài Dev/UAT (phụ thuộc hạ tầng khách, cần trước ~T5) | BRD và thiết kế giải pháp được ký; Dev/UAT cài xong, đăng nhập SSO được |
+| M1 — Lát mỏng đầu tiên | T5–T12 | 1 nguồn, 1 domain, 1–2 báo cáo chạy thật; SIT 1–2 tuần, UAT 1 tuần, biên bản demo | nguồn đầu tiên nạp tự động; báo cáo trong phạm vi chạy trên dữ liệu thật, số liệu khớp báo cáo nguồn; biên bản demo |
+| M2…Mn — Mở rộng theo đợt/domain | mỗi đợt 4–6 tuần, sprint 2 tuần | thêm nguồn/domain/nhóm báo cáo; SIT 2–4 tuần mỗi đợt; UAT 2 tuần trước mỗi go-live (khách thực hiện); cài Prod trước go-live đầu tiên | nguồn và báo cáo của đợt chạy trên Prod, số liệu khớp nguồn; biên bản UAT |
+| Nghiệm thu tổng thể | sau go-live cuối | chạy song song 2 kỳ báo cáo (báo cáo định kỳ); đào tạo người dùng 2 ngày, kỹ thuật 3 ngày | chạy song song 2 kỳ không lệch ngoài ngưỡng đã thống nhất; xong đào tạo; bàn giao đủ tài liệu |
+| Hypercare, bảo hành | 2 tuần mỗi domain, 4 tuần sau go-live cuối; bảo hành 12 tháng sau nghiệm thu | khớp `post_deadline` | hết thời gian hypercare theo lịch |
+
+## 5. Norm Library của toolkit
+
+Toolkit báo giá dịch vụ từ `data/estimation/norms.csv`: mỗi dòng WBS gắn một mã Work Package (ví dụ `WP-MDL-RAW` 1 MD/bảng nguồn, `WP-INF-ENV` 10 MD/môi trường, `WP-TST-SIT` 18 MD/đợt), MD = Norm × số lượng × hệ số độ phức tạp. Bản hiện tại `v0-draft-2026-11`, chưa có MD thực tế.
+
+- Có toolkit thì ghi mã WP trong cột "Cơ sở ước lượng" (ví dụ `WP-RPT-NEW 10 MD × 6`), để WBS và báo giá ra cùng MD. Không khớp WP nào thì ghi `WP-CUSTOM` kèm lý do.
+- Độ phức tạp: chấm 4 tiêu chí 0/1/2 theo họ việc (`criteria.csv`); tổng ≥ 3 là Vừa, ≥ 6 là Cao; hệ số Thấp/Vừa/Cao = 0,7/1,0/1,4.
+- Dự phòng rủi ro là **một dòng riêng** trong báo giá (5/10/20% theo độ phức tạp, cộng rủi ro có tên), không rải vào từng việc và không đưa vào `03-wbs.md`, master plan hay bảng MD của proposal. Vì vậy tổng MD báo giá lớn hơn tổng MD của WBS đúng bằng phần dự phòng.
+- PM trong toolkit = 11,11% MD ngoài PM. Mức này thường thấp hơn quy tắc PM ≥ 75–80% thời gian dự án ở §1 (báo giá mẫu 13–16 tuần chỉ ra 45 MD PM, quy tắc cần khoảng 49–64). Master plan vẫn tính PM theo thời gian; lệch thì báo anh để sửa dòng PM trong báo giá.
+- Norm được suy ra từ chính các WBS ước lượng của planner (HTP, NAPAS, SBV), nên không phải bằng chứng độc lập cho §2. Chỉ sửa Norm khi có từ 3 dự án đã nghiệm thu cùng lệch một hướng (toolkit `actuals.py calibrate`).

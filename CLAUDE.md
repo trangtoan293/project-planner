@@ -17,6 +17,7 @@ Repo hỗ trợ presales của Katalyst: yêu cầu khách → proposal → WBS 
 | Sản phẩm đề xuất làm được gì, **không được hứa gì** | `knowledge/<product>-product.md`; `<product>` lấy từ `00-params.txt` (trống = `hanas`, chép từ `samples/hanas_docs/index.html`) |
 | Format và văn phong proposal | `knowledge/proposal-format.md` |
 | Benchmark effort, đội ngũ, giai đoạn | `knowledge/estimation.md` |
+| Giá, Edition, Named User, SLA, chiết khấu, định mức (Norm Library), TCO, điều khoản thương mại của Hanas | Commercial Toolkit `/Users/toantrang/Documents/Data_Platform/commercial-toolkkit/` là nguồn gốc (ADR 0005); planner chỉ giữ phần cần cho proposal ở `knowledge/hanas-commercial.md` và `estimation.md` §5 |
 | Thuật ngữ | `CONTEXT.md` |
 | Logic từ yêu cầu → milestone → MD → người, chỗ chỉnh cho từng dự án | `docs/cach-hoat-dong.md`; skill `explain` trả lời "vì sao" bằng `scripts/trace.py` |
 | Điều chỉnh riêng một dự án (đơn giá, khung milestone, vai trò) | `projects/<kh>/00-tuning.md` (mẫu `templates/00-tuning.md`), thắng knowledge chung |
@@ -55,5 +56,6 @@ Cần: `pandoc`, `python-docx`, `openpyxl`, `pymupdf` (fitz, để đọc PDF).
 
 - Hanas có phiên bản mới: thay `samples/hanas_docs/`, rồi chạy lại lệnh chuyển ở đầu `knowledge/hanas-product.md`.
 - Có dự án thật đã chạy xong: thêm một dòng vào `knowledge/estimation.md` §3 với số liệu **thực tế** (không phải số đã báo giá).
+- Toolkit đổi quy tắc thương mại (Edition, SLA, điều khoản, Norm, Milestone Framework): sửa dòng tương ứng ở `knowledge/hanas-commercial.md` hoặc `estimation.md` §4–§5. Không chép đơn giá khi toolkit còn `status = draft`.
 - Thêm khách mới: thêm tên khách cũ vào `stale_terms` trong `templates/00-params.txt`.
 - Thêm sản phẩm mới: tài liệu gốc vào `samples/<product>_docs/`, chuyển thành `knowledge/<product>-product.md` (có bảng "Những điều không được hứa với khách hàng"), tạo `knowledge/<product>-commercial.md`, đặt `product: <product>` trong params của khách.

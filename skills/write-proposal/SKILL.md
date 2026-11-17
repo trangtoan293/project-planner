@@ -19,7 +19,7 @@ Quy tắc chung (bắt buộc): làm trong thư mục có `projects/`; đọc m�
 | 4 Viết | `proposal-section-writer` | Mỗi nhóm mục một agent, ghi file phần riêng |
 | 7 Review | `proposal-reviewer-coverage`, `-product`, `-consistency`, `-client` | Cả 4 agent cùng lúc, chỉ vòng 1 |
 
-**Mặc định chạy agent bằng Codex** để tiết kiệm token Claude: `${CLAUDE_PLUGIN_ROOT}/scripts/codex_agent.sh <agent> <file-báo-cáo> "<nhiệm vụ>"` (gpt-6.1-sol, reasoning high; chạy từ thư mục có `projects/`), mỗi agent một lệnh Bash chạy nền (`run_in_background`), cùng một lượt. Mỗi agent ghi file riêng; đọc báo cáo trong file khi lệnh xong. Chỉ dùng subagent Claude (công cụ Agent, `subagent_type: presale:<agent>`, model sonnet) khi Codex lỗi hoặc máy không có `codex` CLI. Footer AGENTS (mod `agent-monitor`, cài toàn cục) hiện cả hai loại.
+**Mặc định chạy agent bằng Codex** để tiết kiệm token Claude: `${CLAUDE_PLUGIN_ROOT}/scripts/codex_agent.sh <agent> <file-báo-cáo> "<nhiệm vụ>"` (gpt-6.1-sol, reasoning high; chạy từ thư mục có `projects/`), mỗi agent một lệnh Bash chạy nền (`run_in_background`), cùng một lượt. Mỗi agent ghi file riêng; đọc báo cáo trong file khi lệnh xong. Chỉ dùng subagent Claude (công cụ Agent, `subagent_type: hanas-presale:<agent>`, model sonnet) khi Codex lỗi hoặc máy không có `codex` CLI (script thoát mã 3).
 
 Gọi các agent chạy song song **trong cùng một lượt** (nhiều lệnh trong một tin nhắn). Phần nào phụ thuộc kết quả phần trước thì chờ: bước 2.2 cần bảng R của 2.1, bước 7 cần proposal đã ghép xong. Em (agent chính) giữ việc ghép, đánh số, interview anh và sửa lỗi. Agent con không hỏi anh.
 
@@ -29,8 +29,8 @@ Gọi các agent chạy song song **trong cùng một lượt** (nhiều lệnh 
 - Chuyển **từng file** trong `01-input/` sang text ở `01-input/.text/<file>.txt`, giữ mốc trang `=== p<n>`: `pandoc` cho .docx, `fitz` cho .pdf, `openpyxl` cho .xlsx. PDF scan (trang không có chữ) thì báo anh, không đoán.
 - Đọc **hết** từng file, kể cả phụ lục, bảng, chú thích, ghi chú cuối bảng. File dài thì đọc theo đoạn cho tới trang cuối. Ghi "đã đọc trang 1–N/N" vào đầu `01-requirements.md`. Dòng bảng bị ngắt sang trang sau thì ghép lại.
 - `<sp>` là giá trị `product` trong `00-params.txt` (trống thì `hanas`). Chưa có `knowledge/<sp>-product.md` thì dừng, nhờ anh đưa tài liệu sản phẩm.
-- Đọc `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-product.md`, `${CLAUDE_PLUGIN_ROOT}/knowledge/proposal-format.md`, `${CLAUDE_PLUGIN_ROOT}/CONTEXT.md`.
-- **Không đọc proposal mẫu để lấy nội dung.** Chỉ mở `${CLAUDE_PLUGIN_ROOT}/samples/proposal_sample/` khi cần xem cách trình bày một loại bảng.
+- Đọc `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-product.md`, `${CLAUDE_PLUGIN_ROOT}/knowledge/proposal-format.md`, `${CLAUDE_PLUGIN_ROOT}/CONTEXT.md`. Có `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-docs/` thì đọc mục lục `INDEX.md`, mở trang chi tiết khi yêu cầu khách đụng tới (hạ tầng, bảo mật, tích hợp, API, sao lưu, nâng cấp).
+- **Không đọc proposal mẫu để lấy nội dung.** Khung và văn phong đã rút sẵn vào `proposal-format.md`; bản cài plugin không kèm proposal mẫu.
 
 ## 2. Tổng hợp yêu cầu (làm TRƯỚC khi hỏi và viết)
 
@@ -102,7 +102,7 @@ Tham số phải chốt:
 1. Loại tài liệu (A: đề xuất giải pháp / B: hồ sơ thầu) và tên viết tắt của khách.
 2. **Hạn nộp hồ sơ (`submit_by`), kickoff, deadline, các mốc bắt buộc** (go-live từng đợt, nghiệm thu). Không có trong tài liệu thì hỏi. **Không suy ra từ dự án khác.**
 3. Phạm vi: trong / ngoài phạm vi, nguồn dữ liệu, số lượng đếm được (báo cáo, domain, dashboard…).
-4. (Chỉ khi `<sp>` = hanas) Mô tả Hanas theo bản nào: **bản mới** trong `<sp>-product.md` (Dremio, dbt Studio, Catalog…) là mặc định. Nếu khách đã nhận tài liệu bản cũ (NiFi, Airflow, Ranger…) thì hỏi anh.
+4. (Chỉ khi `<sp>` = hanas) Mô tả Hanas theo bản nào: **bản mới** trong `<sp>-product.md` (query engine, dbt Studio, Hanas Catalog…) là mặc định. Nếu khách đã nhận tài liệu bản cũ (Airflow, Ranger…) thì hỏi anh.
 5. Giới hạn đội ngũ (số người tối đa mỗi vai trò), nếu khách hoặc E-HSMT có quy định.
 6. Khách cần những tính năng nào nằm trong danh sách "không được hứa" → đưa vào phạm vi phát triển, ghi rõ.
 

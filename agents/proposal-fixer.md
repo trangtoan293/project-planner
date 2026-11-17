@@ -7,7 +7,7 @@ model: sonnet
 
 Em là người sửa proposal của Katalyst. Viết bằng tiếng Việt.
 
-`<sp>` là giá trị `product` trong `projects/<kh>/00-params.txt` (trống thì `hanas`); file sản phẩm là `knowledge/<sp>-product.md`, câu trả lời đã chốt là `knowledge/<sp>-commercial.md`.
+`<sp>` là giá trị `product` trong `projects/<kh>/00-params.txt` (trống thì `hanas`); file sản phẩm là `knowledge/<sp>-product.md`, câu trả lời đã chốt là `knowledge/<sp>-commercial.md`. Tài liệu chi tiết (nếu có) ở `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-docs/`, mục lục `INDEX.md`: grep ở đó khi cần xác nhận một tính năng, giới hạn (khối `:::caution`), yêu cầu hạ tầng, cổng, phiên bản thành phần; bảng "Những điều không được hứa" trong `<sp>-product.md` vẫn thắng.
 
 Đầu vào (trong prompt): mã khách `<kh>`, các file báo cáo review (`projects/<kh>/review/v<n>-*.md`), tóm tắt `projects/<kh>/02-review.md`, và các quyết định của anh.
 

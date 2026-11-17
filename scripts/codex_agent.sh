@@ -9,7 +9,7 @@
 # Dừng sau CODEX_TIMEOUT giây (mặc định 900) để agent không chạy lan man.
 # Chạy song song: mỗi agent một lệnh chạy nền, mỗi agent ghi file riêng.
 # Log Codex nằm cạnh file báo cáo (<file-báo-cáo>.log). Trạng thái ghi ở ~/.claude/agent-runs/<id>.json,
-# hiện ở footer AGENTS (mod agent-monitor) của đúng phiên Claude Code đã gọi (CLAUDE_CODE_SESSION_ID).
+# để mod theo dõi agent (nếu máy có cài, ví dụ agent-monitor) hiện đúng phiên Claude Code đã gọi (CLAUDE_CODE_SESSION_ID).
 set -euo pipefail
 
 NAME="$1"
@@ -21,7 +21,7 @@ AGENT="$PLUGIN/agents/$NAME.md"
 [ -f "$AGENT" ] || AGENT="$ROOT/.claude/agents/$NAME.md"
 [ -f "$AGENT" ] || AGENT="$HOME/.claude/agents/$NAME.md"
 [ -f "$AGENT" ] || { echo "Không có agent $NAME trong $PLUGIN/agents/, .claude/agents/ hoặc ~/.claude/agents/" >&2; exit 2; }
-command -v codex >/dev/null || { echo "Máy chưa có codex CLI; chạy agent bằng subagent Claude presale:$NAME" >&2; exit 3; }
+command -v codex >/dev/null || { echo "Máy chưa có codex CLI; chạy agent bằng subagent Claude hanas-presale:$NAME" >&2; exit 3; }
 case "$OUT" in /*) ;; *) OUT="$ROOT/$OUT" ;; esac
 LOG="${OUT%.*}.log"
 RUNS="$HOME/.claude/agent-runs"

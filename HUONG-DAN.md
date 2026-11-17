@@ -42,7 +42,7 @@ Số người mỗi vai trò là số đông nhất trong cùng một ngày (c�
 
 1. **Mỗi bước mở một phiên Claude mới** (`/clear`), để dữ liệu của bước trước hoặc của khách khác không lẫn vào.
 2. **Ngày tháng chỉ sửa ở `projects/<tên-kh>/00-params.txt`.** Không sửa ngày trực tiếp trong Excel.
-3. **Có khách mới thì thêm tên khách cũ** vào dòng `stale_terms` trong `templates/00-params.txt`, để máy chặn việc lẫn tên.
+3. **Thêm tên các khách cũ** vào dòng `stale_terms` trong `projects/<tên-kh>/00-params.txt`, để máy chặn việc lẫn tên.
 
 ## Khi cần
 
@@ -50,7 +50,7 @@ Số người mỗi vai trò là số đông nhất trong cùng một ngày (c�
 |---|---|
 | Sửa proposal rồi xuất lại Word | sửa `02-proposal.md`, gõ "xuất lại docx" |
 | Đổi kickoff hoặc ngày lễ | sửa `00-params.txt`, gõ `/master-plan <tên-kh>` |
-| Cập nhật tài liệu Hanas | thay `samples/hanas_docs/`, gõ "cập nhật knowledge Hanas" |
+| Cập nhật tài liệu Hanas | người giữ repo thay `samples/hanas_docs/`, gõ "cập nhật knowledge Hanas", đẩy bản mới; mọi người `/plugin marketplace update project-planner` |
 | Hiểu vì sao một con số ra như vậy | bấm `g` trên bảng, hoặc hỏi "vì sao việc 1.2.2.1 của <tên-kh> ra 15 MD?" |
 | Dự án này cần đơn giá, milestone, vai trò khác mặc định | bấm `g` rồi `e`, ghi điều chỉnh **kèm lý do**, chạy lại bước Chia việc |
-| Dự án xong, muốn ước lượng sau này sát hơn | gõ "thêm số liệu thực tế dự án <tên-kh> vào estimation" |
+| Dự án xong, muốn ước lượng sau này sát hơn | gửi số liệu thực tế cho người giữ repo để thêm vào `knowledge/estimation.md` §3 |

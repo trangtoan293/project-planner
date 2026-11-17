@@ -35,6 +35,9 @@ RULES = [
     (r"\bkhông có nghĩa (là )?", "rào đón 'không có nghĩa là'", False),
     (r"\bnhằm (đảm bảo|mục đích|giúp)\b", "đệm 'nhằm đảm bảo'", False),
 ]
+# Tên cấu phần nội bộ không được xuất hiện ở bất kỳ đâu trong văn bản gửi khách (kể cả tiêu đề, bảng, trang bìa)
+BANNED = re.compile(r"\b(Dremio|DataHub|QwenPaw|Ossie|NiFi)\b", re.I)
+BANNED_KIND = "tên nội bộ: dùng query engine, Hanas Catalog, Kapas, Ontology Workspace"
 # Luật đếm trên cả dòng/câu: (regex, ngưỡng, loại)
 REPEATS = [
     (r"của tài liệu này", 2, "lặp 'của tài liệu này' (chỉ cần 'Mục X')"),
@@ -65,7 +68,8 @@ def prose_lines(text):
 
 
 def check(text):
-    hits = []
+    hits = [(no, BANNED_KIND, line.strip()[:110])
+            for no, line in enumerate(text.splitlines(), 1) if BANNED.search(line)]
     for no, line in prose_lines(text):
         for pattern, kind, needs_no_digit in RULES:
             for m in re.finditer(pattern, line, flags=re.I):

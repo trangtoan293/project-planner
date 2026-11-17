@@ -1,60 +1,71 @@
-# Project planner
+# Project planner (plugin `hanas-presale`)
 
-Từ yêu cầu khách hàng ra proposal Hanas đúng format, WBS và master plan Excel, có kiểm tra timeline tự động.
+Plugin Claude Code cho presales Hanas Data Platform (nội bộ Katalyst): từ tài liệu khách ra proposal Word đúng format, WBS và master plan Excel, có kiểm tra timeline tự động và bảng tiến độ `/presale`.
 
-## Cài đặt (plugin Claude Code)
+## Cài đặt
 
 ```
 /plugin marketplace add trangtoan293/project-planner
 /plugin install hanas-presale@project-planner
-/plugin install presale-board@project-planner     # tùy chọn: bảng tiến độ
 ```
 
-Cần `python3` với `pandoc`, `python-docx`, `openpyxl`, `pymupdf`. Chạy agent bằng Codex cần `codex` CLI; không có thì skill dùng subagent Claude.
-Mở Claude Code trong một thư mục làm việc riêng; dữ liệu khách nằm ở `projects/<kh>/` của thư mục đó, không nằm trong plugin.
-Tri thức (`knowledge/`) trong plugin là bản đã ẩn danh; sửa tri thức thì sửa ở repo rồi đẩy lên, không sửa trong bản cài.
+Cập nhật bản mới: `/plugin marketplace update project-planner`.
+
+Máy cần:
+
+| Cần | Để làm gì |
+|---|---|
+| `python3` + `pip install python-docx openpyxl pymupdf` | dựng Word, Excel, đọc PDF |
+| `pandoc` (`brew install pandoc`) | đọc .docx của khách, xuất proposal |
+| `codex` CLI (tùy chọn) | chạy agent bằng Codex cho đỡ tốn token Claude; không có thì skill tự dùng subagent Claude |
+| skill `humanizer`, `grill-me` (tùy chọn) | rà câu chữ, interview; không có thì Claude làm theo mô tả trong skill, `check_style.py` vẫn kiểm |
 
 ## Dùng thế nào
 
-Xem **[HUONG-DAN.md](HUONG-DAN.md)** (1 trang). Tóm tắt:
+Mở Claude Code trong **một thư mục làm việc riêng** (không phải thư mục cài plugin). Dữ liệu khách nằm ở `projects/<kh>/` của thư mục đó.
 
 ```
-1. Tạo thư mục projects/<ten-kh>/01-input/ và bỏ RFP, BRD, email, biên bản họp vào.
-2. Mở Claude Code tại thư mục repo:
-   /write-proposal <ten-kh>    → Claude hỏi lần lượt từng điểm chưa rõ (kickoff, mốc, phạm vi…),
-                                  rồi xuất 02-proposal.docx. Anh review và sửa.
-   /analyze-proposal <ten-kh>  → 03-wbs.md: đầu việc, căn cứ, MD. Duyệt cho tới khi ổn.
-   /master-plan <ten-kh>       → 04-master-plan.xlsx và 04-check.txt (phải ĐẠT).
+/presale new <kh>           → tạo projects/<kh>/, bỏ RFP, BRD, email, biên bản họp vào 01-input/
+/write-proposal <kh>        → Claude hỏi từng điểm chưa rõ, rồi xuất 02-proposal.docx
+/analyze-proposal <kh>      → 03-wbs.md: đầu việc, căn cứ, MD
+/master-plan <kh>           → 03-task-list.xlsx cho đội rà, rồi 04-master-plan.xlsx và 04-check.txt (phải ĐẠT)
+/auto-presale <kh>          → chạy trọn 3 bước không dừng hỏi, ghi 00-auto-summary.md để đọc lại
 ```
 
-Nên mở **phiên Claude mới cho mỗi bước** để ngữ cảnh của bước trước không lẫn vào bước sau. Các file trong `projects/<kh>/` đã đủ để nối tiếp.
+Hướng dẫn 1 trang: **[HUONG-DAN.md](HUONG-DAN.md)**. Logic từ yêu cầu ra milestone, MD, người: [docs/cach-hoat-dong.md](docs/cach-hoat-dong.md).
+
+Mỗi bước nên mở phiên Claude mới (`/clear`) để ngữ cảnh bước trước, khách khác không lẫn vào. Các file trong `projects/<kh>/` đủ để nối tiếp.
+
+Bảng Presales tự mở khi phiên bắt đầu ở thư mục có `projects/`; ở thư mục khác gõ `/presale` để mở.
+
+## Lưu ý bảo mật
+
+- `knowledge/` chỉ có tri thức Hanas (sản phẩm, thương mại) và benchmark ước lượng đã ẩn tên khách, nhưng có đơn giá và số MD thật. Repo chỉ chia sẻ trong công ty.
+- Không commit `projects/` hay tài liệu khách vào repo này (`.gitignore` đã chặn).
 
 ## Cấu trúc
 
 ```
-CLAUDE.md                  quy tắc cho Claude (đọc trước khi sửa repo)
-CONTEXT.md                 thuật ngữ
-knowledge/                 <product>-product.md (hanas, kvault) · proposal-format.md · estimation.md
-templates/                 00-params.txt (thông số dự án) · proposal-reference.docx (style Word)
-scripts/                   md2docx.py · build_master_plan.py · check_plan.py
-tests/                     test cho 2 script plan
-skills/ agents/             4 skill · 12 agent (plugin hanas-presale)
-samples/hanas_docs/ samples/proposal_sample/ samples/master_plan_sample/   tài liệu gốc anh cung cấp
-projects/<kh>/             mỗi khách một thư mục
+.claude-plugin/            plugin.json, marketplace.json
+skills/                    write-proposal · analyze-proposal · master-plan · auto-presale · explain
+agents/                    11 agent con (tách yêu cầu, viết, review, WBS, plan)
+hooks/ types/              bảng tiến độ /presale (mod Claude Code)
+scripts/                   md2docx · wbs_md2csv · build_master_plan · check_plan · check_style · check_auto · trace · codex_agent.sh
+knowledge/                 hanas-product.md (sổ tay bán hàng) · hanas-docs/ (docs chính thức, 76 trang) · hanas-commercial.md · proposal-format.md · estimation.md
+templates/                 00-params.txt · 00-tuning.md · 01-requirements.md · proposal-reference.docx
+samples/hanas_docs/        tài liệu gốc Hanas (nguồn của knowledge/hanas-product.md)
+docs/                      cách hoạt động
+tests/                     test script (Python) và bảng (*.test.ts)
+CLAUDE.md · CONTEXT.md     quy tắc khi sửa repo · thuật ngữ
 ```
 
-## Vì sao timeline không còn lệch
+## Phát triển plugin
 
-- Ngày tháng chỉ nằm ở `00-params.txt`. Trong CSV của WBS, cột `start` để trống; script tự tính ngày từ kickoff, chuỗi phụ thuộc và lịch nghỉ (Tết, lễ).
-- `check_plan.py` báo FAIL khi: có việc bắt đầu trước kickoff hoặc trễ deadline; rơi vào ngày nghỉ; vi phạm predecessor; trễ mốc bắt buộc; vượt số người; tổng MD lệch proposal; còn tên khách cũ.
-
-## Bảng Presales trong Claude Code
-
-Mod nằm ở `tools/presale-board/`. Muốn lần nào mở Claude trong repo cũng có bảng:
+Sửa trong repo rồi đẩy lên; không sửa bản cài trong `~/.claude/plugins/`. Thử bản đang sửa: `claude --plugin-dir <đường-dẫn-repo>`.
 
 ```bash
-claude --plugin-dir tools/presale-board
-# hoặc thêm vào ~/.zshrc: export CLAUDE_CODE_PLUGIN_DIRS=<đường-dẫn-repo>/tools/presale-board
+for t in tests/test_*.py; do python3 "$t" || break; done   # script
+claude plugin test . && claude plugin validate .           # bảng và manifest
 ```
 
-Test của mod: `claude plugin test tools/presale-board`.
+Phát hành: tăng `version` trong `.claude-plugin/plugin.json`, commit, push. Người dùng chạy `/plugin marketplace update project-planner`.

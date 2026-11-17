@@ -15,15 +15,15 @@
         "focus": [
           "oltp",
           "lake",
-          "dremio"
+          "query-engine"
         ],
-        "note": "Dremio đọc trực tiếp từ nguồn, dữ liệu không phải chuyển đi trước."
+        "note": "Query Engine đọc trực tiếp từ nguồn, dữ liệu không phải chuyển đi trước."
       },
       {
         "id": "bien-doi",
         "label": "Biến đổi có kiểm soát",
         "focus": [
-          "dremio",
+          "query-engine",
           "dbt",
           "pipeline",
           "mart"
@@ -79,9 +79,9 @@
       "row": 2
     },
     {
-      "id": "dremio",
+      "id": "query-engine",
       "type": "backend",
-      "label": "Dremio",
+      "label": "Query Engine",
       "sublabel": "truy vấn liên nguồn",
       "stage": 1,
       "row": 1,
@@ -148,20 +148,20 @@
     {
       "id": "f-oltp",
       "from": "oltp",
-      "to": "dremio",
+      "to": "query-engine",
       "label": "kết nối nguồn",
       "variant": "emphasis"
     },
     {
       "id": "f-lake",
       "from": "lake",
-      "to": "dremio",
+      "to": "query-engine",
       "label": "đọc file bảng",
       "variant": "emphasis"
     },
     {
       "id": "f-dbt",
-      "from": "dremio",
+      "from": "query-engine",
       "to": "dbt",
       "label": "SQL model"
     },
@@ -219,7 +219,7 @@
       "dot": "emerald",
       "title": "Không sao chép trước",
       "items": [
-        "Dremio truy vấn trực tiếp tại nguồn",
+        "Query Engine truy vấn trực tiếp tại nguồn",
         "Chỉ lưu thêm khi cần lớp dữ liệu sạch"
       ]
     },

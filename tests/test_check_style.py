@@ -17,4 +17,8 @@ assert kinds("Xem Mục 5 của tài liệu này và Mục 6 của tài liệu n
 assert kinds("Katalyst cài. Katalyst cấu hình. Katalyst kiểm.") == ["3 câu liền mở bằng cùng một chữ"]
 assert kinds("| Điều 25 | — | — |") == []                            # ô trống trong bảng
 assert kinds("---\ntitle: tối ưu toàn diện\n---\n# Kiến trúc toàn diện\n```\nĐây là code\n```\nKatalyst cài OCR.") == []
+TEN = "tên nội bộ: dùng query engine, Hanas Catalog, Kapas, Ontology Workspace"
+assert kinds("Lõi truy vấn là Dremio.") == [TEN]
+assert kinds("---\nsubtitle: NỀN TẢNG DREMIO\n---\n# Thay DataHub\n| NiFi | x |") == [TEN, TEN, TEN]   # cả trang bìa, tiêu đề, bảng
+assert kinds("Query engine và Hanas Catalog.") == []
 print("test_check_style: OK")

@@ -36,7 +36,7 @@
         "focus": [
           "kapas",
           "tools",
-          "dremio"
+          "query-engine"
         ],
         "note": "Agent dùng quyền của chính người hỏi."
       }
@@ -58,7 +58,7 @@
     {
       "id": "kapas",
       "type": "backend",
-      "label": "KaPaS",
+      "label": "Kapas",
       "sublabel": "agent runtime"
     },
     {
@@ -68,9 +68,9 @@
       "sublabel": "dbt · SQL · chart"
     },
     {
-      "id": "dremio",
+      "id": "query-engine",
       "type": "backend",
-      "label": "Dremio",
+      "label": "Query Engine",
       "sublabel": "dữ liệu"
     }
   ],
@@ -122,13 +122,13 @@
     },
     {
       "from": "tools",
-      "to": "dremio",
+      "to": "query-engine",
       "y": 306,
       "label": "SQL chỉ-đọc",
       "variant": "security"
     },
     {
-      "from": "dremio",
+      "from": "query-engine",
       "to": "tools",
       "y": 334,
       "label": "kết quả theo quyền",

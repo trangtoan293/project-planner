@@ -1,6 +1,12 @@
 <!-- Sinh tự động từ samples/hanas_docs/index.html (bản 13/10/2026). Cập nhật:
      pandoc samples/hanas_docs/index.html -f html -t gfm-raw_html --wrap=none | sed -E 's/<[^>]+>//g' | cat -s > knowledge/hanas-product.md
-     Sơ đồ tương tác: samples/hanas_docs/diagrams/*.html -->
+     Sơ đồ tương tác: samples/hanas_docs/diagrams/*.html
+     Lệnh trên ghi đè cả file và đưa lại tên nội bộ của sales kit: chạy xong thì chép lại hai khối ngay dưới đây
+     và đổi tên theo khối "Tên gọi" (check_style.py bắt tên sót trong proposal). -->
+
+> **Tài liệu chi tiết:** `knowledge/hanas-docs/` là bộ docs chính thức Hanas Data Platform (bản tiếng Việt, mới hơn sổ tay bên dưới), mục lục ở `knowledge/hanas-docs/INDEX.md`, đồng bộ bằng `scripts/sync_hanas_docs.py`. Cần xác nhận một tính năng, giới hạn (khối `:::caution`), yêu cầu hạ tầng, cổng, phiên bản thành phần thì tra ở đó. Hai nguồn lệch nhau về tính năng thì theo `hanas-docs/`; bảng "Những điều không được hứa" cuối file này vẫn áp dụng.
+
+> **Tên gọi trong proposal (bắt buộc):** chỉ dùng tên sản phẩm: query engine, Hanas Catalog, Kapas, Ontology Workspace, Hanas Console. Không viết Dremio, DataHub, QwenPaw, Ossie, NiFi, kể cả khi khách hỏi hay tài liệu khách nhắc tới; `check_style.py` báo lỗi nếu còn. Lưu ý nội bộ: query engine là Dremio bản mã nguồn mở, dùng khi trao đổi kỹ thuật trong đội, không đưa vào văn bản gửi khách.
 
 Tài liệu nội bộ cho đội kinh doanh
 
@@ -8,13 +14,13 @@ Tài liệu nội bộ cho đội kinh doanh
 
 Sổ tay này mô tả Hanas phiên bản mới, viết dựa trên mã nguồn hiện tại. Mỗi dịch vụ có cùng một khung: vấn đề của khách hàng, tính năng, cách hoạt động, câu nói khi demo và những điều không được hứa.
 
-Phiên bản: **Hanas mới** (Dremio 26.1.6, dbt Studio Java, Hanas Catalog) Mốc mã nguồn: **3bb7d41a5** Cập nhật: **13/10/2026**
+Phiên bản: **Hanas mới** (query engine, dbt Studio, Hanas Catalog) Mốc mã nguồn: **3bb7d41a5** Cập nhật: **13/10/2026**
 
 Tóm tắt 30 giây
 
 ## Một nền tảng dữ liệu, một lần đăng nhập, quyền đi theo người dùng
 
-Hanas gom việc kết nối, truy vấn, biến đổi, quản trị, phân tích và hỏi đáp AI trên dữ liệu vào một giao diện tiếng Việt. Lõi truy vấn là Dremio: Hanas đọc dữ liệu tại chỗ từ cơ sở dữ liệu, kho đối tượng và lakehouse của khách hàng, không bắt buộc sao chép trước.
+Hanas gom việc kết nối, truy vấn, biến đổi, quản trị, phân tích và hỏi đáp AI trên dữ liệu vào một giao diện tiếng Việt. Lõi truy vấn là query engine: Hanas đọc dữ liệu tại chỗ từ cơ sở dữ liệu, kho đối tượng và lakehouse của khách hàng, không bắt buộc sao chép trước.
 
 Quanh lõi đó là các dịch vụ chuyên biệt: dbt Studio để xây mô hình dữ liệu, Data Pipeline để điều phối và lập lịch, Hanas Catalog để tìm kiếm và truy vết nguồn gốc, Ontology để định nghĩa đối tượng và chỉ số nghiệp vụ, và các AI Agent hỗ trợ ngay trong từng màn hình. Mọi dịch vụ dùng chung Keycloak SSO và chạy truy vấn bằng quyền của chính người dùng.
 
@@ -30,19 +36,19 @@ Kiến trúc
 
 ## Kiến trúc tổng thể
 
-Người dùng chỉ làm việc với Hanas Workspace. Workspace gọi Dremio để truy vấn và gọi từng dịch vụ chuyên biệt cho phần việc của nó. Các dịch vụ khi cần dữ liệu đều đi qua Dremio, nên quyền truy cập được kiểm tra ở một chỗ.
+Người dùng chỉ làm việc với Hanas Workspace. Workspace gọi query engine để truy vấn và gọi từng dịch vụ chuyên biệt cho phần việc của nó. Các dịch vụ khi cần dữ liệu đều đi qua query engine, nên quyền truy cập được kiểm tra ở một chỗ.
 
 Sơ đồ tương tác: bấm vào node để xem quan hệ; "Play story" để trình chiếu từng lớp.[Mở toàn màn hình ↗](diagrams/01-tong-quan.html)
 
 | Thành phần | Vai trò | Công nghệ |
 |----|----|----|
 | Hanas Workspace | Giao diện web hợp nhất cho mọi vai trò, tiếng Việt và tiếng Anh | React 18, chạy sau nginx |
-| Query Engine | Truy vấn liên nguồn, quản lý nguồn, job, reflection, phân quyền dữ liệu | Dremio 26.1.6 |
+| Query Engine | Truy vấn liên nguồn, quản lý nguồn, job, reflection, phân quyền dữ liệu | Query engine (mã nguồn mở) |
 | dbt Studio | IDE dbt trên web, Git, chạy model, lịch chạy, Pipeline, biểu đồ | Java 21 Spring Boot, dbt CLI, Postgres, Redis |
 | Hanas Catalog | Danh mục dữ liệu, tìm kiếm, lineage, glossary, tag, thu thập metadata | Python FastAPI (catalog-api + ingest-runner), Postgres |
 | Ontology | Đối tượng, quan hệ, chỉ số nghiệp vụ, quy trình phát hành có phê duyệt | Dịch vụ Ontology riêng (FastAPI) |
-| AI Agents | Trợ lý AI theo màn hình, định tuyến agent, phê duyệt thao tác | KaPaS agent runtime |
-| User API | Tạo, sửa, xóa người dùng đồng thời ở Keycloak và Dremio | Java Spring Boot, không lưu dữ liệu |
+| AI Agents | Trợ lý AI theo màn hình, định tuyến agent, phê duyệt thao tác | Kapas agent runtime |
+| User API | Tạo, sửa, xóa người dùng đồng thời ở Keycloak và query engine | Java Spring Boot, không lưu dữ liệu |
 | Keycloak | Đăng nhập một lần, vai trò, bản dịch giao diện | Keycloak 26 |
 | Superset | Dashboard và biểu đồ, nhúng trong Workspace | Apache Superset |
 
@@ -58,16 +64,16 @@ Phiên bản
 
 ## Hanas bản mới khác bản cũ thế nào
 
-Bộ tài liệu cũ mô tả một tập hợp nhiều công cụ mã nguồn mở đặt cạnh nhau (NiFi, Kafka, Airflow, DataHub, Dify…). Bản mới gom phần lớn chức năng vào ít dịch vụ hơn, dùng chung đăng nhập và quyền. Khi khách hàng đã đọc tài liệu cũ, dùng bảng này để giải thích.
+Bộ tài liệu cũ mô tả một tập hợp nhiều công cụ mã nguồn mở đặt cạnh nhau (công cụ nạp dữ liệu, Kafka, Airflow, danh mục dữ liệu, Dify…). Bản mới gom phần lớn chức năng vào ít dịch vụ hơn, dùng chung đăng nhập và quyền. Khi khách hàng đã đọc tài liệu cũ, dùng bảng này để giải thích.
 
 | Nhu cầu | Bản cũ | Bản mới |
 |----|----|----|
-| Thu thập, kết nối nguồn | Apache NiFi kéo dữ liệu về | Dremio đọc trực tiếp tại nguồn; khi cần nạp dữ liệu thì dùng bước Dremio SQL trong Data Pipeline |
+| Thu thập, kết nối nguồn | Công cụ nạp dữ liệu riêng kéo dữ liệu về | query engine đọc trực tiếp tại nguồn; khi cần nạp dữ liệu thì dùng bước SQL trên query engine trong Data Pipeline |
 | Điều phối, lập lịch | Apache Airflow riêng | Data Pipeline và lịch chạy dbt có sẵn trong dbt Studio |
 | Mô hình hóa dữ liệu | dbt chạy dòng lệnh | dbt Studio: IDE trên web, Git, mẫu Data Vault 2.0 |
-| Danh mục dữ liệu | DataHub (nhiều thành phần nặng) | Hanas Catalog: một image, Postgres, lọc theo quyền Dremio |
-| AI | Dify, vLLM, Langfuse | AI Agents (KaPaS) gắn vào từng màn hình, có phê duyệt thao tác |
-| Ngữ nghĩa nghiệp vụ | Semantic layer trong Dremio | Ontology: đối tượng, quan hệ, chỉ số, phát hành có phê duyệt |
+| Danh mục dữ liệu | Công cụ danh mục mã nguồn mở (nhiều thành phần nặng) | Hanas Catalog: một image, Postgres, lọc theo quyền của query engine |
+| AI | Dify, vLLM, Langfuse | AI Agents (Kapas) gắn vào từng màn hình, có phê duyệt thao tác |
+| Ngữ nghĩa nghiệp vụ | Semantic layer trong query engine | Ontology: đối tượng, quan hệ, chỉ số, phát hành có phê duyệt |
 | Streaming | Apache Kafka | Không đóng gói sẵn; thiết kế theo dự án nếu khách cần dữ liệu thời gian thực |
 
 Dịch vụ
@@ -101,10 +107,10 @@ Không biết hệ thống đang có sự cố cho tới khi người dùng phà
 
 #### Hoạt động thế nào
 
-1.  Người dùng đăng nhập SSO qua Keycloak; Dremio nhận cùng danh tính.
+1.  Người dùng đăng nhập SSO qua Keycloak; query engine nhận cùng danh tính.
 2.  Workspace lấy thêm token Keycloak ngầm để gọi các dịch vụ khác.
 3.  Bản dịch tải từ Keycloak trước khi hiển thị trang.
-4.  Mỗi màn hình gọi đúng dịch vụ của nó qua cổng nginx: `/api` tới Dremio, `/catalog-api` tới Catalog, `/dbt-runner` tới dbt Studio…
+4.  Mỗi màn hình gọi đúng dịch vụ của nó qua cổng nginx: `/api` tới query engine, `/catalog-api` tới Catalog, `/dbt-runner` tới dbt Studio…
 
 #### Người dùng
 
@@ -112,7 +118,7 @@ Tất cả: quản trị viên, kỹ sư dữ liệu, chuyên viên phân tích,
 
 "Anh chị chỉ cần nhớ một địa chỉ. Đăng nhập một lần là thấy đúng những gì mình được phép làm, bằng tiếng Việt."
 
-**Lưu ý nội bộ:** ẩn menu chỉ là lớp giao diện; quyền thật do từng dịch vụ kiểm tra. Một vài ô số liệu trên Trang chủ (số dataset, dataset gần đây) còn phụ thuộc DataHub cũ và có thể trống ở môi trường mới.
+**Lưu ý nội bộ:** ẩn menu chỉ là lớp giao diện; quyền thật do từng dịch vụ kiểm tra. Một vài ô số liệu trên Trang chủ (số dataset, dataset gần đây) còn phụ thuộc danh mục cũ và có thể trống ở môi trường mới.
 
 Lõi dữ liệuKỹ sư dữ liệuPhân tích
 
@@ -122,9 +128,9 @@ Truy vấn mọi nguồn bằng một câu SQL, ngay tại chỗ, với trình s
 
 #### Vấn đề → Giải pháp
 
-Dữ liệu nằm rải rác nhiều hệ thống, muốn ghép phải viết ETL chép về một chỗ→Kết nối nguồn vào Dremio rồi JOIN trực tiếp giữa Oracle, Postgres, file trên S3…
+Dữ liệu nằm rải rác nhiều hệ thống, muốn ghép phải viết ETL chép về một chỗ→Kết nối nguồn vào query engine rồi JOIN trực tiếp giữa Oracle, Postgres, file trên S3…
 
-Báo cáo chậm vì truy vấn thẳng vào hệ thống nghiệp vụ→Reflection (bản tăng tốc) do Dremio tự dùng khi truy vấn khớp
+Báo cáo chậm vì truy vấn thẳng vào hệ thống nghiệp vụ→Reflection (bản tăng tốc) do query engine tự dùng khi truy vấn khớp
 
 Mỗi công cụ BI cấu hình kết nối riêng tới từng nguồn→Một cổng JDBC/ODBC/Arrow Flight; mở Power BI, Tableau từ dataset bằng một nút
 
@@ -140,10 +146,10 @@ Mỗi công cụ BI cấu hình kết nối riêng tới từng nguồn→Một 
 
 #### Hoạt động thế nào
 
-1.  Quản trị viên khai báo nguồn; Dremio đọc schema của nguồn.
-2.  Người dùng viết SQL; Dremio lập kế hoạch, đẩy phần lọc xuống nguồn khi được, ghép kết quả.
-3.  Nếu có reflection khớp, Dremio đọc từ đó thay vì nguồn gốc.
-4.  Quyền theo user và role được Dremio kiểm tra trên từng bảng, từng view.
+1.  Quản trị viên khai báo nguồn; query engine đọc schema của nguồn.
+2.  Người dùng viết SQL; query engine lập kế hoạch, đẩy phần lọc xuống nguồn khi được, ghép kết quả.
+3.  Nếu có reflection khớp, query engine đọc từ đó thay vì nguồn gốc.
+4.  Quyền theo user và role được query engine kiểm tra trên từng bảng, từng view.
 
 #### Người dùng
 
@@ -165,9 +171,9 @@ Không ai biết bảng nào chứa dữ liệu gì, hỏi qua lại mất nhi�
 
 Sửa một bảng gốc mà không biết báo cáo nào bị ảnh hưởng→Lineage nhiều tầng và phân tích tác động (upstream, downstream)
 
-Danh mục lộ cả tên bảng nhạy cảm cho người không có quyền→Catalog hỏi Dremio xem người đang xem được thấy gì; bảng không được phép thì không hiện
+Danh mục lộ cả tên bảng nhạy cảm cho người không có quyền→Catalog hỏi query engine xem người đang xem được thấy gì; bảng không được phép thì không hiện
 
-DataHub nặng, nhiều thành phần, khó vận hành→Một image chạy hai chế độ, chỉ cần Postgres
+Danh mục cũ nặng, nhiều thành phần, khó vận hành→Một image chạy hai chế độ, chỉ cần Postgres
 
 #### Tính năng chính
 
@@ -176,7 +182,7 @@ DataHub nặng, nhiều thành phần, khó vận hành→Một image chạy hai
 - **Glossary**: cây thuật ngữ nghiệp vụ, quan hệ giữa thuật ngữ.
 - **Tag**: tạo, đổi màu, gắn cho dataset.
 - **Thu thập metadata**: trình hướng dẫn tạo nguồn, lịch cron theo múi giờ, kiểm tra kết nối, chạy, hủy, rollback, xem log và báo cáo.
-- **Nguồn được bật sẵn**: Dremio (connector riêng, có lineage view), Oracle, dbt, dbt Cloud. Thêm loại khác khi đóng gói image.
+- **Nguồn được bật sẵn**: query engine (connector riêng, có lineage view), Oracle, dbt, dbt Cloud. Thêm loại khác khi đóng gói image.
 - **API ghi lineage** cho dbt Studio và công cụ ETL, có chế độ chạy thử; tách lineage từ câu SQL.
 
 #### Hoạt động thế nào
@@ -201,11 +207,11 @@ Xây mô hình dữ liệu bằng dbt ngay trên trình duyệt: viết, chạy,
 
 #### Vấn đề → Giải pháp
 
-Mỗi kỹ sư phải tự cài Python, dbt, cấu hình profile trên máy→IDE trên web, kết nối Dremio của nền tảng có sẵn, tạo dự án là chạy được
+Mỗi kỹ sư phải tự cài Python, dbt, cấu hình profile trên máy→IDE trên web, kết nối query engine của nền tảng có sẵn, tạo dự án là chạy được
 
-Dùng chung một tài khoản dịch vụ, không biết ai đã chạy gì→Mỗi lần chạy dùng chính quyền Dremio của người bấm; lịch chạy dùng quyền người tạo
+Dùng chung một tài khoản dịch vụ, không biết ai đã chạy gì→Mỗi lần chạy dùng chính quyền của query engine của người bấm; lịch chạy dùng quyền người tạo
 
-Bắt đầu Data Vault từ con số không→Mẫu dự án Dremio + Data Vault 2.0 có sẵn (raw vault, business vault, data mart)
+Bắt đầu Data Vault từ con số không→Mẫu dự án query engine + Data Vault 2.0 có sẵn (raw vault, business vault, data mart)
 
 Chạy lỗi lúc đêm, sáng ra mới biết, không có log→Lịch sử chạy, log trực tiếp, kết quả từng model, webhook báo lỗi
 
@@ -224,7 +230,7 @@ Chạy lỗi lúc đêm, sáng ra mới biết, không có log→Lịch sử ch�
 
 1.  Kiểm tra token Keycloak và vai trò dbt.
 2.  Giới hạn số lần chạy đồng thời toàn cụm (mặc định 10) và khóa theo dự án.
-3.  Đổi token Keycloak của người dùng thành token Dremio.
+3.  Đổi token Keycloak của người dùng thành token của query engine.
 4.  Sinh `profiles.yml`; mật khẩu chỉ đi qua biến môi trường, không ghi ra file.
 5.  Chạy dbt, đẩy log từng dòng về trình duyệt, đọc `run_results.json`, lưu lịch sử.
 
@@ -232,15 +238,15 @@ Một người sửa dự án tại một thời điểm (khóa phiên sửa); n
 
 Đăng nhập một lần; Catalog lọc theo quyền; dbt chạy bằng chính người dùng.[Mở toàn màn hình ↗](diagrams/03-dang-nhap-phan-quyen.html)
 
-"Mở trình duyệt là có môi trường dbt chuẩn. Mỗi model chạy dưới tên anh chị, nên phân quyền và nhật ký kiểm toán của Dremio vẫn đúng tới từng người."
+"Mở trình duyệt là có môi trường dbt chuẩn. Mỗi model chạy dưới tên anh chị, nên phân quyền và nhật ký kiểm toán của query engine vẫn đúng tới từng người."
 
-**Lưu ý nội bộ:** chưa có lineage mức cột; chưa hỗ trợ phát hành thẳng sang Iceberg; thông báo lỗi chỉ qua webhook (chưa có email, Slack). Mọi người có vai trò dbt thấy tất cả dự án trong cùng workspace, chưa tách theo nhóm. Kết nối hỗ trợ: Dremio, Postgres, DuckDB.
+**Lưu ý nội bộ:** chưa có lineage mức cột; chưa hỗ trợ phát hành thẳng sang Iceberg; thông báo lỗi chỉ qua webhook (chưa có email, Slack). Mọi người có vai trò dbt thấy tất cả dự án trong cùng workspace, chưa tách theo nhóm. Kết nối hỗ trợ: query engine, Postgres, DuckDB.
 
 Điều phốiKỹ sư dữ liệuVận hành
 
 ## Data Pipeline
 
-Ghép các bước dbt, Dremio SQL và Python thành một luồng kéo-thả, có rẽ nhánh, thử lại, xử lý lỗi và lịch chạy.
+Ghép các bước dbt, SQL trên query engine và Python thành một luồng kéo-thả, có rẽ nhánh, thử lại, xử lý lỗi và lịch chạy.
 
 #### Vấn đề → Giải pháp
 
@@ -254,7 +260,7 @@ Máy chủ khởi động lại giữa chừng là mất lượt chạy→Lượ
 
 - **Start**: tham số đầu vào (chữ, số, lựa chọn, checkbox).
 - **dbt**: một lệnh dbt, chọn model, chọn target.
-- **Dremio SQL**: gửi SQL, chờ job xong, trả số dòng; hủy luồng thì hủy luôn job.
+- **SQL trên query engine**: gửi SQL, chờ job xong, trả số dòng; hủy luồng thì hủy luôn job.
 - **Python**: chạy file trong dự án, nhận kết quả bước trước, trả kết quả cho bước sau.
 - **Branch**: rẽ nhánh theo điều kiện, có nhánh ELSE.
 - **End**: chọn giá trị trả về của lượt chạy.
@@ -294,7 +300,7 @@ AI trả lời sai vì không hiểu nghĩa của dữ liệu→Ontology làm ng
 
 - **Explore**: đồ thị ontology, danh sách bản ghi, lọc, tải CSV, chi tiết bản ghi và các đối tượng liên kết, xem theo mốc thời gian.
 - **Workbench 4 bước**: Khái niệm → Ánh xạ → Chỉ số → Phát hành, có danh sách việc còn thiếu ở mỗi bước.
-- **Ánh xạ** khái niệm vào dataset Dremio, gợi ý cột khóa, tự ánh xạ, AI hỗ trợ ánh xạ.
+- **Ánh xạ** khái niệm vào dataset của query engine, gợi ý cột khóa, tự ánh xạ, AI hỗ trợ ánh xạ.
 - **Metric Studio**: viết công thức, xem trước, kiểm tra.
 - **AI soạn nháp**: đề xuất khái niệm từ mẫu hoặc nguồn dữ liệu, người dùng duyệt từng đề xuất.
 - **Phát hành**: kiểm tra, gửi duyệt, phê duyệt hoặc từ chối, lịch sử phiên bản, quay lại phiên bản cũ.
@@ -303,7 +309,7 @@ AI trả lời sai vì không hiểu nghĩa của dữ liệu→Ontology làm ng
 #### Hoạt động thế nào
 
 1.  Workspace gọi dịch vụ Ontology bằng token Keycloak của người dùng.
-2.  Ontology đọc dữ liệu qua dataset Dremio đã ánh xạ.
+2.  Ontology đọc dữ liệu qua dataset của query engine đã ánh xạ.
 3.  Thay đổi đi theo vòng nháp → duyệt → phát hành; chỉ bản đã phát hành mới dùng chính thức.
 
 #### Phân quyền
@@ -359,7 +365,7 @@ Hỏi → làm việc với công cụ → phê duyệt thao tác.[Mở toàn m�
 
 "Hỏi bằng tiếng Việt, AI làm phần kỹ thuật. Việc gì có thể thay đổi dữ liệu đều chờ anh chị bấm đồng ý."
 
-**Lưu ý nội bộ:** AI chạy trên KaPaS, triển khai riêng và cần cổng (gateway) định tuyến `/api/kapas`. Việc AI đọc ngữ cảnh màn hình đã xong phía giao diện; phía KaPaS đang hoàn thiện, nên demo trước khi hứa tính năng "AI nhìn thấy màn hình". Chất lượng câu trả lời phụ thuộc mô hình ngôn ngữ khách hàng chọn và Ontology đã xây.
+**Lưu ý nội bộ:** AI chạy trên Kapas, triển khai riêng và cần cổng (gateway) định tuyến `/api/kapas`. Việc AI đọc ngữ cảnh màn hình đã xong phía giao diện; phía Kapas đang hoàn thiện, nên demo trước khi hứa tính năng "AI nhìn thấy màn hình". Chất lượng câu trả lời phụ thuộc mô hình ngôn ngữ khách hàng chọn và Ontology đã xây.
 
 Khai thácPhân tíchLãnh đạo
 
@@ -370,7 +376,7 @@ Dashboard Superset nhúng ngay trong Workspace, cùng đăng nhập; kết nối
 #### Vấn đề → Giải pháp
 
 - Người dùng phải đăng nhập riêng vào công cụ BI → Superset nhúng trong Workspace, dùng chung SSO.
-- Dataset cho BI phải tạo tay → tạo dataset Superset trỏ tới view Dremio từ SQL Studio.
+- Dataset cho BI phải tạo tay → tạo dataset Superset trỏ tới view của query engine từ SQL Studio.
 - Quyền dashboard quản lý rời rạc → gán quyền dashboard theo vai trò ngay trong trang Permissions.
 
 #### Tính năng chính
@@ -416,29 +422,29 @@ Keycloak là nguồn duy nhất về người dùng và vai trò; User API tạo
 
 #### Vấn đề → Giải pháp
 
-Tạo một nhân viên mới phải vào 4–5 hệ thống→Một biểu mẫu tạo user ở Keycloak và Dremio, gán vai trò cho Ontology, Analytics, AI, dbt cùng lúc
+Tạo một nhân viên mới phải vào 4–5 hệ thống→Một biểu mẫu tạo user ở Keycloak và query engine, gán vai trò cho Ontology, Analytics, AI, dbt cùng lúc
 
-Tạo dở dang: có tài khoản hệ thống này mà thiếu hệ thống kia→Lỗi ở Dremio thì tự hủy user vừa tạo ở Keycloak; trạng thái đồng bộ từng user hiển thị rõ
+Tạo dở dang: có tài khoản hệ thống này mà thiếu hệ thống kia→Lỗi ở query engine thì tự hủy user vừa tạo ở Keycloak; trạng thái đồng bộ từng user hiển thị rõ
 
 Phân quyền dữ liệu bằng tay từng bảng→Ma trận quyền theo user hoặc role, xem trước thay đổi rồi áp dụng hàng loạt
 
 #### Tính năng chính
 
 - **Users**: tạo, sửa, đặt lại mật khẩu, bật tắt, xóa có xác nhận ở cả hai hệ thống.
-- **Roles**: vai trò Dremio, Superset, KaPaS, realm; đồng bộ vai trò Keycloak sang Dremio.
+- **Roles**: vai trò của query engine, Superset, Kapas, realm; đồng bộ vai trò Keycloak sang query engine.
 - **Permissions**: cấp quyền theo người, theo vai trò, theo đối tượng (kể cả quyền kế thừa); quyền dashboard Superset.
 - **Token cá nhân** cho người dùng gọi API.
 
 #### Nguyên tắc bảo mật
 
-- User API không lưu mật khẩu hay khóa nào; chuyển tiếp token của chính người thao tác, Keycloak và Dremio tự kiểm quyền.
+- User API không lưu mật khẩu hay khóa nào; chuyển tiếp token của chính người thao tác, Keycloak và query engine tự kiểm quyền.
 - Mật khẩu nguồn dữ liệu, token Git mã hóa AES-GCM.
 - Truy vấn chạy bằng danh tính người dùng, kể cả job theo lịch.
 - Mọi thao tác file trong dbt Studio có chặn truy cập ra ngoài thư mục dự án; lệnh Git chỉ cho phép danh sách trắng.
 
 "Nhân sự mới vào, quản trị viên điền một biểu mẫu là người đó có đủ quyền ở mọi phân hệ. Nghỉ việc thì khóa một chỗ."
 
-**Lưu ý nội bộ:** khóa (disable) người dùng thực hiện ở Keycloak; Dremio không có thao tác disable riêng. Quyền vai trò dbt không tự suy ra từ quyền admin Dremio, cần gán riêng.
+**Lưu ý nội bộ:** khóa (disable) người dùng thực hiện ở Keycloak; query engine không có thao tác disable riêng. Quyền vai trò dbt không tự suy ra từ quyền admin query engine, cần gán riêng.
 
 Theo vai trò
 
@@ -451,7 +457,7 @@ Theo vai trò
 | Chuyên viên phân tích | Catalog, SQL Studio, Analytics, SQL Copilot | Tìm đúng dữ liệu, tự phân tích |
 | Chủ sở hữu dữ liệu | Catalog (glossary, tag), Ontology Workbench, Governance | Định nghĩa thống nhất, biết dữ liệu được dùng ở đâu |
 | Người dùng nghiệp vụ, lãnh đạo | Dashboard, Ontology Explore, AI Agents | Xem chỉ số, hỏi dữ liệu bằng tiếng Việt |
-| An toàn thông tin | Keycloak, Permissions, nhật ký job Dremio, audit Ontology | Biết ai truy cập gì, bằng quyền nào |
+| An toàn thông tin | Keycloak, Permissions, nhật ký job của query engine, audit Ontology | Biết ai truy cập gì, bằng quyền nào |
 
 Demo
 
@@ -485,7 +491,7 @@ Demo
 1.  Tạo user mới, gán vai trò dbt-viewer.
 2.  Đăng nhập bằng user đó: menu thu hẹp, IDE chỉ đọc.
 3.  Catalog: user không thấy bảng ngoài quyền.
-4.  Xem job Dremio ghi đúng tên người chạy.
+4.  Xem job của query engine ghi đúng tên người chạy.
 5.  Đổi mức an toàn AI sang STRICT, thử một thao tác ghi.
 
 Triển khai
@@ -496,13 +502,13 @@ Tất cả thành phần chạy dạng container. Quy mô, tính sẵn sàng cao
 
 | Thành phần | Phụ thuộc | Ghi chú vận hành |
 |----|----|----|
-| Dremio | Ổ đĩa dữ liệu, kết nối mạng tới nguồn | Cổng web/REST 9047; JDBC/ODBC/Flight 31010–32010 |
+| Query engine | Ổ đĩa dữ liệu, kết nối mạng tới nguồn | Cổng web/REST 9047; JDBC/ODBC/Flight 31010–32010 |
 | Hanas Workspace | nginx, cấu hình địa chỉ các dịch vụ khi khởi động | Đổi địa chỉ dịch vụ không cần build lại |
 | dbt Studio | Postgres 16, Redis 7, Keycloak, vùng workspace và storage | Chạy nhiều bản song song; lịch chạy có cơ chế chọn leader |
 | Hanas Catalog | Postgres 16 | catalog-api nhân bản tự do; ingest-runner nhiều bản an toàn; sao lưu pg_dump hằng ngày |
-| User API | Keycloak, Dremio | Không có CSDL |
+| User API | Keycloak, query engine | Không có CSDL |
 | Keycloak | CSDL của Keycloak | Một realm chung cho mọi dịch vụ; bản dịch giao diện lưu tại đây |
-| Ontology, KaPaS, Superset | Triển khai riêng | Cần cổng API định tuyến tới từng dịch vụ |
+| Ontology, Kapas, Superset | Triển khai riêng | Cần cổng API định tuyến tới từng dịch vụ |
 
 Hiện chưa có Helm chart hay manifest Kubernetes đóng gói sẵn. Nếu khách hàng yêu cầu Kubernetes, đưa vào phạm vi dịch vụ triển khai.
 
@@ -512,7 +518,7 @@ Xử lý câu hỏi
 
 Có phải chuyển toàn bộ dữ liệu về Hanas không?
 
-Không bắt buộc. Dremio truy vấn tại nguồn. Chỉ lưu thêm khi cần lớp dữ liệu sạch hoặc bản tăng tốc (reflection) cho báo cáo dùng nhiều.
+Không bắt buộc. Query engine truy vấn tại nguồn. Chỉ lưu thêm khi cần lớp dữ liệu sạch hoặc bản tăng tốc (reflection) cho báo cáo dùng nhiều.
 
 Hanas có dùng chung một tài khoản để truy cập dữ liệu không?
 
@@ -524,11 +530,11 @@ AI có tự ý sửa hoặc xóa dữ liệu được không?
 
 Hanas có thay được Airflow không?
 
-Với luồng gồm dbt, SQL trên Dremio và Python, Data Pipeline đáp ứng: lịch cron, rẽ nhánh, thử lại, nhánh lỗi, chạy lại phần lỗi, tự phục hồi. Luồng cần điều phối nhiều hệ thống ngoài cần đánh giá riêng.
+Với luồng gồm dbt, SQL trên query engine và Python, Data Pipeline đáp ứng: lịch cron, rẽ nhánh, thử lại, nhánh lỗi, chạy lại phần lỗi, tự phục hồi. Luồng cần điều phối nhiều hệ thống ngoài cần đánh giá riêng.
 
-Catalog có thay được DataHub không?
+Hanas Catalog có thay được công cụ danh mục đang dùng không?
 
-Có cho nhu cầu tìm kiếm, lineage mức bảng, glossary, tag và thu thập metadata từ Dremio, Oracle, dbt. Các tính năng Domain, Data Product, chất lượng dữ liệu chưa có.
+Có cho nhu cầu tìm kiếm, lineage mức bảng, glossary, tag và thu thập metadata từ query engine, Oracle, dbt. Các tính năng Domain, Data Product, chất lượng dữ liệu chưa có.
 
 Giao diện có tiếng Việt không? Có sửa câu chữ được không?
 
@@ -552,10 +558,10 @@ Danh sách này lấy từ mã nguồn tại mốc 3bb7d41a5. Khi khách cần m
 | Thông báo email, Slack | Chưa có; dbt Schedule chỉ có webhook, Pipeline dùng nhánh on-failure |
 | Phát hành bảng Iceberg từ dbt Studio | Chưa hỗ trợ |
 | Tách dự án dbt theo nhóm | Chưa có; mọi người có vai trò dbt dùng chung workspace |
-| AI hiểu ngữ cảnh màn hình | Giao diện đã gửi; phía KaPaS đang hoàn thiện |
+| AI hiểu ngữ cảnh màn hình | Giao diện đã gửi; phía Kapas đang hoàn thiện |
 | Giải thích job (Explain job) | Nút có nhưng chưa hoạt động |
 | Triển khai Kubernetes đóng gói sẵn | Chưa có Helm chart |
-| Kết nối dbt ngoài Dremio, Postgres, DuckDB | Chưa hỗ trợ |
+| Kết nối dbt ngoài query engine, Postgres, DuckDB | Chưa hỗ trợ |
 
 Thuật ngữ
 
@@ -563,11 +569,11 @@ Thuật ngữ
 
 | Thuật ngữ | Giải thích ngắn |
 |----|----|
-| Source | Một nguồn dữ liệu đã kết nối vào Dremio (CSDL, kho đối tượng, catalog lakehouse) |
+| Source | Một nguồn dữ liệu đã kết nối vào query engine (CSDL, kho đối tượng, catalog lakehouse) |
 | Space / Workspace | Thư mục logic để tổ chức view theo phòng ban, dự án |
 | View | Câu SQL được lưu thành bảng ảo, không chép dữ liệu |
-| Reflection | Bản dữ liệu tăng tốc do Dremio quản lý và tự dùng khi truy vấn khớp |
-| Job | Một lần chạy truy vấn trên Dremio, có nhật ký và hồ sơ thực thi |
+| Reflection | Bản dữ liệu tăng tốc do query engine quản lý và tự dùng khi truy vấn khớp |
+| Job | Một lần chạy truy vấn trên query engine, có nhật ký và hồ sơ thực thi |
 | Engine, Queue | Nhóm máy thực thi và hàng đợi chia tải truy vấn |
 | dbt model | Một file SQL định nghĩa một bảng hoặc view đích, có kiểm thử |
 | Target | Môi trường đích của dbt, ví dụ dev hoặc prod |

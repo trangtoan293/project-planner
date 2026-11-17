@@ -24,11 +24,11 @@
         "label": "Truy vấn dữ liệu",
         "focus": [
           "ui",
-          "dremio",
+          "query-engine",
           "sources",
           "bi"
         ],
-        "note": "Dremio truy vấn trực tiếp nguồn, không cần sao chép dữ liệu."
+        "note": "Query Engine truy vấn trực tiếp nguồn, không cần sao chép dữ liệu."
       },
       {
         "id": "dich-vu",
@@ -40,7 +40,7 @@
           "catalog",
           "ontology"
         ],
-        "note": "Các dịch vụ chuyên biệt đều đi qua Dremio để giữ đúng quyền."
+        "note": "Các dịch vụ chuyên biệt đều đi qua Query Engine để giữ đúng quyền."
       }
     ]
   },
@@ -62,7 +62,7 @@
     {
       "id": "ui",
       "type": "frontend",
-      "label": "Hanas Workspace",
+      "label": "Hanas Console",
       "sublabel": "giao diện hợp nhất",
       "pos": [
         250,
@@ -107,7 +107,7 @@
       "id": "ai",
       "type": "backend",
       "label": "AI Agents",
-      "sublabel": "KaPaS · Copilot",
+      "sublabel": "Kapas · Copilot",
       "pos": [
         520,
         160
@@ -160,9 +160,9 @@
       ]
     },
     {
-      "id": "dremio",
+      "id": "query-engine",
       "type": "backend",
-      "label": "Dremio Engine",
+      "label": "Query Engine",
       "sublabel": "truy vấn liên nguồn",
       "pos": [
         800,
@@ -232,7 +232,7 @@
     },
     {
       "from": "ui",
-      "to": "dremio",
+      "to": "query-engine",
       "label": "SQL · REST",
       "variant": "emphasis",
       "labelAt": [
@@ -262,32 +262,32 @@
     },
     {
       "from": "dbt",
-      "to": "dremio",
+      "to": "query-engine",
       "label": "chạy model",
       "fromSide": "right",
       "toSide": "left"
     },
     {
       "from": "catalog",
-      "to": "dremio",
+      "to": "query-engine",
       "label": "quét metadata",
       "fromSide": "right",
       "toSide": "bottom"
     },
     {
       "from": "ai",
-      "to": "dremio",
+      "to": "query-engine",
       "label": "hỏi dữ liệu"
     },
     {
-      "from": "dremio",
+      "from": "query-engine",
       "to": "sources",
       "label": "đọc tại chỗ",
       "variant": "emphasis"
     },
     {
       "from": "bi",
-      "to": "dremio",
+      "to": "query-engine",
       "label": "kết nối BI",
       "fromSide": "left",
       "toSide": "right"
@@ -305,10 +305,10 @@
     },
     {
       "dot": "emerald",
-      "title": "Dremio là lõi truy vấn",
+      "title": "Query Engine là lõi truy vấn",
       "items": [
         "Truy vấn liên nguồn không sao chép",
-        "Mọi dịch vụ đi qua Dremio để giữ quyền",
+        "Mọi dịch vụ đi qua Query Engine để giữ quyền",
         "BI kết nối qua JDBC/ODBC/Arrow Flight"
       ]
     },

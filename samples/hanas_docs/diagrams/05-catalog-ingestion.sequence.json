@@ -49,7 +49,7 @@
       "id": "admin",
       "type": "frontend",
       "label": "Quản trị viên",
-      "sublabel": "Hanas Workspace"
+      "sublabel": "Hanas Console"
     },
     {
       "id": "api",
@@ -79,7 +79,7 @@
       "id": "source",
       "type": "external",
       "label": "Nguồn",
-      "sublabel": "Dremio · Oracle · dbt"
+      "sublabel": "Query Engine · Oracle · dbt"
     }
   ],
   "segments": [
@@ -240,7 +240,7 @@
       "title": "Mở rộng dễ dàng",
       "items": [
         "Nhiều runner chạy song song an toàn",
-        "Connector Dremio riêng, có lineage view"
+        "Connector query engine riêng, có lineage view"
       ]
     }
   ]

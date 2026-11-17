@@ -10,4 +10,6 @@ __pycache__/
 *.log
 node_modules/
 .claude/settings.local.json
-samples/kvault_docs/
+
+# Kiểu do Claude Code sinh khi nạp mod
+.claude-plugin/types/

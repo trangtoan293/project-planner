@@ -17,7 +17,7 @@ Repo hỗ trợ presales của Katalyst: yêu cầu khách → proposal → WBS 
 | Sản phẩm đề xuất làm được gì, **không được hứa gì** | `knowledge/<product>-product.md`; `<product>` lấy từ `00-params.txt` (trống = `hanas`, chép từ `samples/hanas_docs/index.html`) |
 | Format và văn phong proposal | `knowledge/proposal-format.md` |
 | Benchmark effort, đội ngũ, giai đoạn | `knowledge/estimation.md` |
-| Giá, Edition, Named User, SLA, chiết khấu, định mức (Norm Library), TCO, điều khoản thương mại của Hanas | Commercial Toolkit `/Users/toantrang/Documents/Data_Platform/commercial-toolkkit/` là nguồn gốc (ADR 0005); planner chỉ giữ phần cần cho proposal ở `knowledge/hanas-commercial.md` và `estimation.md` §5 |
+| Giá, Edition, Named User, SLA, chiết khấu, định mức (Norm Library), TCO, điều khoản thương mại của Hanas | Commercial Toolkit (repo nội bộ `commercial-toolkit`) là nguồn gốc (ADR 0005); planner chỉ giữ phần cần cho proposal ở `knowledge/hanas-commercial.md` và `estimation.md` §5 |
 | Thuật ngữ | `CONTEXT.md` |
 | Logic từ yêu cầu → milestone → MD → người, chỗ chỉnh cho từng dự án | `docs/cach-hoat-dong.md`; skill `explain` trả lời "vì sao" bằng `scripts/trace.py` |
 | Điều chỉnh riêng một dự án (đơn giá, khung milestone, vai trò) | `projects/<kh>/00-tuning.md` (mẫu `templates/00-tuning.md`), thắng knowledge chung |
@@ -32,7 +32,7 @@ Repo hỗ trợ presales của Katalyst: yêu cầu khách → proposal → WBS 
 
 ## Agent
 
-Repo này đồng thời là plugin `hanas-presale` (skill ở `skills/`, agent ở `agents/`) và marketplace `project-planner`. Các agent trong `agents/` chia việc theo bước: `proposal-req-extractor`, `proposal-fit-analyst`, `proposal-section-writer`, 4 `proposal-reviewer-*` (`-product` kiểm hứa quá sản phẩm; câu chữ rà bằng skill humanizer khi viết/sửa, `scripts/check_style.py` kiểm lại), `proposal-fixer`, `wbs-drafter`, `wbs-reviewer`, `plan-builder`. Skill nào gọi agent nào, chạy song song ra sao: xem bảng đầu `skills/write-proposal/SKILL.md`. Mặc định chạy bằng Codex qua `~/.claude/bin/codex-agent` (gpt-6.1-sol, high; anh không muốn tốn token sonnet). Trạng thái ghi ở `~/.claude/agent-runs/`, hiện ở footer AGENTS của mod `agent-monitor` (cài phạm vi user, `/agent-monitor` để hiện lại). `scripts/codex_agent.sh` là bản đóng gói của script chung, tìm agent trong plugin trước.
+Repo này đồng thời là plugin `hanas-presale` (skill ở `skills/`, agent ở `agents/`, bảng tiến độ `/presale` ở `hooks/register.tsx`) và marketplace `project-planner`, phát hành cho team nội bộ. Plugin chạy từ bản cài (`${CLAUDE_PLUGIN_ROOT}`), dữ liệu khách nằm ở `projects/` của thư mục làm việc: skill, script và bảng không được giả định cwd là repo này. Các agent trong `agents/` chia việc theo bước: `proposal-req-extractor`, `proposal-fit-analyst`, `proposal-section-writer`, 4 `proposal-reviewer-*` (`-product` kiểm hứa quá sản phẩm; câu chữ rà bằng skill humanizer khi viết/sửa, `scripts/check_style.py` kiểm lại), `proposal-fixer`, `wbs-drafter`, `wbs-reviewer`, `plan-builder`. Skill nào gọi agent nào, chạy song song ra sao: xem bảng đầu `skills/write-proposal/SKILL.md`. Mặc định chạy bằng Codex qua `scripts/codex_agent.sh` (gpt-6.1-sol, high) để tiết kiệm token Claude; máy không có `codex` CLI thì script thoát mã 3 và skill chuyển sang subagent Claude `hanas-presale:<agent>`. Trạng thái ghi ở `~/.claude/agent-runs/` cho mod theo dõi agent nếu máy có cài.
 
 ## Script
 
@@ -44,18 +44,19 @@ python3 scripts/build_master_plan.py <wbs.csv> <plan.xlsx> --params <params>  # 
 python3 scripts/build_master_plan.py <wbs.csv> <task-list.xlsx> --team         # đầu việc cho đội, không ngày/MD, kiểm mã R
 python3 scripts/check_plan.py <params> <wbs.csv|-> [proposal.md]              # kiểm tra timeline, nhân sự, dữ liệu cũ
 python3 scripts/check_style.py <proposal.md>                                   # bắt văn AI tiếng Việt, không tốn token
+python3 scripts/sync_hanas_docs.py <repo-docs>                               # chép docs Hanas vào knowledge/hanas-docs/
 python3 scripts/check_auto.py <kh>                                            # /auto-presale đã xong trọn quy trình chưa
 python3 scripts/trace.py projects/<kh> [R12|1.2.2.1|M1|S5|DEV]                 # giải thích con số: căn cứ, công thức, lịch, sprint
-python3 tests/test_build_master_plan.py && python3 tests/test_check_plan.py && python3 tests/test_md2docx.py && python3 tests/test_check_auto.py && python3 tests/test_check_style.py && python3 tests/test_wbs_md2csv.py && python3 tests/test_trace.py   # sau khi sửa script
-claude plugin test tools/presale-board                                         # sau khi sửa bảng Presales
+python3 tests/test_build_master_plan.py && python3 tests/test_check_plan.py && python3 tests/test_md2docx.py && python3 tests/test_check_auto.py && python3 tests/test_check_style.py && python3 tests/test_wbs_md2csv.py && python3 tests/test_trace.py && python3 tests/test_sync_hanas_docs.py   # sau khi sửa script
+claude plugin test . && claude plugin validate .                               # sau khi sửa bảng Presales (hooks/, types/, tests/*.test.ts) hoặc manifest
 ```
 
 Cần: `pandoc`, `python-docx`, `openpyxl`, `pymupdf` (fitz, để đọc PDF).
 
 ## Cập nhật tri thức
 
-- Hanas có phiên bản mới: thay `samples/hanas_docs/`, rồi chạy lại lệnh chuyển ở đầu `knowledge/hanas-product.md`.
+- Docs Hanas có bản mới: `python3 scripts/sync_hanas_docs.py <repo hanas-doc-v2>` chép lại `knowledge/hanas-docs/` và mục lục. Sales kit có bản mới: thay `samples/hanas_docs/`, rồi chạy lại lệnh chuyển ở đầu `knowledge/hanas-product.md`.
 - Có dự án thật đã chạy xong: thêm một dòng vào `knowledge/estimation.md` §3 với số liệu **thực tế** (không phải số đã báo giá).
 - Toolkit đổi quy tắc thương mại (Edition, SLA, điều khoản, Norm, Milestone Framework): sửa dòng tương ứng ở `knowledge/hanas-commercial.md` hoặc `estimation.md` §4–§5. Không chép đơn giá khi toolkit còn `status = draft`.
-- Thêm khách mới: thêm tên khách cũ vào `stale_terms` trong `templates/00-params.txt`.
+- Thêm khách mới: thêm tên khách cũ vào `stale_terms` trong `projects/<kh>/00-params.txt` của khách đó. Không ghi tên khách thật vào `templates/` (mẫu dùng chung cho cả team).
 - Thêm sản phẩm mới: tài liệu gốc vào `samples/<product>_docs/`, chuyển thành `knowledge/<product>-product.md` (có bảng "Những điều không được hứa với khách hàng"), tạo `knowledge/<product>-commercial.md`, đặt `product: <product>` trong params của khách.

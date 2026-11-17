@@ -1,9 +1,10 @@
 {
   "name": "hanas-presale",
-  "version": "0.2.0",
-  "description": "Presales Hanas Data Platform và Knowledge Platform (khoá product trong 00-params.txt): yêu cầu khách → proposal (Word) → WBS → master plan (Excel), có kiểm tra timeline tự động",
+  "version": "1.0.0",
+  "description": "Presales Hanas Data Platform của Katalyst: yêu cầu khách → proposal (Word) → WBS → master plan (Excel), kiểm tra timeline tự động, bảng tiến độ /presale",
   "author": { "name": "Katalyst" },
   "repository": "https://github.com/trangtoan293/project-planner",
   "license": "UNLICENSED",
-  "keywords": ["presales", "proposal", "wbs", "master-plan", "hanas"]
+  "keywords": ["presales", "proposal", "wbs", "master-plan", "hanas"],
+  "types": "./types/index.d.ts"
 }

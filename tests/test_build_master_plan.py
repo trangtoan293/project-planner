@@ -56,5 +56,6 @@ def main():
 
 if __name__ == "__main__":
     if not SAMPLE.exists():  # mẫu thật không đưa lên git
-        sys.exit(f"bỏ qua: thiếu {SAMPLE.relative_to(ROOT)}")
+        print(f"bỏ qua: thiếu {SAMPLE.relative_to(ROOT)}")
+        sys.exit(0)
     main()

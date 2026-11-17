@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Chạy tự động trọn quy trình (autonomous e2e)
 
-Làm đúng các bước của `/write-proposal`, `/analyze-proposal`, `/master-plan` (đọc 3 skill đó, mọi quy tắc của chúng vẫn áp dụng), **trừ** những điểm khác dưới đây. Mọi agent chạy bằng `${CLAUDE_PLUGIN_ROOT}/scripts/codex_agent.sh` từ thư mục làm việc (nơi có `projects/`), chạy nền song song khi các việc độc lập; footer AGENTS theo dõi.
+Làm đúng các bước của `/write-proposal`, `/analyze-proposal`, `/master-plan` (đọc 3 skill đó, mọi quy tắc của chúng vẫn áp dụng), **trừ** những điểm khác dưới đây. Mọi agent chạy bằng `${CLAUDE_PLUGIN_ROOT}/scripts/codex_agent.sh` từ thư mục làm việc (nơi có `projects/`), chạy nền song song khi các việc độc lập.
 
 Cách dùng khuyên dùng (Claude tự làm tiếp qua nhiều lượt đến khi đạt):
 

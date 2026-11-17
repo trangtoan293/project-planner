@@ -225,7 +225,7 @@
       "dot": "cyan",
       "title": "Một bộ điều phối",
       "items": [
-        "dbt, Dremio SQL và Python trong cùng Pipeline",
+        "dbt, SQL và Python trong cùng Pipeline",
         "Không cần dựng thêm Airflow riêng"
       ]
     },

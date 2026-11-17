@@ -36,7 +36,7 @@ Phụ lục: A. Câu hỏi thường gặp (câu hỏi in đậm + trả lời n
 
 ## 3. Loại B: hồ sơ thầu (E-HSMT)
 
-Khung dưới đây rút từ một proposal loại B đã nộp (103 trang), **chỉ lấy cấu trúc**. Bản mẫu mô tả Hanas bản cũ (NiFi…): không chép tên cấu phần, số liệu, nội dung.
+Khung dưới đây rút từ một proposal loại B đã nộp (103 trang), **chỉ lấy cấu trúc**. Bản mẫu mô tả Hanas bản cũ: không chép tên cấu phần, số liệu, nội dung.
 
 Đánh số **I → 1 → 1.1 → 1.1.1 → a → i → •**; in đậm tiêu đề từ cấp I đến cấp a.
 Mọi mục phải trích đúng căn cứ "(theo Khoản x, Mục y, Chương V – E-HSMT)".

@@ -17,9 +17,9 @@
           "user",
           "ui",
           "keycloak",
-          "dremio"
+          "query-engine"
         ],
-        "note": "Keycloak cấp danh tính; Dremio nhận cùng người dùng đó."
+        "note": "Keycloak cấp danh tính; Query Engine nhận cùng người dùng đó."
       },
       {
         "id": "catalog-quyen",
@@ -27,9 +27,9 @@
         "focus": [
           "ui",
           "catalog",
-          "dremio"
+          "query-engine"
         ],
-        "note": "Catalog hỏi Dremio xem người dùng được thấy bảng nào."
+        "note": "Catalog hỏi query engine xem người dùng được thấy bảng nào."
       },
       {
         "id": "dbt-quyen",
@@ -38,7 +38,7 @@
           "ui",
           "dbt",
           "keycloak",
-          "dremio"
+          "query-engine"
         ],
         "note": "Không dùng tài khoản dịch vụ chung; audit ghi đúng người."
       }
@@ -54,7 +54,7 @@
     {
       "id": "ui",
       "type": "frontend",
-      "label": "Hanas Workspace",
+      "label": "Hanas Console",
       "sublabel": "giao diện"
     },
     {
@@ -76,9 +76,9 @@
       "sublabel": "dbt runner"
     },
     {
-      "id": "dremio",
+      "id": "query-engine",
       "type": "backend",
-      "label": "Dremio",
+      "label": "Query Engine",
       "sublabel": "engine · ACL"
     }
   ],
@@ -123,9 +123,9 @@
     },
     {
       "from": "ui",
-      "to": "dremio",
+      "to": "query-engine",
       "y": 258,
-      "label": "phiên Dremio (SSO)",
+      "label": "phiên query engine (SSO)",
       "variant": "security"
     },
     {
@@ -137,13 +137,13 @@
     },
     {
       "from": "catalog",
-      "to": "dremio",
+      "to": "query-engine",
       "y": 330,
       "label": "user được thấy gì?",
       "variant": "security"
     },
     {
-      "from": "dremio",
+      "from": "query-engine",
       "to": "catalog",
       "y": 358,
       "label": "danh sách được phép",
@@ -167,12 +167,12 @@
       "from": "dbt",
       "to": "keycloak",
       "y": 458,
-      "label": "đổi sang token Dremio",
+      "label": "đổi sang token query engine",
       "variant": "security"
     },
     {
       "from": "dbt",
-      "to": "dremio",
+      "to": "query-engine",
       "y": 486,
       "label": "SQL dưới tên user",
       "variant": "emphasis"
@@ -205,7 +205,7 @@
       "type": "backend"
     },
     {
-      "participant": "dremio",
+      "participant": "query-engine",
       "from": 324,
       "to": 366,
       "type": "backend"
@@ -223,7 +223,7 @@
       "type": "security"
     },
     {
-      "participant": "dremio",
+      "participant": "query-engine",
       "from": 480,
       "to": 504,
       "type": "backend"
@@ -235,14 +235,14 @@
       "title": "Một danh tính",
       "items": [
         "Keycloak là nơi duy nhất quản lý user và role",
-        "Dremio nhận đúng người dùng qua SSO"
+        "Query Engine nhận đúng người dùng qua SSO"
       ]
     },
     {
       "dot": "cyan",
       "title": "Quyền không bị sao chép",
       "items": [
-        "Catalog hỏi Dremio, không tự giữ bản ACL riêng",
+        "Catalog hỏi query engine, không tự giữ bản ACL riêng",
         "Bảng không được phép thì không hiện"
       ]
     },

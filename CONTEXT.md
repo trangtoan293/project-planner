@@ -5,7 +5,7 @@ Dùng đúng các từ dưới đây trong proposal, WBS và master plan. Thuậ
 **Proposal**: tài liệu đề xuất gửi khách (loại A: đề xuất giải pháp; loại B: hồ sơ thầu). _Tránh_: báo giá (báo giá là file riêng).
 **Params**: file `projects/<kh>/00-params.txt`, nguồn duy nhất cho kickoff, deadline, ngày lễ, giới hạn đội, mốc bắt buộc.
 **WBS**: danh sách đầu việc phân cấp, có effort; lưu ở `03-wbs.md` (giải thích) và `03-wbs.csv` (dữ liệu dựng plan).
-**Master plan**: file Excel timeline + phân bổ nhân sự theo format `samples/master_plan_sample/`. _Tránh_: Gantt, kế hoạch tổng.
+**Master plan**: file Excel timeline + phân bổ nhân sự theo format `scripts/build_master_plan.py` dựng (sheet plan, nhân sự, Sprint). _Tránh_: Gantt, kế hoạch tổng.
 **MD (man-day)**: một người làm một ngày. MD = Số ngày × Số người × % phân bổ. _Tránh_: công, ngày công.
 **Vai trò**: PM, BA, DEV, SysE, Tester. SA, Data Engineer, BI/Report Developer đều tính vào DEV trong master plan.
 **Milestone (M)**: nhóm việc cấp 2 trong WBS, đặt tên "M<n> — <tên>".

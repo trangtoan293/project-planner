@@ -55,6 +55,14 @@ def main():
     expect_fail(CLEAN.replace("2026-11-09", "2026-11-08"), "ngày nghỉ")                  # Chủ nhật
     expect_fail(CLEAN.replace("2026-11-24,3", "2026-11-20,3"), "ngày nghỉ")              # ngày lễ trong params
     expect_fail(CLEAN.replace(",2,1,1,0.5,1,0.5", ",3,1,1,0.5,1,0.5"), "team_max")       # team size cũ
+    # hai việc DEV chạy song song, mỗi việc 2 người: từng việc không vượt nhưng cùng lúc cần 4 > team_max 2
+    expect_fail(CLEAN + "1.4,Báo cáo,5,2026-11-09,2,0,0,0,0,2,1,0,0,0,0\n", "DEV cần 4 người cùng lúc")
+    # PM: 8 MD ÷ (16 ngày × 1 PM) = 50%
+    expect_fail(CLEAN, "PM tham gia 50%", params=PARAMS + "pm_min: 0.8\n")
+    code, out = run(PARAMS + "pm_min: 0.5\n", CLEAN, "Khởi động 02/11/2026, go-live 24/11/2026.")
+    assert code == 0, out
+    code, out = run(PARAMS.replace("kickoff: 2026-11-02", "kickoff:"), CLEAN)
+    assert code == 1 and "thiếu 'kickoff'" in out and "Traceback" not in out, out
     expect_fail(CLEAN, "lệch > 5%", params=PARAMS.replace("proposal_md: 48", "proposal_md: 845"))
     expect_fail(CLEAN, "Go-live", params=PARAMS.replace("Go-live<=2026-12-18", "Go-live<=2026-11-20"))
     expect_fail(CLEAN.replace("Dự án KHA", "Dự án KHB"), "'KHB'")                        # tên khách cũ

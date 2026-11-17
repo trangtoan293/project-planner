@@ -11,7 +11,8 @@ Kiểm tra:
   2. Không việc nào bắt đầu vào thứ 7, CN hoặc ngày lễ.
   3. Ràng buộc predecessor (FS, SS, FF, có lag) được tôn trọng.
   4. Mốc bắt buộc (milestones) kết thúc đúng hạn.
-  5. Số người mỗi vai trò không vượt team_max; % phân bổ trong 0..1.
+  5. Số người mỗi vai trò không vượt team_max, kể cả cộng các việc chạy song song; % phân bổ trong 0..1;
+     PM tham gia ≥ pm_min thời gian dự án (MD PM ÷ (ngày dự án × số PM), như phần kiểm tra cuối master plan).
   6. Tổng MD khớp proposal_md (±5%); WARN khi tỷ trọng vai trò ra ngoài khung estimation.md §3.
   7. Không còn tên khách hàng/dự án cũ (stale_terms) trong WBS và proposal.
   8. Ngày tháng trong proposal: cảnh báo ngày trước kickoff hoặc sau deadline.
@@ -118,9 +119,17 @@ def check(params, tasks, proposal_text, holidays):
                 n, pct = t[key]
                 if key in team_max and n > team_max[key]:
                     fails.append(f"{t['wbs']}: {disp} {n:g} người > team_max {team_max[key]:g}")
+        peak = peak_team(tasks)
+        for disp, key, *_ in ROLES:
+            if key in team_max and peak[key] > team_max[key]:
+                fails.append(f"{disp} cần {peak[key]:g} người cùng lúc > team_max {team_max[key]:g} (cộng các việc chạy song song)")
         # 6. MD
         md = {key: sum(t["days"] * t[key][0] * t[key][1] for t in leaves) for _, key, *_ in ROLES}
         total = sum(md.values())
+        if params.get("pm_min") and tasks[0]["days"]:
+            pm_rate = md["pm"] / (tasks[0]["days"] * (team_max.get("pm") or 1))
+            if pm_rate < float(params["pm_min"]):
+                fails.append(f"PM tham gia {pm_rate:.0%} thời gian dự án < pm_min {float(params['pm_min']):.0%}")
         if params.get("proposal_md"):
             target = float(params["proposal_md"])
             if abs(total - target) > 0.05 * target:

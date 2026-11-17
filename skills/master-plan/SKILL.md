@@ -6,13 +6,15 @@ disable-model-invocation: true
 
 # Lên master plan và kiểm tra
 
+Xưng hô: "anh" trong skill này là người đang dùng plugin; gọi họ theo cách họ tự xưng (anh, chị, bạn), không mặc định là anh.
+
 Quy tắc chung (bắt buộc): làm trong thư mục có `projects/`; đọc mục "Quy tắc chống dữ liệu cũ" trong `${CLAUDE_PLUGIN_ROOT}/CLAUDE.md` trước khi bắt đầu.
 
 Đầu vào: `03-wbs.md` đã duyệt, `00-params.txt`. Đầu ra: `03-wbs.csv`, `03-task-list.xlsx` (cho đội phát triển), `04-master-plan.xlsx`, `04-check.txt`.
 
 ## 0. Giao agent
 
-Agent `plan-builder` chạy bằng Codex, từ thư mục làm việc (nơi có `projects/`), hai lượt:
+Agent `plan-builder` chạy bằng Codex, từ thư mục làm việc (nơi có `projects/`), hai lượt. Máy không có `codex` CLI (script thoát mã 3) hoặc Codex lỗi thì chạy agent đó bằng subagent Claude: công cụ Agent, `subagent_type: hanas-presale:plan-builder`, model sonnet, cùng nhiệm vụ như lệnh dưới.
 
 ```bash
 # lượt 1: bước 1–2 (cấu trúc CSV + danh sách đầu việc)

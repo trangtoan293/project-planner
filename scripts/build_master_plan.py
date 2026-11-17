@@ -1,4 +1,4 @@
-"""Sinh master plan .xlsx đúng format mẫu (samples/master_plan_sample/) từ một file WBS dạng CSV.
+"""Sinh master plan .xlsx đúng format mẫu của Katalyst từ một file WBS dạng CSV.
 
 Dùng:
     python3 scripts/build_master_plan.py projects/<kh>/03-wbs.csv projects/<kh>/04-master-plan.xlsx \

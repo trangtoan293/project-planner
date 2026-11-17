@@ -11,10 +11,28 @@ Plugin Claude Code cho presales Hanas Data Platform (nội bộ Katalyst): từ 
 
 Cập nhật bản mới: `/plugin marketplace update project-planner`.
 
+Lệnh `marketplace add` chỉ đăng ký danh mục plugin (repo này); `install` mới cài plugin `hanas-presale` từ danh mục đó (cú pháp `<plugin>@<marketplace>`). Không cần Commercial Toolkit.
+
+### Tự cài cho cả team
+
+Nếu team có thư mục hoặc repo presales dùng chung, thêm file `.claude/settings.json` vào đó:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "project-planner": { "source": { "source": "github", "repo": "trangtoan293/project-planner" } }
+  },
+  "enabledPlugins": { "hanas-presale@project-planner": true }
+}
+```
+
+Ai mở Claude Code trong thư mục đó và chọn tin cậy thư mục sẽ được hỏi cài plugin, không phải gõ hai lệnh trên. Repo plugin là private thì người đó vẫn cần quyền đọc repo trên GitHub.
+
 Máy cần:
 
 | Cần | Để làm gì |
 |---|---|
+| Claude Code bản mới nhất (`claude update`) | bảng `/presale` là mod, cần bản Claude Code có hỗ trợ mod |
 | `python3` + `pip install python-docx openpyxl pymupdf` | dựng Word, Excel, đọc PDF |
 | `pandoc` (`brew install pandoc`) | đọc .docx của khách, xuất proposal |
 | `codex` CLI (tùy chọn) | chạy agent bằng Codex cho đỡ tốn token Claude; không có thì skill tự dùng subagent Claude |
@@ -36,7 +54,9 @@ Hướng dẫn 1 trang: **[HUONG-DAN.md](HUONG-DAN.md)**. Logic từ yêu cầu 
 
 Mỗi bước nên mở phiên Claude mới (`/clear`) để ngữ cảnh bước trước, khách khác không lẫn vào. Các file trong `projects/<kh>/` đủ để nối tiếp.
 
-Bảng Presales tự mở khi phiên bắt đầu ở thư mục có `projects/`; ở thư mục khác gõ `/presale` để mở.
+Bảng Presales tự mở khi phiên bắt đầu ở thư mục có `projects/`; ở thư mục khác gõ `/presale` để mở. Các nút mở Word, Excel, thư mục trên bảng dùng lệnh `open` nên chỉ chạy trên macOS.
+
+Nếu máy có skill khác trùng tên, gõ đủ tên plugin: `/hanas-presale:write-proposal <kh>`.
 
 ## Lưu ý bảo mật
 

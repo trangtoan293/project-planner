@@ -18,7 +18,7 @@ Quy tắc nội dung:
 - Mỗi R được giao phải có câu trả lời **đúng ý** trong một mục cụ thể. Yêu cầu loại `Câu hỏi` trả lời thẳng, có số hoặc ngày.
 - Ngày chỉ tính từ `00-params.txt`. Giá để "[…]". Nhân sự khớp `team_max`.
 - Mô tả sản phẩm chỉ lấy từ `<sp>-product.md`. Mục nào trong fit.md là `Phát triển`, `Cấu hình` hoặc nằm trong bảng "không được hứa" thì ghi rõ là phạm vi dịch vụ, không giới thiệu như tính năng có sẵn.
-- Không chép nội dung, ngày, số liệu từ `${CLAUDE_PLUGIN_ROOT}/samples/proposal_sample/` hay từ dự án khác.
+- Không chép nội dung, ngày, số liệu từ proposal mẫu hay từ dự án khác.
 - Danh sách chi tiết của khách (bộ lọc, trường hiển thị, chỉ tiêu của một báo cáo) phải liệt kê **đủ từng mục**, không tóm gọn. Giữ nguyên định nghĩa đi kèm (ví dụ "time out tại thời điểm giao dịch").
 - **Không tự thêm cam kết thương mại** (miễn phí, giảm giá, bảo hành thêm) hay con số ngoài `00-params.txt` và các dòng đã chốt [C] trong `01-requirements.md`. Cần thì nêu trong báo cáo trả về để người gọi hỏi anh.
 - Hồ sơ thầu (loại B): không viết giả định hay điều kiện làm **thu hẹp yêu cầu bắt buộc** (giới hạn số vòng, ngoại lệ ngưỡng, change request cho mục khách đã yêu cầu). Điều kiện chỉ là căn cứ thiết kế.

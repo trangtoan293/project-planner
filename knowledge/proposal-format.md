@@ -1,13 +1,13 @@
 # Format proposal
 
-Rút ra từ 3 proposal mẫu trong `samples/proposal_sample/`. **Mẫu chỉ dùng để lấy cấu trúc và văn phong. Không chép ngày, số liệu, tên khách, phạm vi hay stack công nghệ từ mẫu** (xem mục 4).
+Rút ra từ 3 proposal Katalyst đã nộp (bản gốc không kèm plugin). **Mẫu chỉ dùng để lấy cấu trúc và văn phong. Không chép ngày, số liệu, tên khách, phạm vi hay stack công nghệ từ mẫu** (xem mục 4).
 
 ## 1. Chọn loại tài liệu
 
 | Tình huống | Loại | Mẫu tham chiếu |
 |---|---|---|
-| Khách gửi RFP, BRD hoặc email yêu cầu (doanh nghiệp, ngân hàng, công ty tài chính) | **A. Đề xuất giải pháp và phương án triển khai** | mẫu loại A trong `samples/proposal_sample/` (nếu có) |
-| Gói thầu theo E-HSMT (đấu thầu qua mạng) | **B. Giải pháp và phương pháp luận tổng quát** | mẫu loại B trong `samples/proposal_sample/` (nếu có) |
+| Khách gửi RFP, BRD hoặc email yêu cầu (doanh nghiệp, ngân hàng, công ty tài chính) | **A. Đề xuất giải pháp và phương án triển khai** | khung mục 2 bên dưới |
+| Gói thầu theo E-HSMT (đấu thầu qua mạng) | **B. Giải pháp và phương pháp luận tổng quát** | khung mục 3 bên dưới |
 
 ## 2. Loại A: khung mục lục
 

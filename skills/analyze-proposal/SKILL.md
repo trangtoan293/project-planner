@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # Phân tích proposal → WBS
 
+Xưng hô: "anh" trong skill này là người đang dùng plugin; gọi họ theo cách họ tự xưng (anh, chị, bạn), không mặc định là anh.
+
 Quy tắc chung (bắt buộc): làm trong thư mục có `projects/`; đọc mục "Quy tắc chống dữ liệu cũ" trong `${CLAUDE_PLUGIN_ROOT}/CLAUDE.md` trước khi bắt đầu.
 
 Đầu vào: `02-proposal.md` (hoặc .docx/.pdf anh đưa), `01-requirements.md`, `00-params.txt`. Đầu ra: `03-wbs.md`.
@@ -17,7 +19,7 @@ Quy tắc chung (bắt buộc): làm trong thư mục có `projects/`; đọc m�
 
 ## 2. Dựng WBS
 
-Làm hai lượt: chia milestone và để anh duyệt, rồi mới ước MD từng việc. Milestone sai thì công ước MD bên dưới bỏ đi hết. Agent `wbs-drafter` chạy bằng Codex (tiết kiệm token Claude), từ thư mục làm việc (nơi có `projects/`).
+Làm hai lượt: chia milestone và để anh duyệt, rồi mới ước MD từng việc. Milestone sai thì công ước MD bên dưới bỏ đi hết. Agent `wbs-drafter` chạy bằng Codex (tiết kiệm token Claude), từ thư mục làm việc (nơi có `projects/`). Máy không có `codex` CLI (script thoát mã 3) hoặc Codex lỗi thì chạy `wbs-drafter`, `wbs-reviewer` bằng subagent Claude: công cụ Agent, `subagent_type: hanas-presale:<agent>`, model sonnet, cùng nhiệm vụ như lệnh dưới.
 
 ### 2.1 Chia milestone (anh duyệt trước khi ước MD)
 

@@ -79,4 +79,4 @@ Bấm **g** để mở khung Giải thích của khách đang chọn:
 - Số người đông nhất so với tối đa, sprint tải cao nhất.
 - **v** điền sẵn câu hỏi "vì sao…" vào ô chat; **e** mở (hoặc tạo) `00-tuning.md`; **h** mở trang này.
 
-Lệnh tương đương trong terminal: `python3 scripts/trace.py projects/<kh> [R12 | 1.2.2.1 | M1 | S5 | DEV]`.
+Không dùng bảng thì hỏi Claude "vì sao …" (skill `explain` chạy `trace.py` của plugin), hoặc trong repo plugin: `python3 scripts/trace.py projects/<kh> [R12 | 1.2.2.1 | M1 | S5 | DEV]`.

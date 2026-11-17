@@ -3,8 +3,8 @@
 
 customer: KHA                      # tên viết tắt của khách, dùng trong proposal
 product: hanas                     # sản phẩm đề xuất: knowledge/<product>-product.md và <product>-commercial.md
-kickoff: 2026-11-02                # ngày khởi động (phải là ngày làm việc)
-deadline: 2027-06-30               # hạn nghiệm thu/bàn giao theo RFP hoặc hợp đồng (bỏ trống nếu chưa có)
+kickoff:                           # ngày khởi động (phải là ngày làm việc), ví dụ 2027-01-04; để trống tới khi chốt
+deadline:                          # hạn nghiệm thu/bàn giao theo RFP hoặc hợp đồng (bỏ trống nếu chưa có)
 submit_by:                         # hạn nộp hồ sơ / gửi proposal cho khách (panel Presales đếm ngược)
 
 # Ngày lễ VN; khoảng ngày dùng dấu ":". Tết, Giỗ Tổ và ngày nghỉ bù phải đối chiếu thông báo chính thức của năm.
@@ -17,11 +17,11 @@ pm_min: 0.8                        # mức tham gia tối thiểu của PM trên
 sprint_weeks: 2                    # độ dài sprint (tuần), dùng cho cột Sprint và sheet Sprint của master plan
 role_share:                        # khung tỷ trọng % riêng của dự án, ví dụ PM=5-18, Tester=6-12; trống = khung estimation.md §3
 
-# Mốc bắt buộc: <chuỗi có trong tên việc><=<hạn>; cách nhau bằng dấu chấm phẩy
-milestones: Go-live<=2027-02-26; Nghiệm thu tổng thể<=2027-06-30
+# Mốc bắt buộc: <chuỗi có trong tên việc><=<hạn>; cách nhau bằng dấu chấm phẩy, ví dụ Go-live<=2027-02-26; Nghiệm thu tổng thể<=2027-06-30
+milestones:
 
 # Nhóm việc diễn ra sau nghiệm thu, được phép quá deadline (khớp theo tên milestone/nhóm); cách nhau bằng ';'
 post_deadline: Hypercare; Bảo hành
 
 # Tên khách/dự án cũ không được xuất hiện trong WBS và proposal mới
-stale_terms: KHB, KHC                # thay bằng tên khách/dự án cũ của anh
+stale_terms:                        # tên khách/dự án cũ không được lẫn vào, ví dụ KHB, KHC

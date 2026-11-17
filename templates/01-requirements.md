@@ -47,6 +47,11 @@ Mục nào tài liệu không nói thì ghi "Tài liệu không nêu" và đưa 
 | **Thuật ngữ** | **Nghĩa** | **Nguồn** |
 |---|---|---|
 
+## Câu hỏi về sản phẩm (gửi người giữ repo plugin để thêm vào knowledge/<sp>-commercial.md)
+
+| Câu hỏi | Trả lời đã chốt | Ngày, người chốt |
+|---|---|---|
+
 ## Danh sách yêu cầu nguyên tử
 
 Số dòng theo mục tài liệu: §x: n · ...

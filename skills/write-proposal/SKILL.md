@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # Viết proposal
 
+Xưng hô: "anh" trong skill này là người đang dùng plugin; gọi họ theo cách họ tự xưng (anh, chị, bạn), không mặc định là anh.
+
 Quy tắc chung (bắt buộc): làm trong thư mục có `projects/`; đọc mục "Quy tắc chống dữ liệu cũ" trong `${CLAUDE_PLUGIN_ROOT}/CLAUDE.md` trước khi bắt đầu.
 
 Đầu vào: `projects/<kh>/01-input/` (RFP, BRD, email, biên bản họp, bảng làm rõ). Đầu ra: `00-params.txt`, `01-requirements.md`, `02-proposal.md`, `02-proposal.docx`.
@@ -28,7 +30,7 @@ Gọi các agent chạy song song **trong cùng một lượt** (nhiều lệnh 
 - Chưa có `projects/<kh>/`: tạo `01-input/`, copy `${CLAUDE_PLUGIN_ROOT}/templates/00-params.txt` vào, rồi dừng lại và nhờ anh bỏ tài liệu vào.
 - Chuyển **từng file** trong `01-input/` sang text ở `01-input/.text/<file>.txt`, giữ mốc trang `=== p<n>`: `pandoc` cho .docx, `fitz` cho .pdf, `openpyxl` cho .xlsx. PDF scan (trang không có chữ) thì báo anh, không đoán.
 - Đọc **hết** từng file, kể cả phụ lục, bảng, chú thích, ghi chú cuối bảng. File dài thì đọc theo đoạn cho tới trang cuối. Ghi "đã đọc trang 1–N/N" vào đầu `01-requirements.md`. Dòng bảng bị ngắt sang trang sau thì ghép lại.
-- `<sp>` là giá trị `product` trong `00-params.txt` (trống thì `hanas`). Chưa có `knowledge/<sp>-product.md` thì dừng, nhờ anh đưa tài liệu sản phẩm.
+- `<sp>` là giá trị `product` trong `00-params.txt` (trống thì `hanas`). Chưa có `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-product.md` thì dừng, báo anh sản phẩm này chưa có trong plugin.
 - Đọc `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-product.md`, `${CLAUDE_PLUGIN_ROOT}/knowledge/proposal-format.md`, `${CLAUDE_PLUGIN_ROOT}/CONTEXT.md`. Có `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-docs/` thì đọc mục lục `INDEX.md`, mở trang chi tiết khi yêu cầu khách đụng tới (hạ tầng, bảo mật, tích hợp, API, sao lưu, nâng cấp).
 - **Không đọc proposal mẫu để lấy nội dung.** Khung và văn phong đã rút sẵn vào `proposal-format.md`; bản cài plugin không kèm proposal mẫu.
 
@@ -92,7 +94,7 @@ Interview theo cách của skill `grill-me` (Matt Pocock): hỏi từng câu, m�
 - **Tối đa 7–9 câu.** Chọn những điểm ảnh hưởng phạm vi, effort hoặc có thể làm loại hồ sơ. Các điểm nhỏ còn lại em tự đặt giả định theo đề xuất của mình, gom vào **một câu cuối** để anh duyệt cả danh sách một lần.
 - **Hồ sơ thầu (loại B):** đề xuất của em không được thu hẹp yêu cầu bắt buộc của E-HSMT (giới hạn số vòng, ngưỡng có ngoại lệ, change request cho mục khách đã yêu cầu). Phương án mặc định là "đáp ứng đủ, điều kiện chỉ là căn cứ thiết kế, rủi ro tính vào giá". Nếu anh vẫn muốn thu hẹp thì nói rõ rủi ro bị chấm không đạt. Xem dòng "Nguyên tắc hồ sơ thầu" trong `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-commercial.md`.
 - Hỏi **từng câu một**, câu quan trọng nhất trước (câu ảnh hưởng phạm vi và effort nhiều nhất). Mỗi câu kèm đề xuất của em và căn cứ (mã R, mục tài liệu).
-- Chia câu hỏi làm 2 nhóm. **Câu về sản phẩm** (giấy phép, SLA hãng, bản OSS/Enterprise, tính năng có hay chưa) ghi vào `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-commercial.md` để khách sau dùng lại; trước khi hỏi, đọc file này, câu nào đã có thì không hỏi lại. **Câu riêng của khách** ghi vào `01-requirements.md`.
+- Chia câu hỏi làm 2 nhóm. **Câu về sản phẩm** (giấy phép, SLA hãng, bản OSS/Enterprise, tính năng có hay chưa) ghi vào mục "Câu hỏi về sản phẩm" của `01-requirements.md`, rồi nhắc anh gửi cho người giữ repo plugin để thêm vào `knowledge/<sp>-commercial.md` cho cả team dùng lại (không sửa file trong thư mục cài plugin: cập nhật plugin sẽ ghi đè). Trước khi hỏi, đọc `${CLAUDE_PLUGIN_ROOT}/knowledge/<sp>-commercial.md`, câu nào đã có thì không hỏi lại. **Câu riêng của khách** ghi vào `01-requirements.md`.
 - Câu tài liệu đã trả lời thì không hỏi, chỉ liệt kê một lần để anh xác nhận.
 - Anh trả lời câu nào thì **cập nhật ngay** `01-requirements.md`: chuyển ý đó từ mục 9 sang mục tương ứng, nhãn [C dd/mm]. Không gom cuối buổi.
 - Dừng khi mục 9 chỉ còn những câu anh quyết định để làm giả định trong proposal (ghi rõ "Giả định: …").

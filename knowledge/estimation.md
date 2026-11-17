@@ -12,35 +12,35 @@ Commercial Toolkit (repo nội bộ `commercial-toolkit`, ADR 0005) giữ Norm L
 - Kiểm tra bắt buộc: không dòng nào vượt số người tối đa hoặc quá 100%; mức tham gia của PM ≥ 75–80% thời gian dự án; nếu đã gửi bản trước cho khách thì tổng MD bản mới không được thấp hơn (thêm sheet "Lý do tăng MD" nếu tăng).
 - Ngày nghỉ: thứ 7, CN, lễ và Tết (khai báo `holidays` trong `00-params.txt`). Tết làm dời UAT và go-live (dự án B: Tết 04–10/02/2027 đẩy go-live từ cuối 01 sang cuối 02).
 
-## 2. Đơn giá effort theo loại việc (dự án A, báo cáo CIC/SBV, tổng 845 MD)
+## 2. Đơn giá effort theo loại việc (dự án A, báo cáo nộp cơ quan quản lý, tổng 845 MD)
 
 | Hạng mục | MD |
 |---|---|
 | Khởi động, khảo sát, phân tích nghiệp vụ, mapping nguồn | 70 |
 | Thiết kế giải pháp, mô hình dữ liệu, phân quyền | 40 |
 | Cài đặt nền tảng Dev/UAT, Production, DR | 35 |
-| Tích hợp 1 hệ thống nguồn lớn (Core T24) đến Raw Vault | 70 |
-| Tích hợp 1 hệ thống nguồn vừa (CMS thẻ) | 55 |
+| Tích hợp 1 hệ thống nguồn lớn (core banking) đến Raw Vault | 70 |
+| Tích hợp 1 hệ thống nguồn vừa (quản lý thẻ) | 55 |
 | Business Vault, mart, logic tập trung, đối soát | 90 |
 | Cấu hình báo cáo có sẵn | ~3 MD/báo cáo |
 | Cập nhật báo cáo theo văn bản mới | ~5 MD/báo cáo |
-| Tệp CIC (cấu hình + kiểm tra JSON) | ~7 MD/tệp |
+| Tệp báo cáo nộp cơ quan quản lý (cấu hình + kiểm tra JSON) | ~7 MD/tệp |
 | Báo cáo customization mới | ~10 MD/báo cáo |
 | Workflow Maker-Checker, phân quyền, audit | 20 |
-| Tích hợp nộp CIC/NHNN, ký số | 40 |
+| Tích hợp nộp báo cáo lên cơ quan quản lý, ký số | 40 |
 | SIT, UAT, chạy song song 2 kỳ | 110 (~13%) |
 | Đào tạo, chuyển giao tài liệu | 40 |
 | Go-live, hypercare 4 tuần | 40 |
 | Quản lý dự án, QA | ~10% tổng |
 
-Effort cho change request (quỹ man-day sau go-live): sửa chỉ tiêu trên template có sẵn 0,5–2 · báo cáo ma trận mới, dữ liệu đã có 3–6 · báo cáo mới cần thêm nguồn 6–12 · tệp CIC mới 8–15. Quỹ đề xuất 60 MD/năm.
+Effort cho change request (quỹ man-day sau go-live): sửa chỉ tiêu trên template có sẵn 0,5–2 · báo cáo ma trận mới, dữ liệu đã có 3–6 · báo cáo mới cần thêm nguồn 6–12 · tệp báo cáo quản lý mới 8–15. Quỹ đề xuất 60 MD/năm.
 
 ## 3. Quy mô đội và thời gian các dự án tham chiếu
 
 | Dự án | Loại | Thời gian | Đội (PM/BA/DEV/SysE/Tester) | Tổng MD |
 |---|---|---|---|---|
 | Dự án B (DWH) | DWH 5 domain, 4 nguồn, Power BI | 8 tháng (11/2026–06/2027) | 1 / 2 / 5 (1 SA, 3 DE, 1 BI) / 1 / 2 = 11 | chưa công bố |
-| Dự án A (CIC/SBV) | Data platform + 63 báo cáo + Maker-Checker | 26 tuần | 1 / 2 / 5 (1 SA, 3 DE, 1 Report) / 1 / 1 = 10 | 845 |
+| Dự án A (báo cáo quản lý) | Data platform + ~60 báo cáo + Maker-Checker | 26 tuần | 1 / 2 / 5 (1 SA, 3 DE, 1 Report) / 1 / 1 = 10 | 845 |
 | Dự án C (MIS) | Thầu, 40 báo cáo trên big data | 180 ngày (yêu cầu 210) | 1 / 2 / 5 (1 DA, 4 DE) / 1 / 2 = 11 | — |
 | Dự án D (cho vay) | Workflow cho vay + API gateway | 126 ngày làm việc | tối đa 1 / 5 / 7 / 3 / 3 | 1.844 (PM 103, BA 534, DEV 649, SysE 254, Tester 304) |
 | Dự án E (Search/Chat) | RAG trên 15.000 tài liệu | 6 tuần (28 ngày) | tối đa 1 / 2 / 3 / 2 / 2 | 198 (PM 23, BA 33, DEV 93, SysE 24, Tester 25) |

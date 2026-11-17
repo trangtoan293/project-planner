@@ -65,6 +65,6 @@ Toolkit báo giá dịch vụ từ `data/estimation/norms.csv`: mỗi dòng WBS 
 
 - Có toolkit thì ghi mã WP trong cột "Cơ sở ước lượng" (ví dụ `WP-RPT-NEW 10 MD × 6`), để WBS và báo giá ra cùng MD. Không khớp WP nào thì ghi `WP-CUSTOM` kèm lý do.
 - Độ phức tạp: chấm 4 tiêu chí 0/1/2 theo họ việc (`criteria.csv`); tổng ≥ 3 là Vừa, ≥ 6 là Cao; hệ số Thấp/Vừa/Cao = 0,7/1,0/1,4.
-- Dự phòng rủi ro là **một dòng riêng** trong báo giá (5/10/20% theo độ phức tạp, cộng rủi ro có tên), không rải vào từng việc và không đưa vào `03-wbs.md`, master plan hay bảng MD của proposal. Vì vậy tổng MD báo giá lớn hơn tổng MD của WBS đúng bằng phần dự phòng.
+- Dự phòng rủi ro là **một dòng riêng** trong báo giá (theo độ phức tạp, cộng rủi ro có tên), không rải vào từng việc và không đưa vào `03-wbs.md`, master plan hay bảng MD của proposal. Vì vậy tổng MD báo giá lớn hơn tổng MD của WBS đúng bằng phần dự phòng.
 - PM trong toolkit = 11,11% MD ngoài PM. Mức này thường thấp hơn quy tắc PM ≥ 75–80% thời gian dự án ở §1 (báo giá mẫu 13–16 tuần chỉ ra 45 MD PM, quy tắc cần khoảng 49–64). Master plan vẫn tính PM theo thời gian; lệch thì báo anh để sửa dòng PM trong báo giá.
 - Norm được suy ra từ chính các WBS ước lượng của planner (3 dự án đã báo giá), nên không phải bằng chứng độc lập cho §2. Chỉ sửa Norm khi có từ 3 dự án đã nghiệm thu cùng lệch một hướng (toolkit `actuals.py calibrate`).

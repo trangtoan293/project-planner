@@ -1,6 +1,6 @@
 {
   "name": "hanas-presale",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Presales Hanas Data Platform của Katalyst: yêu cầu khách → proposal (Word) → WBS → master plan (Excel), kiểm tra timeline tự động, bảng tiến độ /presale",
   "author": { "name": "Katalyst" },
   "repository": "https://github.com/trangtoan293/project-planner",
